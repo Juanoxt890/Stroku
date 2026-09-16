@@ -281,11 +281,16 @@ sub InitializePrimaryShell()
 end sub
 
 ' Rebuilt on every language change, so the labels follow the active language.
+' MarkupList + NavItem: title, iconUri, selected (active tab accent when unfocused).
 sub UpdateNavContent()
     content = CreateObject("roSGNode", "ContentNode")
-    for each id in m.navIds
-        child = content.CreateChild("ContentNode")
+    for index = 0 to m.navIds.Count() - 1
+        id = m.navIds[index]
+        child = content.CreateChild("NavItemContent")
         child.title = TrText("nav." + id)
+        child.navId = id
+        child.iconUri = "pkg:/images/nav/nav_" + id + ".png"
+        child.selected = id = m.activeTab
     end for
     m.navList.content = content
     m.navList.JumpToItem = m.navIndex
@@ -318,6 +323,15 @@ sub SetActiveTab(tabName as string, focusContent as boolean)
             exit for
         end if
     end for
+    ' Keep rail selected accent in sync even when focus is on content.
+    if m.navList.content <> invalid
+        for index = 0 to m.navIds.Count() - 1
+            child = m.navList.content.getChild(index)
+            if child <> invalid and child.hasField("selected")
+                child.selected = m.navIds[index] = tabName
+            end if
+        end for
+    end if
     m.navList.JumpToItem = m.navIndex
     RenderActiveTab(focusContent)
     if tabName = "discover" and IsCatalogRowsEmpty(m.discoverRows) and not m.discoverRequestActive
@@ -411,7 +425,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(268, 668)
+    m.catalogList.translation = ScaleUiXY(596, 668)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -446,7 +460,7 @@ sub RenderBoard(focusContent as boolean)
     SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
     SyncBoardCatalogRows()
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(268, 668)
+    m.catalogList.translation = ScaleUiXY(596, 668)
     RebuildCatalog()
     if focusContent then FocusBoardOrNav()
 end sub
@@ -459,7 +473,7 @@ sub RenderDiscover(focusContent as boolean)
     m.catalogRows = m.discoverRows
     m.catalogNames = m.discoverNames
     m.discoverFilterGroup.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 580)
+    m.catalogList.translation = ScaleUiXY(588, 580)
     UpdateDiscoverFilterLabels()
     m.discoverGrid.visible = true
     RebuildDiscoverGrid()
@@ -493,7 +507,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(268, 668)
+    m.catalogList.translation = ScaleUiXY(596, 668)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
@@ -1169,7 +1183,7 @@ sub UpdateSettingsTabs()
         end if
     end for
 
-    m.settingsTabIndicator.translation = ScaleUiXY(260 + m.settingsTabIndex * 334, 210)
+    m.settingsTabIndicator.translation = ScaleUiXY(588 + m.settingsTabIndex * 334, 210)
 end sub
 
 sub UpdateSettingsDetail(index as integer)
@@ -2490,7 +2504,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(268, 668)
+                m.catalogList.translation = ScaleUiXY(596, 668)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2682,7 +2696,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(268, 668)
+            m.catalogList.translation = ScaleUiXY(596, 668)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if

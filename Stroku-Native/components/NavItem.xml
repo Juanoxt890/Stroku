@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="NavItem" extends="Group">
+    <interface>
+        <field id="itemContent" type="node" onChange="onContentChanged" />
+        <field id="itemHasFocus" type="boolean" onChange="onStateChanged" />
+    </interface>
+
+    <script type="text/brightscript" uri="pkg:/components/UiScale.brs" />
+    <script type="text/brightscript" uri="pkg:/components/NavItem.brs" />
+
+    <children>
+        <!-- Full-width row hit area; Netflix-rail style. -->
+        <Rectangle
+            id="rowBg"
+            width="544"
+            height="72"
+            color="0x00000000" />
+        <Rectangle
+            id="accentBar"
+            translation="[0, 10]"
+            width="6"
+            height="52"
+            color="0xE50914FF"
+            visible="false" />
+        <Poster
+            id="icon"
+            translation="[28, 14]"
+            width="44"
+            height="44"
+            loadDisplayMode="scaleToFit" />
+        <Label
+            id="label"
+            translation="[90, 0]"
+            width="430"
+            height="72"
+            vertAlign="center"
+            font="font:MediumSystemFont"
+            color="0xB3B3B3FF" />
+    </children>
+</component>
