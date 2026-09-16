@@ -48,7 +48,7 @@
             <Rectangle
                 id="searchBar"
                 translation="[260, 22]"
-                width="560"
+                width="640"
                 height="54"
                 color="0x2A2A2AFF" />
             <Label
@@ -92,16 +92,16 @@
 
             <Label
                 id="setupAddress"
-                translation="[900, 22]"
-                width="560"
-                height="52"
-                horizAlign="right"
-                vertAlign="center"
+                translation="[10, 88]"
+                width="208"
+                height="48"
+                horizAlign="center"
+                vertAlign="top"
                 wrap="true"
                 maxLines="2"
                 text=""
                 font="font:SmallestSystemFont"
-                color="0x808080FF" />
+                color="0x666666FF" />
 
             <Label
                 id="primaryTitle"
@@ -130,36 +130,37 @@
                     width="1692"
                     height="360"
                     loadDisplayMode="scaleToZoom" />
+                <!-- Left readability panel + bottom fade into the row list. -->
                 <Rectangle
                     id="heroPosterScrim"
                     translation="[0, 0]"
-                    width="1692"
+                    width="780"
                     height="360"
-                    color="0x00000088" />
+                    color="0x000000AA" />
                 <Rectangle
                     id="heroPosterFade"
-                    translation="[0, 180]"
+                    translation="[0, 200]"
                     width="1692"
-                    height="180"
-                    color="0x141414EE" />
+                    height="160"
+                    color="0x141414F2" />
                 <Label
                     id="heroTitle"
-                    translation="[32, 220]"
-                    width="1200"
-                    height="60"
-                    text="Loading catalogs..."
+                    translation="[40, 200]"
+                    width="1100"
+                    height="64"
+                    text="Cargando catálogos..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[32, 288]"
-                    width="1400"
-                    height="56"
+                    translation="[40, 272]"
+                    width="980"
+                    height="60"
                     text=""
                     wrap="true"
                     maxLines="2"
                     font="font:MediumSystemFont"
-                    color="0xB3B3B3FF" />
+                    color="0xE5E5E5FF" />
             </Group>
 
             <Group id="discoverFilterGroup" visible="false">
@@ -266,7 +267,7 @@
                 rowSpacings="[10]"
                 rowLabelOffset="[[0, 0]]"
                 rowLabelFont="font:MediumBoldSystemFont"
-                rowLabelColor="0xE5E5E5FF"
+                rowLabelColor="0xFFFFFFFF"
                 itemComponentName="CatalogCard"
                 numRows="4"
                 showRowLabel="[true]"

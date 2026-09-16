@@ -2,6 +2,7 @@ sub init()
     m.poster = m.top.FindNode("poster")
     m.title = m.top.FindNode("title")
     m.focusFrame = m.top.FindNode("focusFrame")
+    m.focusInset = m.top.FindNode("focusInset")
 end sub
 
 sub onContentChanged()
@@ -13,7 +14,9 @@ sub onContentChanged()
     if content = invalid then return
 
     m.poster.uri = content.HDPosterUrl
-    m.title.text = content.title
+    titleText = content.title
+    if titleText = invalid then titleText = ""
+    m.title.text = titleText
     onFocusChanged()
 
     progressBarBg = m.top.FindNode("progressBarBg")
@@ -33,10 +36,11 @@ end sub
 sub onFocusChanged()
     hasFocus = m.top.itemHasFocus
     m.focusFrame.visible = hasFocus
+    if m.focusInset <> invalid then m.focusInset.visible = hasFocus
     if hasFocus
         m.title.color = "0xFFFFFFFF"
         m.focusFrame.color = "0xE50914FF"
-        ' Mild Netflix-style pop without clipping neighboring cards hard.
+        ' Keep the same mild pop that worked on device (1.06). Do not raise it.
         m.top.scale = [1.06, 1.06]
     else
         m.title.color = "0xB3B3B3FF"

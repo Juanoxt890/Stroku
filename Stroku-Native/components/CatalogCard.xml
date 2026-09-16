@@ -9,11 +9,19 @@
     <script type="text/brightscript" uri="pkg:/components/CatalogCard.brs" />
 
     <children>
+        <!-- Outer accent ring (proven geometry; do not enlarge past rowItemSize). -->
         <Rectangle
             id="focusFrame"
             width="168"
             height="246"
             color="0xE50914FF"
+            visible="false" />
+        <Rectangle
+            id="focusInset"
+            translation="[3, 3]"
+            width="162"
+            height="240"
+            color="0x141414FF"
             visible="false" />
         <Poster
             id="poster"

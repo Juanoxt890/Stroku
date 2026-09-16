@@ -136,7 +136,7 @@ sub init()
     m.calendarSuppressIndex = -1
     m.primaryActions = []
     m.boardRows = [[], [], [], [], [], []]
-    m.boardNames = ["Popular - Movie", "Popular - Series", "Featured - Movie", "Featured - Series", "YouTube - Channel", "Public Domain Movies - Movie"]
+    m.boardNames = ["Populares - Películas", "Populares - Series", "Destacadas - Películas", "Destacadas - Series", "YouTube - Canales", "Dominio público - Películas"]
     m.discoverRows = [[]]
     m.discoverNames = ["Movie - Popular"]
     m.libraryRows = [[]]
@@ -422,10 +422,10 @@ sub RenderActiveTab(focusContent as boolean)
 end sub
 
 sub RenderBoard(focusContent as boolean)
-    m.primaryTitle.text = "Board"
-    m.primarySubtitle.text = "Popular, featured, YouTube, and public-domain catalogs"
+    m.primaryTitle.text = "Inicio"
+    m.primarySubtitle.text = "Populares, destacados y más"
     SetHeroBillboardVisible(true)
-    SetHeroChrome("Board", "Browse Stremio catalogs from the default web app layout.", "")
+    SetHeroChrome("Inicio", "Explora catálogos de Stremio en tu tele.", "")
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
@@ -435,10 +435,10 @@ sub RenderBoard(focusContent as boolean)
 end sub
 
 sub RenderDiscover(focusContent as boolean)
-    m.primaryTitle.text = "Discover"
-    m.primarySubtitle.text = "UP  FILTERS    OK  CHANGE    *  MORE"
+    m.primaryTitle.text = "Descubrir"
+    m.primarySubtitle.text = "ARRIBA filtros    OK cambiar    * más"
     SetHeroBillboardVisible(true)
-    SetHeroChrome("Discover", "Browse by type, catalog, and genre.", "")
+    SetHeroChrome("Descubrir", "Filtra por tipo, catálogo y género.", "")
     m.catalogRows = m.discoverRows
     m.catalogNames = m.discoverNames
     m.discoverFilterGroup.visible = true
@@ -2913,7 +2913,7 @@ end sub
 function HomeHeroDescription(item as object) as string
     description = SafeString(item, "description")
     if SafeString(item, "type") = "movie"
-        hint = "Streams load automatically"
+        hint = "Los streams se cargan al elegir"
         if description <> "" then return description + "    " + hint
         return hint
     end if
@@ -4238,11 +4238,13 @@ end sub
 
 sub ShowSetupAddress(args as object)
     if args = invalid or not args.DoesExist("url") or args.url = ""
-        m.setupAddress.text = "Phone setup unavailable. Press * to configure."
+        m.setupAddress.text = "Setup no disponible"
         return
     end if
 
-    m.setupAddress.text = "Phone setup: " + args.url
+    ' Keep the URL for phone add-on setup, but park it under the brand so the
+    ' top bar stays Netflix-clean.
+    m.setupAddress.text = args.url
 end sub
 
 sub onConfigurationUrlChanged(event as object)
