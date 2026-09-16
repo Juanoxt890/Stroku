@@ -81,6 +81,7 @@ sub init()
     m.heroSecondaryBg = m.top.FindNode("heroSecondaryBg")
     m.heroDebounceTimer = m.top.FindNode("heroDebounceTimer")
     m.heroCtaFocus = -1
+    HideHeroCtas()
     m.focusedCatalogItem = invalid
     m.pendingHeroItem = invalid
     m.boardContinueActive = false
@@ -421,7 +422,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(504, 505)
+    m.catalogList.translation = ScaleUiXY(504, 590)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -452,11 +453,11 @@ sub RenderBoard(focusContent as boolean)
     m.primaryTitle.text = "Inicio"
     m.primarySubtitle.text = ""
     SetHeroBillboardVisible(true)
-    FocusHeroButtons()
+    HideHeroCtas()
     SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
     SyncBoardCatalogRows()
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 505)
+    m.catalogList.translation = ScaleUiXY(504, 590)
     RebuildCatalog()
     if focusContent then FocusBoardOrNav()
 end sub
@@ -503,7 +504,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 505)
+    m.catalogList.translation = ScaleUiXY(504, 590)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
@@ -2500,7 +2501,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(504, 505)
+                m.catalogList.translation = ScaleUiXY(504, 590)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2693,7 +2694,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(504, 505)
+            m.catalogList.translation = ScaleUiXY(504, 590)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -3032,7 +3033,8 @@ end function
 
 function HomeHeroDescription(item as object) as string
     description = SafeString(item, "description")
-    if Len(description) > 220 then description = Left(description, 217) + "..."
+    ' ~360 chars fits ~3 MediumSystemFont lines in the ~1120x100 heroDescription box.
+    if Len(description) > 360 then description = Left(description, 357) + "..."
     return description
 end function
 
@@ -3186,56 +3188,41 @@ end sub
 sub onHeroDebounceFire()
     if m.pendingHeroItem <> invalid
         UpdateHeroFromItem(m.pendingHeroItem)
-        if SafeString(m.pendingHeroItem, "type") <> "empty" and not IsSeeAllItem(m.pendingHeroItem)
-            SyncHeroCtaChrome()
-        end if
     end if
 end sub
 
+' v20: decorative hero CTAs removed. Keep stubs so leftover call sites stay safe.
+sub HideHeroCtas()
+    m.heroCtaFocus = -1
+    if m.heroPrimaryBg <> invalid then m.heroPrimaryBg.visible = false
+    if m.heroSecondaryBg <> invalid then m.heroSecondaryBg.visible = false
+    if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.visible = false
+    if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.visible = false
+end sub
+
 sub SyncHeroCtaChrome()
-    FocusHeroButtons()
-    UpdateHeroCtaFocus()
+    HideHeroCtas()
 end sub
 
 sub FocusHeroCtas(index as integer)
-    if m.activeTab <> "board" and m.activeTab <> "library" and m.activeTab <> "discover" then return
-    if m.focusedCatalogItem = invalid then return
-    if SafeString(m.focusedCatalogItem, "type") = "empty" then return
-    if IsSeeAllItem(m.focusedCatalogItem) then return
-    m.heroCtaFocus = index
-    m.top.SetFocus(true)
-    UpdateHeroCtaFocus()
+    ' No-op: CTAs removed; callers should FocusTopBar / FocusActiveContent instead.
+    m.heroCtaFocus = -1
+    HideHeroCtas()
 end sub
 
 sub BlurHeroCtas()
     m.heroCtaFocus = -1
-    UpdateHeroCtaFocus()
+    HideHeroCtas()
 end sub
 
 sub UpdateHeroCtaFocus()
-    if m.heroPrimaryBg = invalid or m.heroSecondaryBg = invalid then return
-    if m.heroCtaFocus = 0
-        m.heroPrimaryBg.color = "0xFFFFFFFF"
-        if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0x0B0B0BFF"
-        m.heroSecondaryBg.color = "0x2A2A2EFF"
-        if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0xFFFFFFFF"
-    else if m.heroCtaFocus = 1
-        m.heroPrimaryBg.color = "0xE50914FF"
-        if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0xFFFFFFFF"
-        m.heroSecondaryBg.color = "0xFFFFFFFF"
-        if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0x0B0B0BFF"
-    else
-        m.heroPrimaryBg.color = "0xE50914FF"
-        if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0xFFFFFFFF"
-        m.heroSecondaryBg.color = "0x2A2A2EFF"
-        if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0xFFFFFFFF"
-    end if
+    HideHeroCtas()
 end sub
 
 sub ActivateHeroCta(index as integer)
+    ' Fallback only — primary path is poster OK / ActivateCatalogItem.
     item = m.focusedCatalogItem
     if item = invalid then item = m.pendingHeroItem
-    ' Both CTAs use the same product path as catalog OK (no separate Details screen).
     ActivateCatalogItem(item)
 end sub
 
@@ -4210,21 +4197,12 @@ sub ApplyStaticChromeText()
     ApplyChromeLabel("noStreamsConfigureHint", TrText("noStreams.configureHint"))
     ApplyChromeLabel("uiScaleTitle", TrText("settings.interface.uiScale"))
     ApplyChromeLabel("supportChipLabel", TrText("topbar.support"))
-    FocusHeroButtons()
+    HideHeroCtas()
 end sub
 
-' Keep hero CTA labels in sync with MainScene.xml (Spanish short; not TrText dialog titles).
+' Legacy name kept; v20 hides CTAs instead of labeling them.
 sub FocusHeroButtons()
-    if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.text = "Reproducir"
-    if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.text = "Más info"
-    if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0xFFFFFFFF"
-    if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0xFFFFFFFF"
-    if m.heroCtaFocus < 0
-        if m.heroPrimaryBg <> invalid then m.heroPrimaryBg.color = "0xE50914FF"
-        if m.heroSecondaryBg <> invalid then m.heroSecondaryBg.color = "0x2A2A2EFF"
-    else
-        UpdateHeroCtaFocus()
-    end if
+    HideHeroCtas()
 end sub
 
 sub ApplyChromeLabel(id as string, text as string)
@@ -4882,32 +4860,17 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 ActivateTopBarItem(m.topBarFocus)
             else if key = "down" or key = "back"
                 BlurTopBar()
-                ' Prefer hero CTAs when a live catalog title is focused on Board.
-                if (key = "down") and (m.activeTab = "board" or m.activeTab = "library" or m.activeTab = "discover") and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and not IsSeeAllItem(m.focusedCatalogItem)
-                    FocusHeroCtas(0)
-                else
-                    FocusActiveContent()
-                end if
+                ' v20: no hero CTAs — down from search goes straight to catalog/content.
+                FocusActiveContent()
             end if
             return true
         else if m.heroCtaFocus >= 0
-            if key = "left" and m.heroCtaFocus > 0
-                m.heroCtaFocus = m.heroCtaFocus - 1
-                UpdateHeroCtaFocus()
-            else if key = "left"
-                BlurHeroCtas()
-                m.navList.SetFocus(true)
-            else if key = "right" and m.heroCtaFocus < 1
-                m.heroCtaFocus = m.heroCtaFocus + 1
-                UpdateHeroCtaFocus()
-            else if key = "OK"
-                ActivateHeroCta(m.heroCtaFocus)
-            else if key = "down" or key = "back"
-                BlurHeroCtas()
-                FocusActiveContent()
-            else if key = "up"
-                BlurHeroCtas()
+            ' Defensive: CTA focus path disabled; escape to search or content.
+            BlurHeroCtas()
+            if key = "up"
                 FocusTopBar(0)
+            else
+                FocusActiveContent()
             end if
             return true
         else if m.activeTab = "discover" and m.discoverFilterFocus >= 0
@@ -5014,11 +4977,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 FocusAddonChips()
                 return true
             end if
-            ' Board/Library: hero CTAs sit between rows and the top bar (Netflix Lolomo).
-            if (m.activeTab = "board" or m.activeTab = "library") and m.heroBillboard <> invalid and m.heroBillboard.visible and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and not IsSeeAllItem(m.focusedCatalogItem)
-                FocusHeroCtas(0)
-                return true
-            end if
+            ' v20: UP from Board/Library catalog goes to search (top bar), never dead CTAs.
             FocusTopBar(0)
             return true
         end if

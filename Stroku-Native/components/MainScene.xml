@@ -24,16 +24,16 @@
             <Rectangle translation="[480, 0]" width="2" height="1080" color="0x1A1A1DFF" />
             <Poster
                 id="brandLogo"
-                translation="[20, 20]"
+                translation="[20, 16]"
                 width="440"
-                height="90"
+                height="120"
                 uri="pkg:/images/brand_lockup.png"
                 loadDisplayMode="scaleToFit" />
             <MarkupList
                 id="navList"
-                translation="[20, 128]"
+                translation="[20, 156]"
                 width="440"
-                height="520"
+                height="500"
                 itemSize="[440, 72]"
                 itemSpacing="[0, 6]"
                 numRows="6"
@@ -41,33 +41,6 @@
                 drawFocusFeedback="false"
                 wrap="false"
                 vertFocusAnimationStyle="fixedFocus" />
-            <!-- Rounded search via Poster PNGs (Rectangle has no corner radius). -->
-            <Poster
-                id="searchBar"
-                translation="[508, 28]"
-                width="480"
-                height="52"
-                uri="pkg:/images/search_bar_bg.png"
-                loadDisplayMode="scaleToFit" />
-            <Label
-                id="searchPrompt"
-                translation="[532, 36]"
-                width="430"
-                height="36"
-                text="Buscar"
-                vertAlign="center"
-                font="font:SmallSystemFont"
-                color="0x808080FF" />
-            <Label
-                translation="[676, 36]"
-                width="32"
-                height="36"
-                text=""
-                visible="false"
-                horizAlign="center"
-                vertAlign="center"
-                font="font:SmallSystemFont"
-                color="0x808080FF" />
 
             <!-- Apoyar removed from Home top bar (v19); coffee/support stay in Settings. -->
             <Rectangle
@@ -123,63 +96,65 @@
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
 
-            <!-- Netflix-style billboard: backdrop + title + short description.
-                 Updated from focus handlers; hidden on Settings/Calendar/Addons. -->
-            <Group id="heroBillboard" translation="[480, 70]" visible="true">
+            <!-- Netflix-style billboard below search (v20): starts ~Y110 so Buscar is not clipped.
+                 Search nodes are siblings AFTER this group for z-order above heroPoster. -->
+            <Group id="heroBillboard" translation="[480, 110]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
                     width="1440"
-                    height="500"
+                    height="480"
                     loadDisplayMode="scaleToZoom" />
                 <!-- Soft PNG scrims: no hard vertical cut (Roku Rectangles can't gradient). -->
                 <Poster
                     id="heroPosterScrim"
                     translation="[0, 0]"
                     width="1440"
-                    height="500"
+                    height="480"
                     uri="pkg:/images/hero_scrim.png"
                     loadDisplayMode="scaleToFit" />
                 <Poster
                     id="heroPosterFade"
-                    translation="[0, 260]"
+                    translation="[0, 240]"
                     width="1440"
                     height="240"
                     uri="pkg:/images/hero_fade_bottom.png"
                     loadDisplayMode="scaleToFit" />
-                <!-- Meta line: year · type · rating · runtime — larger, brighter Netflix-style. -->
+                <!-- Meta / title / description in lower-left; CTAs removed (poster OK opens). -->
                 <Label
                     id="heroMeta"
-                    translation="[56, 200]"
+                    translation="[56, 220]"
                     width="1180"
-                    height="40"
+                    height="36"
                     text=""
                     font="font:MediumBoldSystemFont"
                     color="0xE5E5E5FF" />
                 <Label
                     id="heroTitle"
-                    translation="[56, 244]"
+                    translation="[56, 258]"
                     width="1240"
-                    height="92"
+                    height="80"
                     text="Cargando catálogos..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[56, 340]"
-                    width="980"
-                    height="72"
+                    translation="[56, 344]"
+                    width="1120"
+                    height="100"
                     text=""
                     wrap="true"
-                    maxLines="2"
+                    maxLines="3"
                     font="font:MediumSystemFont"
                     color="0xD0D0D0FF" />
+                <!-- Decorative hero CTAs removed in v20 (visible=false; focus rewired to search). -->
                 <Rectangle
                     id="heroPrimaryBg"
                     translation="[56, 420]"
                     width="300"
                     height="56"
-                    color="0xE50914FF" />
+                    color="0xE50914FF"
+                    visible="false" />
                 <Label
                     id="heroPrimaryLabel"
                     translation="[56, 420]"
@@ -189,13 +164,15 @@
                     horizAlign="center"
                     vertAlign="center"
                     font="font:MediumBoldSystemFont"
-                    color="0xFFFFFFFF" />
+                    color="0xFFFFFFFF"
+                    visible="false" />
                 <Rectangle
                     id="heroSecondaryBg"
                     translation="[372, 420]"
                     width="220"
                     height="56"
-                    color="0x2A2A2EFF" />
+                    color="0x2A2A2EFF"
+                    visible="false" />
                 <Label
                     id="heroSecondaryLabel"
                     translation="[372, 420]"
@@ -205,8 +182,27 @@
                     horizAlign="center"
                     vertAlign="center"
                     font="font:MediumBoldSystemFont"
-                    color="0xFFFFFFFF" />
+                    color="0xFFFFFFFF"
+                    visible="false" />
             </Group>
+
+            <!-- Search ABOVE hero in z-order (drawn after billboard). Y~28–36 clear of hero Y110. -->
+            <Poster
+                id="searchBar"
+                translation="[508, 28]"
+                width="480"
+                height="52"
+                uri="pkg:/images/search_bar_bg.png"
+                loadDisplayMode="scaleToFit" />
+            <Label
+                id="searchPrompt"
+                translation="[532, 36]"
+                width="430"
+                height="36"
+                text="Buscar"
+                vertAlign="center"
+                font="font:SmallSystemFont"
+                color="0x808080FF" />
 
             <Group id="discoverFilterGroup" visible="false">
                 <Rectangle
@@ -305,12 +301,12 @@
 
             <RowList
                 id="catalogList"
-                translation="[504, 505]"
-                itemSize="[1392, 385]"
+                translation="[504, 590]"
+                itemSize="[1392, 400]"
                 rowItemSize="[[220, 350]]"
                 rowItemSpacing="[[22, 0]]"
-                rowSpacings="[24]"
-                rowLabelOffset="[[8, 6]]"
+                rowSpacings="[48]"
+                rowLabelOffset="[[8, 12]]"
                 rowLabelFont="font:MediumBoldSystemFont"
                 rowLabelColor="0xE5E5E5FF"
                 itemComponentName="CatalogCard"

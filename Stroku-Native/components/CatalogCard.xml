@@ -7,11 +7,10 @@
     <script type="text/brightscript" uri="pkg:/components/UiScale.brs" />
     <script type="text/brightscript" uri="pkg:/components/CatalogCard.brs" />
     <children>
-        <!-- Thick Netflix-red focus ring; poster fills most of rowItemSize [[220,350]]. -->
-        <Rectangle id="focusFrame" width="220" height="322" color="0xE50914FF" visible="false" />
-        <Rectangle id="focusInset" translation="[6,6]" width="208" height="310" color="0x0B0B0BFF" visible="false" />
-        <Poster id="poster" translation="[6,6]" width="208" height="310" loadDisplayMode="scaleToZoom" />
-        <Rectangle id="seeAllBg" translation="[6,6]" width="208" height="310" color="0x1A1A1DFF" visible="false" />
+        <!-- Thick Netflix-red focus ring; rounded via PNG overlay (Rectangle has no radius). -->
+        <Poster id="focusFrame" width="220" height="322" uri="pkg:/images/poster_focus_ring_round.png" loadDisplayMode="scaleToFit" visible="false" />
+        <Poster id="poster" translation="[6,6]" width="208" height="310" loadDisplayMode="scaleToZoom" maskUri="pkg:/images/poster_mask_round.png" />
+        <Poster id="seeAllBg" translation="[6,6]" width="208" height="310" uri="pkg:/images/see_all_bg_round.png" loadDisplayMode="scaleToFit" visible="false" />
         <Label id="seeAllLabel" translation="[6, 130]" width="208" height="60" text="Ver todo" horizAlign="center" vertAlign="center" font="font:MediumBoldSystemFont" color="0xFFFFFFFF" visible="false" />
         <Rectangle id="progressBarBg" translation="[6,308]" width="208" height="8" color="0x333333FF" visible="false" />
         <Rectangle id="progressBarFill" translation="[6,308]" width="0" height="8" color="0xE50914FF" visible="false" />

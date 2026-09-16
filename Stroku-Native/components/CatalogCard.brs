@@ -2,7 +2,6 @@ sub init()
     m.poster = m.top.FindNode("poster")
     m.title = m.top.FindNode("title")
     m.focusFrame = m.top.FindNode("focusFrame")
-    m.focusInset = m.top.FindNode("focusInset")
     m.seeAllBg = m.top.FindNode("seeAllBg")
     m.seeAllLabel = m.top.FindNode("seeAllLabel")
 end sub
@@ -47,7 +46,6 @@ end sub
 sub onFocusChanged()
     hasFocus = m.top.itemHasFocus
     m.focusFrame.visible = hasFocus
-    if m.focusInset <> invalid then m.focusInset.visible = hasFocus
     if m.isSeeAll = true
         m.title.visible = false
         if m.seeAllLabel <> invalid then m.seeAllLabel.visible = true
@@ -55,7 +53,6 @@ sub onFocusChanged()
         m.title.visible = hasFocus
     end if
     if hasFocus
-        m.focusFrame.color = "0xE50914FF"
         m.top.scale = [1.12, 1.12]
     else
         m.top.scale = [1.0, 1.0]
