@@ -22,9 +22,9 @@
             <Rectangle translation="[0, 0]" width="248" height="1080" color="0x0B0B0DFF" />
             <Poster
                 id="brandLogo"
-                translation="[14, 28]"
-                width="220"
-                height="72"
+                translation="[8, 20]"
+                width="232"
+                height="88"
                 uri="pkg:/images/brand_lockup.png"
                 loadDisplayMode="scaleToFit" />
             <LabelList
@@ -85,6 +85,7 @@
 
             <Label
                 id="setupAddress"
+                visible="false"
                 translation="[14, 104]"
                 width="220"
                 height="36"
@@ -116,45 +117,45 @@
 
             <!-- Netflix-style billboard: backdrop + title + short description.
                  Updated from focus handlers; hidden on Settings/Calendar/Addons. -->
-            <Group id="heroBillboard" translation="[248, 86]" visible="true">
+            <Group id="heroBillboard" translation="[248, 78]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
                     width="1672"
-                    height="460"
+                    height="520"
                     loadDisplayMode="scaleToZoom" />
                 <Rectangle
                     id="heroPosterScrim"
                     translation="[0, 0]"
-                    width="900"
-                    height="460"
-                    color="0x000000CC" />
+                    width="980"
+                    height="520"
+                    color="0x000000D9" />
                 <Rectangle
                     id="heroPosterFade"
-                    translation="[0, 260]"
+                    translation="[0, 300]"
                     width="1672"
-                    height="200"
-                    color="0x0B0B0DF5" />
+                    height="220"
+                    color="0x0B0B0DFF" />
                 <Label
                     id="heroMeta"
-                    translation="[56, 200]"
+                    translation="[56, 250]"
                     width="1100"
-                    height="32"
+                    height="34"
                     text=""
                     font="font:SmallBoldSystemFont"
                     color="0xE5E5E5FF" />
                 <Label
                     id="heroTitle"
-                    translation="[56, 236]"
-                    width="1100"
-                    height="78"
+                    translation="[56, 290]"
+                    width="1200"
+                    height="84"
                     text="Cargando catálogos..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[56, 318]"
-                    width="860"
+                    translation="[56, 380]"
+                    width="900"
                     height="52"
                     text=""
                     wrap="true"
@@ -163,35 +164,35 @@
                     color="0xE5E5E5FF" />
                 <Rectangle
                     id="heroPrimaryBg"
-                    translation="[56, 388]"
-                    width="240"
-                    height="48"
+                    translation="[56, 450]"
+                    width="280"
+                    height="52"
                     color="0xE50914FF" />
                 <Label
                     id="heroPrimaryLabel"
-                    translation="[56, 388]"
-                    width="240"
-                    height="48"
+                    translation="[56, 450]"
+                    width="280"
+                    height="52"
                     text="Reproducir"
                     horizAlign="center"
                     vertAlign="center"
-                    font="font:SmallBoldSystemFont"
+                    font="font:MediumBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Rectangle
                     id="heroSecondaryBg"
-                    translation="[312, 388]"
-                    width="200"
-                    height="48"
-                    color="0x1A1A1DFF" />
+                    translation="[352, 450]"
+                    width="220"
+                    height="52"
+                    color="0x2A2A2AFF" />
                 <Label
                     id="heroSecondaryLabel"
-                    translation="[312, 388]"
-                    width="200"
-                    height="48"
+                    translation="[352, 450]"
+                    width="220"
+                    height="52"
                     text="Más info"
                     horizAlign="center"
                     vertAlign="center"
-                    font="font:SmallBoldSystemFont"
+                    font="font:MediumBoldSystemFont"
                     color="0xFFFFFFFF" />
             </Group>
 
@@ -292,16 +293,16 @@
 
             <RowList
                 id="catalogList"
-                translation="[280, 560]"
-                itemSize="[1580, 360]"
-                rowItemSize="[[196, 340]]"
-                rowItemSpacing="[[18, 0]]"
-                rowSpacings="[16]"
+                translation="[280, 610]"
+                itemSize="[1580, 400]"
+                rowItemSize="[[220, 380]]"
+                rowItemSpacing="[[20, 0]]"
+                rowSpacings="[20]"
                 rowLabelOffset="[[0, 0]]"
                 rowLabelFont="font:MediumBoldSystemFont"
                 rowLabelColor="0xFFFFFFFF"
                 itemComponentName="CatalogCard"
-                numRows="4"
+                numRows="2"
                 showRowLabel="[true]"
                 showRowCounter="[false]"
                 drawFocusFeedback="false"

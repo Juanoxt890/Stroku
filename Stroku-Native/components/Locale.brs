@@ -323,7 +323,7 @@ function LocaleStringsEnglish() as object
         "dialog.connect.code": "Code: {0}"
         "dialog.connect.waiting": "Waiting for approval..."
 
-        "dialog.search.title": "Search or paste link"
+        "dialog.search.title": "Search"
         "dialog.search.message": "Search movies, series, and channels. You can also paste IMDb IDs, direct HTTP media links, or Stremio add-on manifests."
         "dialog.search.empty": "Enter a title to search for."
 
@@ -685,7 +685,7 @@ function LocaleStringsSpanish() as object
         "dialog.connect.code": "Codigo {0}"
         "dialog.connect.waiting": "Esperando..."
 
-        "dialog.search.title": "Buscar o pegar un enlace"
+        "dialog.search.title": "Buscar"
         "dialog.search.message": "Busca peliculas, series y canales. Tambien puedes pegar IDs de IMDb, enlaces HTTP directos o manifiestos de complementos de Stremio."
         "dialog.search.empty": "Escribe un titulo para buscar."
 

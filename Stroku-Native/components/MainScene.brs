@@ -397,7 +397,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(280, 520)
+    m.catalogList.translation = ScaleUiXY(280, 610)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -432,7 +432,7 @@ sub RenderBoard(focusContent as boolean)
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(280, 520)
+    m.catalogList.translation = ScaleUiXY(280, 610)
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
 end sub
@@ -479,7 +479,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(280, 520)
+    m.catalogList.translation = ScaleUiXY(280, 610)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
@@ -2470,7 +2470,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(280, 520)
+                m.catalogList.translation = ScaleUiXY(280, 610)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2657,7 +2657,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(280, 520)
+            m.catalogList.translation = ScaleUiXY(280, 610)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -3928,7 +3928,7 @@ end sub
 ' are authored in English so the layout stays readable in the XML; this is what
 ' makes them follow UI Language, at startup and on every change.
 sub ApplyStaticChromeText()
-    ApplyChromeLabel("searchPrompt", TrText("dialog.search.title"))
+    ApplyChromeLabel("searchPrompt", "Buscar")
     ApplyChromeLabel("noStreamsTitle", TrText("noStreams.title"))
     ApplyChromeLabel("noStreamsConfigureHint", TrText("noStreams.configureHint"))
     ApplyChromeLabel("uiScaleTitle", TrText("settings.interface.uiScale"))
@@ -4270,14 +4270,15 @@ sub OpenAddonConfiguration()
 end sub
 
 sub ShowSetupAddress(args as object)
+    ' Keep IP available in node text for Options/debug, but hide on Home —
+    ' Netflix-clean chrome (user still uses :8324 from phone docs / Options).
+    if m.setupAddress = invalid then return
     if args = invalid or not args.DoesExist("url") or args.url = ""
-        m.setupAddress.text = "Setup no disponible"
-        return
+        m.setupAddress.text = ""
+    else
+        m.setupAddress.text = args.url
     end if
-
-    ' Keep the URL for phone add-on setup, but park it under the brand so the
-    ' top bar stays Netflix-clean.
-    m.setupAddress.text = args.url
+    m.setupAddress.visible = false
 end sub
 
 sub onConfigurationUrlChanged(event as object)
