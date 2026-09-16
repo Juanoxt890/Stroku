@@ -14,13 +14,13 @@
             translation="[0, 0]"
             width="1600"
             height="168"
-            color="0x1F1F1FFF" />
+            color="0x141416FF" />
         <Rectangle
             id="focusFrame"
             translation="[0, 0]"
             width="1600"
             height="168"
-            color="0x2A2A2AFF"
+            color="0x1A1A1DFF"
             visible="false" />
         <Rectangle
             id="focusAccent"

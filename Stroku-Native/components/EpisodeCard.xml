@@ -20,7 +20,7 @@
             translation="[5, 5]"
             width="1590"
             height="164"
-            color="0x1F1F1FFF" />
+            color="0x141416FF" />
         <Poster
             id="thumbnail"
             translation="[14, 14]"
@@ -39,7 +39,7 @@
             translation="[14, 150]"
             width="260"
             height="10"
-            color="0x404040FF"
+            color="0x1A1A1DFF"
             visible="false" />
         <Rectangle
             id="progressBarFill"

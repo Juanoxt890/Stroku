@@ -23,7 +23,7 @@ sub onStateChanged()
         m.pill.color = "0xE50914FF"
         m.label.color = "0xFFFFFFFF"
     else
-        m.pill.color = "0x2A2A2AFF"
+        m.pill.color = "0x1A1A1DFF"
         m.label.color = "0xB3B3B3FF"
     end if
 end sub
