@@ -259,8 +259,12 @@ sub init()
     LoadPlayerPreferences()
     LoadStremioAccount()
     InitializePrimaryShell()
-    FetchBoardCatalogs()
+    ' Status BEFORE requests: a fast Task callback can HideStatus before we
+    ' ever show loading, or re-show loading after success and leave it stuck.
+    m.boardCatalogPending = 0
+    m.boardCatalogErrors = 0
     ShowStatus("Cargando catálogos...", true)
+    FetchBoardCatalogs()
 
     ' Never focus an empty RowList: on many Roku builds it swallows the remote
     ' and nothing moves until content exists.
@@ -2311,6 +2315,8 @@ sub FetchCatalog(contentType as string, rowIndex as integer)
 end sub
 
 sub FetchBoardCatalogs()
+    ' Prefer cinemeta-catalogs hosts (no 307 hop). Roku roUrlTransfer often fails
+    ' or stalls on redirecting v3-cinemeta catalog URLs.
     urls = [
         "https://cinemeta-catalogs.strem.io/top/catalog/movie/top.json"
         "https://cinemeta-catalogs.strem.io/top/catalog/series/top.json"
@@ -2319,9 +2325,42 @@ sub FetchBoardCatalogs()
         "https://v3-channels.strem.io/catalog/channel/top.json"
         "https://caching.stremio.net/publicdomainmovies.now.sh/catalog/movie/publicdomainmovies.json"
     ]
+    m.boardCatalogPending = urls.Count()
+    m.boardCatalogErrors = 0
+    m.boardCatalogLastError = ""
     for index = 0 to urls.Count() - 1
-        StartRequest(urls[index], "boardCatalog|" + index.ToStr())
+        StartBoardCatalogRequest(urls[index], "boardCatalog|" + index.ToStr())
     end for
+end sub
+
+sub StartBoardCatalogRequest(url as string, requestId as string)
+    task = CreateObject("roSGNode", "HttpTask")
+    task.url = url
+    task.requestId = requestId
+    task.timeoutMs = 25000
+    task.ObserveField("response", "onHttpResponse")
+    m.tasks.Push(task)
+    task.control = "RUN"
+end sub
+
+sub CompleteBoardCatalogRequest(ok as boolean, errorMessage as string)
+    if m.boardCatalogPending > 0 then m.boardCatalogPending = m.boardCatalogPending - 1
+    if not ok
+        m.boardCatalogErrors = m.boardCatalogErrors + 1
+        if errorMessage <> "" then m.boardCatalogLastError = errorMessage
+    end if
+    if m.boardCatalogPending > 0 then return
+
+    if CatalogHasItems()
+        HideStatus()
+        FocusBoardOrNav()
+        return
+    end if
+
+    msg = m.boardCatalogLastError
+    if msg = "" then msg = "No se pudieron cargar los catálogos."
+    ShowStatus(msg, false)
+    m.navList.SetFocus(true)
 end sub
 
 sub FetchDiscoverCatalog()
@@ -2480,7 +2519,11 @@ sub onHttpResponse(event as object)
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
             if requestType = "discoverCatalog" then m.discoverRequestActive = false
-            ShowStatus(response.error, false)
+            if requestType = "boardCatalog" or requestType = "catalog"
+                CompleteBoardCatalogRequest(false, response.error)
+            else
+                ShowStatus(response.error, false)
+            end if
         else if requestType = "config"
             m.pendingAddonUrl = ""
             ShowStatus(TrFormat("status.addon.verifyFailed", response.error), false)
@@ -2517,8 +2560,8 @@ sub onHttpResponse(event as object)
     end if
 
     if requestType = "catalog" or requestType = "boardCatalog"
-        HideStatus()
         HandleCatalogResponse(response.data, Val(parts[1]), "board")
+        CompleteBoardCatalogRequest(true, "")
     else if requestType = "discoverCatalog"
         HideStatus()
         HandleCatalogResponse(response.data, Val(parts[1]), "discover")
@@ -2641,8 +2684,6 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
         if m.activeTab = "board"
             m.catalogRows = m.boardRows
             RebuildCatalog()
-            HideStatus()
-            FocusBoardOrNav()
         end if
     else if target = "discover"
         m.discoverRequestActive = false
