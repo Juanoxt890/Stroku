@@ -7,12 +7,14 @@
     <script type="text/brightscript" uri="pkg:/components/UiScale.brs" />
     <script type="text/brightscript" uri="pkg:/components/CatalogCard.brs" />
     <children>
-        <!-- Thick Netflix-red focus ring; poster fills most of rowItemSize [[226,370]]. -->
-        <Rectangle id="focusFrame" width="226" height="340" color="0xE50914FF" visible="false" />
-        <Rectangle id="focusInset" translation="[7,7]" width="212" height="326" color="0x0B0B0BFF" visible="false" />
-        <Poster id="poster" translation="[7,7]" width="212" height="326" loadDisplayMode="scaleToZoom" />
-        <Rectangle id="progressBarBg" translation="[7,325]" width="212" height="8" color="0x333333FF" visible="false" />
-        <Rectangle id="progressBarFill" translation="[7,325]" width="0" height="8" color="0xE50914FF" visible="false" />
-        <Label id="title" translation="[0, 346]" width="226" height="24" horizAlign="center" vertAlign="top" wrap="true" maxLines="1" font="font:SmallBoldSystemFont" color="0xFFFFFFFF" visible="false" />
+        <!-- Thick Netflix-red focus ring; poster fills most of rowItemSize [[220,350]]. -->
+        <Rectangle id="focusFrame" width="220" height="322" color="0xE50914FF" visible="false" />
+        <Rectangle id="focusInset" translation="[6,6]" width="208" height="310" color="0x0B0B0BFF" visible="false" />
+        <Poster id="poster" translation="[6,6]" width="208" height="310" loadDisplayMode="scaleToZoom" />
+        <Rectangle id="seeAllBg" translation="[6,6]" width="208" height="310" color="0x1A1A1DFF" visible="false" />
+        <Label id="seeAllLabel" translation="[6, 130]" width="208" height="60" text="Ver todo" horizAlign="center" vertAlign="center" font="font:MediumBoldSystemFont" color="0xFFFFFFFF" visible="false" />
+        <Rectangle id="progressBarBg" translation="[6,308]" width="208" height="8" color="0x333333FF" visible="false" />
+        <Rectangle id="progressBarFill" translation="[6,308]" width="0" height="8" color="0xE50914FF" visible="false" />
+        <Label id="title" translation="[0, 324]" width="220" height="24" horizAlign="center" vertAlign="top" wrap="true" maxLines="1" font="font:SmallBoldSystemFont" color="0xFFFFFFFF" visible="false" />
     </children>
 </component>

@@ -3,6 +3,8 @@ sub init()
     m.title = m.top.FindNode("title")
     m.focusFrame = m.top.FindNode("focusFrame")
     m.focusInset = m.top.FindNode("focusInset")
+    m.seeAllBg = m.top.FindNode("seeAllBg")
+    m.seeAllLabel = m.top.FindNode("seeAllLabel")
 end sub
 
 sub onContentChanged()
@@ -13,14 +15,28 @@ sub onContentChanged()
     titleText = content.title
     if titleText = invalid then titleText = ""
     m.title.text = titleText
+    isSeeAll = false
+    if content.DoesExist("seeAll") and content.seeAll = true then isSeeAll = true
+    if not isSeeAll and titleText <> ""
+        lowerTitle = LCase(titleText)
+        if Instr(1, lowerTitle, "ver todo") > 0 or Instr(1, lowerTitle, "see all") > 0 then isSeeAll = true
+    end if
+    m.isSeeAll = isSeeAll
+    if m.seeAllBg <> invalid then m.seeAllBg.visible = isSeeAll
+    if m.seeAllLabel <> invalid
+        m.seeAllLabel.visible = isSeeAll
+        if isSeeAll and titleText <> "" then m.seeAllLabel.text = titleText
+    end if
+    if isSeeAll and m.poster <> invalid then m.poster.visible = false
+    if not isSeeAll and m.poster <> invalid then m.poster.visible = true
     onFocusChanged()
     progressBarBg = m.top.FindNode("progressBarBg")
     progressBarFill = m.top.FindNode("progressBarFill")
     if progressBarBg <> invalid and progressBarFill <> invalid
-        if content.DoesExist("progress") and content.progress > 0.0 and content.progress < 1.0
+        if (not isSeeAll) and content.DoesExist("progress") and content.progress > 0.0 and content.progress < 1.0
             progressBarBg.visible = true
             progressBarFill.visible = true
-            progressBarFill.width = ScaleUi(212 * content.progress)
+            progressBarFill.width = ScaleUi(208 * content.progress)
         else
             progressBarBg.visible = false
             progressBarFill.visible = false
@@ -32,7 +48,12 @@ sub onFocusChanged()
     hasFocus = m.top.itemHasFocus
     m.focusFrame.visible = hasFocus
     if m.focusInset <> invalid then m.focusInset.visible = hasFocus
-    m.title.visible = hasFocus
+    if m.isSeeAll = true
+        m.title.visible = false
+        if m.seeAllLabel <> invalid then m.seeAllLabel.visible = true
+    else
+        m.title.visible = hasFocus
+    end if
     if hasFocus
         m.focusFrame.color = "0xE50914FF"
         m.top.scale = [1.12, 1.12]

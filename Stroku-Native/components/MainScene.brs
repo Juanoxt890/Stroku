@@ -14,6 +14,8 @@ sub init()
     m.coffeeReturnedFromTopBar = false
     m.supportChipBg = m.top.FindNode("supportChipBg")
     m.supportChipLabel = m.top.FindNode("supportChipLabel")
+    if m.supportChipBg <> invalid then m.supportChipBg.visible = false
+    if m.supportChipLabel <> invalid then m.supportChipLabel.visible = false
     m.topBarFocus = -1
     m.catalogList = m.top.FindNode("catalogList")
     m.discoverGrid = m.top.FindNode("discoverGrid")
@@ -220,6 +222,7 @@ sub init()
 
     m.navList.ObserveField("itemSelected", "onNavSelected")
     m.navList.ObserveField("itemFocused", "onNavFocused")
+    m.navList.wrap = false
     m.primaryInfoList.ObserveField("itemSelected", "onPrimaryInfoSelected")
     m.settingsList.ObserveField("itemSelected", "onSettingsRowSelected")
     m.settingsList.ObserveField("itemFocused", "onSettingsRowFocused")
@@ -339,29 +342,26 @@ sub SetActiveTab(tabName as string, focusContent as boolean)
     end if
 end sub
 
-' The top bar is the row above every screen's content: the search field and the
-' support entry. Like the Discover filter row and the Addons chips, it is not a
-' focusable node -- it is drawn from here and driven while the scene holds focus.
+' The top bar is the row above every screen's content: search only (v19).
+' Like the Discover filter row and the Addons chips, it is not a focusable node
+' -- it is drawn from here and driven while the scene holds focus.
 function TopBarItemCount() as integer
-    return 2
+    ' Search only — Apoyar removed from Home top bar (still in Settings → General).
+    return 1
 end function
 
 sub UpdateTopBar()
+    if m.searchBar = invalid then return
     if m.topBarFocus = 0
-        m.searchBar.color = "0xE50914FF"
-        m.searchPrompt.color = "0xFFFFFFFF"
+        m.searchBar.uri = "pkg:/images/search_bar_focus.png"
+        if m.searchPrompt <> invalid then m.searchPrompt.color = "0xFFFFFFFF"
     else
-        m.searchBar.color = "0x1A1A1DFF"
-        m.searchPrompt.color = "0x808080FF"
+        m.searchBar.uri = "pkg:/images/search_bar_bg.png"
+        if m.searchPrompt <> invalid then m.searchPrompt.color = "0x808080FF"
     end if
-
-    if m.topBarFocus = 1
-        m.supportChipBg.color = "0xE50914FF"
-        m.supportChipLabel.color = "0xFFFFFFFF"
-    else
-        m.supportChipBg.color = "0x1A1A1DFF"
-        m.supportChipLabel.color = "0xB3B3B3FF"
-    end if
+    ' Keep support chip nodes hidden if present (legacy XML ids).
+    if m.supportChipBg <> invalid then m.supportChipBg.visible = false
+    if m.supportChipLabel <> invalid then m.supportChipLabel.visible = false
 end sub
 
 sub FocusTopBar(index as integer)
@@ -387,10 +387,6 @@ sub ActivateTopBarItem(index as integer)
     if index = 0
         BlurTopBar()
         OpenSearch()
-    else if index = 1
-        m.coffeeReturnedFromTopBar = true
-        BlurTopBar()
-        OpenCoffeeSupport(false)
     end if
 end sub
 
@@ -425,7 +421,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(596, 668)
+    m.catalogList.translation = ScaleUiXY(504, 505)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -460,7 +456,7 @@ sub RenderBoard(focusContent as boolean)
     SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
     SyncBoardCatalogRows()
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(596, 668)
+    m.catalogList.translation = ScaleUiXY(504, 505)
     RebuildCatalog()
     if focusContent then FocusBoardOrNav()
 end sub
@@ -473,7 +469,7 @@ sub RenderDiscover(focusContent as boolean)
     m.catalogRows = m.discoverRows
     m.catalogNames = m.discoverNames
     m.discoverFilterGroup.visible = true
-    m.catalogList.translation = ScaleUiXY(588, 580)
+    m.catalogList.translation = ScaleUiXY(504, 560)
     UpdateDiscoverFilterLabels()
     m.discoverGrid.visible = true
     RebuildDiscoverGrid()
@@ -507,7 +503,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(596, 668)
+    m.catalogList.translation = ScaleUiXY(504, 505)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
@@ -1183,7 +1179,7 @@ sub UpdateSettingsTabs()
         end if
     end for
 
-    m.settingsTabIndicator.translation = ScaleUiXY(588 + m.settingsTabIndex * 334, 210)
+    m.settingsTabIndicator.translation = ScaleUiXY(492 + m.settingsTabIndex * 334, 210)
 end sub
 
 sub UpdateSettingsDetail(index as integer)
@@ -2209,7 +2205,7 @@ sub CloseCoffeeSupport()
     returnToTopBar = m.coffeeReturnedFromTopBar
     m.coffeeReturnedFromTopBar = false
     SetActiveTab(m.coffeeReturnMode, not returnToTopBar)
-    if returnToTopBar then FocusTopBar(1)
+    if returnToTopBar then FocusTopBar(0)
 end sub
 
 sub UpdateUiScaleSlider()
@@ -2504,7 +2500,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(596, 668)
+                m.catalogList.translation = ScaleUiXY(504, 505)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2662,9 +2658,10 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             id: "seeall:" + rowIndex.ToStr()
             name: TrText("board.seeAll")
             type: "action"
-            poster: ""
+            poster: "pkg:/images/see_all_poster.png"
             description: TrText("board.seeAll.description")
             rowIndex: rowIndex
+            seeAll: true
         }
         items.Push(action)
         if rowIndex >= 0 and rowIndex < m.boardRows.Count()
@@ -2696,7 +2693,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(596, 668)
+            m.catalogList.translation = ScaleUiXY(504, 505)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2752,8 +2749,15 @@ sub RebuildCatalog()
         for each item in rowItems
             itemNode = rowNode.CreateChild("ContentNode")
             itemNode.title = SafeString(item, "name")
-            itemNode.HDPosterUrl = SafeString(item, "poster")
-            itemNode.SDPosterUrl = SafeString(item, "poster")
+            posterUri = SafeString(item, "poster")
+            if IsSeeAllItem(item) and posterUri = ""
+                posterUri = "pkg:/images/see_all_poster.png"
+            end if
+            itemNode.HDPosterUrl = posterUri
+            itemNode.SDPosterUrl = posterUri
+            if IsSeeAllItem(item)
+                itemNode.AddFields({ seeAll: true })
+            end if
 
             ' Check if we have progress for this item
             id = SafeString(item, "id")
@@ -2871,6 +2875,8 @@ end sub
 
 sub onCatalogSelected(event as object)
     item = GetCatalogItem(event.GetData())
+    ' Fallback: empty-poster / index edge cases still keep focusedCatalogItem.
+    if item = invalid then item = m.focusedCatalogItem
     ActivateCatalogItem(item)
 end sub
 
@@ -2999,10 +3005,17 @@ end function
 
 function CleanHeroYear(raw as string) as string
     if raw = "" then return ""
-    ' Stremio often sends "2022-" or "2022-2024" — show a clean year or range.
+    ' Stremio often sends "2022-" / "2022–" / "2022-2024" — strip dangling dashes.
     cleaned = raw.Trim()
-    while Len(cleaned) > 0 and Right(cleaned, 1) = "-"
-        cleaned = Left(cleaned, Len(cleaned) - 1).Trim()
+    while Len(cleaned) > 0
+        ch = Right(cleaned, 1)
+        code = Asc(ch)
+        ' ASCII hyphen/space, or UTF-8 bytes used by en/em dashes (U+2013/U+2014).
+        if ch = "-" or ch = " " or ch = "–" or ch = "—" or code = 45 or code = 226 or code = 128 or code = 147 or code = 148 or code = 150 or code = 151
+            cleaned = Left(cleaned, Len(cleaned) - 1).Trim()
+        else
+            exit while
+        end if
     end while
     return cleaned
 end function
@@ -3045,12 +3058,12 @@ end function
 
 sub ActivateCatalogItem(item as object)
     if item = invalid then return
-    itemType = SafeString(item, "type")
-    if itemType = "empty" then return
-    if itemType = "action"
+    if IsSeeAllItem(item)
         OpenBoardSeeAll(item)
         return
     end if
+    itemType = SafeString(item, "type")
+    if itemType = "empty" then return
     m.focusedCatalogItem = item
     if itemType = "series"
         OpenSeriesEpisodes(item)
@@ -3058,6 +3071,16 @@ sub ActivateCatalogItem(item as object)
         OpenMovieStreams(item)
     end if
 end sub
+
+function IsSeeAllItem(item as object) as boolean
+    if item = invalid then return false
+    if item.DoesExist("seeAll") and item.seeAll = true then return true
+    id = SafeString(item, "id")
+    if Left(id, 7) = "seeall:" then return true
+    itemType = SafeString(item, "type")
+    if itemType = "action" then return true
+    return false
+end function
 
 ' Board Home rows = optional Continue (library progress) + live m.boardRows feeds.
 sub MarkBoardRowEmpty(rowIndex as integer)
@@ -3163,7 +3186,7 @@ end sub
 sub onHeroDebounceFire()
     if m.pendingHeroItem <> invalid
         UpdateHeroFromItem(m.pendingHeroItem)
-        if SafeString(m.pendingHeroItem, "type") <> "empty"
+        if SafeString(m.pendingHeroItem, "type") <> "empty" and not IsSeeAllItem(m.pendingHeroItem)
             SyncHeroCtaChrome()
         end if
     end if
@@ -3178,7 +3201,7 @@ sub FocusHeroCtas(index as integer)
     if m.activeTab <> "board" and m.activeTab <> "library" and m.activeTab <> "discover" then return
     if m.focusedCatalogItem = invalid then return
     if SafeString(m.focusedCatalogItem, "type") = "empty" then return
-    if SafeString(m.focusedCatalogItem, "type") = "action" then return
+    if IsSeeAllItem(m.focusedCatalogItem) then return
     m.heroCtaFocus = index
     m.top.SetFocus(true)
     UpdateHeroCtaFocus()
@@ -4860,7 +4883,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
             else if key = "down" or key = "back"
                 BlurTopBar()
                 ' Prefer hero CTAs when a live catalog title is focused on Board.
-                if (key = "down") and (m.activeTab = "board" or m.activeTab = "library" or m.activeTab = "discover") and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and SafeString(m.focusedCatalogItem, "type") <> "action"
+                if (key = "down") and (m.activeTab = "board" or m.activeTab = "library" or m.activeTab = "discover") and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and not IsSeeAllItem(m.focusedCatalogItem)
                     FocusHeroCtas(0)
                 else
                     FocusActiveContent()
@@ -4959,6 +4982,9 @@ function onKeyEvent(key as string, press as boolean) as boolean
             m.settingsTabIndex = m.settingsTabIndex + 1
             RenderSettings(true)
             return true
+        else if key = "OK" and m.catalogList.visible and m.catalogList.HasFocus() and IsSeeAllItem(m.focusedCatalogItem)
+            ActivateCatalogItem(m.focusedCatalogItem)
+            return true
         else if key = "left" and not m.navList.HasFocus()
             m.navList.SetFocus(true)
             return true
@@ -4989,7 +5015,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 return true
             end if
             ' Board/Library: hero CTAs sit between rows and the top bar (Netflix Lolomo).
-            if (m.activeTab = "board" or m.activeTab = "library") and m.heroBillboard <> invalid and m.heroBillboard.visible and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and SafeString(m.focusedCatalogItem, "type") <> "action"
+            if (m.activeTab = "board" or m.activeTab = "library") and m.heroBillboard <> invalid and m.heroBillboard.visible and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and not IsSeeAllItem(m.focusedCatalogItem)
                 FocusHeroCtas(0)
                 return true
             end if
