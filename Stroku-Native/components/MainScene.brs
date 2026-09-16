@@ -401,7 +401,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(260, 500)
+    m.catalogList.translation = ScaleUiXY(260, 470)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -436,7 +436,7 @@ sub RenderBoard(focusContent as boolean)
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 500)
+    m.catalogList.translation = ScaleUiXY(260, 470)
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
 end sub
@@ -483,7 +483,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 500)
+    m.catalogList.translation = ScaleUiXY(260, 470)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome("Library", "Your Stremio library and watch history are empty.", "")
@@ -2472,7 +2472,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(260, 500)
+                m.catalogList.translation = ScaleUiXY(260, 470)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2659,7 +2659,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(260, 500)
+            m.catalogList.translation = ScaleUiXY(260, 470)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if

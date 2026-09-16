@@ -2,13 +2,6 @@ sub init()
     m.poster = m.top.FindNode("poster")
     m.title = m.top.FindNode("title")
     m.focusFrame = m.top.FindNode("focusFrame")
-    m.focusHalo = m.top.FindNode("focusHalo")
-    m.progressBarBg = m.top.FindNode("progressBarBg")
-    m.progressBarFill = m.top.FindNode("progressBarFill")
-    m.titleScrim = m.top.FindNode("titleScrim")
-    m.lastPosterUri = ""
-    ' Scale from poster center so neighbors are less clipped on focus pop.
-    m.top.scaleRotateCenter = [101, 148]
 end sub
 
 sub onContentChanged()
@@ -19,24 +12,27 @@ sub onContentChanged()
     content = m.top.itemContent
     if content = invalid then return
 
-    ' Defer redundant poster reloads when RowList rebinds the same artwork.
+    ' Always assign URI. Skipping "unchanged" reloads left recycled RowList
+    ' cards blank on some firmware after content swaps.
     posterUri = content.HDPosterUrl
     if posterUri = invalid then posterUri = ""
-    if posterUri <> m.lastPosterUri
-        m.poster.uri = posterUri
-        m.lastPosterUri = posterUri
-    end if
-    m.title.text = content.title
+    m.poster.uri = posterUri
+
+    titleText = content.title
+    if titleText = invalid then titleText = ""
+    m.title.text = titleText
     onFocusChanged()
 
-    if m.progressBarBg <> invalid and m.progressBarFill <> invalid
+    progressBarBg = m.top.FindNode("progressBarBg")
+    progressBarFill = m.top.FindNode("progressBarFill")
+    if progressBarBg <> invalid and progressBarFill <> invalid
         if content.DoesExist("progress") and content.progress > 0.0 and content.progress < 1.0
-            m.progressBarBg.visible = true
-            m.progressBarFill.visible = true
-            m.progressBarFill.width = ScaleUi(ThemePosterWidth() * content.progress)
+            progressBarBg.visible = true
+            progressBarFill.visible = true
+            progressBarFill.width = ScaleUi(158 * content.progress)
         else
-            m.progressBarBg.visible = false
-            m.progressBarFill.visible = false
+            progressBarBg.visible = false
+            progressBarFill.visible = false
         end if
     end if
 end sub
@@ -44,13 +40,12 @@ end sub
 sub onFocusChanged()
     hasFocus = m.top.itemHasFocus
     m.focusFrame.visible = hasFocus
-    if m.focusHalo <> invalid then m.focusHalo.visible = hasFocus
-    if m.titleScrim <> invalid then m.titleScrim.visible = hasFocus
     if hasFocus
-        m.title.color = ThemeTextPrimary()
-        m.top.scale = [ThemeCatalogFocusScale(), ThemeCatalogFocusScale()]
+        m.title.color = "0xFFFFFFFF"
+        m.focusFrame.color = "0xE50914FF"
+        ' Do not scale the RowList item Group: on several Roku builds that makes
+        ' posters vanish while row labels still render.
     else
-        m.title.color = ThemeTextMuted()
-        m.top.scale = [1.0, 1.0]
+        m.title.color = "0xB3B3B3FF"
     end if
 end sub

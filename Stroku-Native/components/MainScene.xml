@@ -128,25 +128,25 @@
                     id="heroPoster"
                     translation="[0, 0]"
                     width="1692"
-                    height="420"
+                    height="360"
                     loadDisplayMode="scaleToZoom"
-                    loadWidth="1280"
-                    loadHeight="720" />
+                    loadWidth="960"
+                    loadHeight="540" />
                 <Rectangle
                     id="heroPosterScrim"
                     translation="[0, 0]"
                     width="720"
-                    height="420"
+                    height="360"
                     color="0x000000AA" />
                 <Rectangle
                     id="heroPosterFade"
-                    translation="[0, 200]"
+                    translation="[0, 160]"
                     width="1692"
-                    height="220"
+                    height="200"
                     color="0x141414F2" />
                 <Label
                     id="heroMeta"
-                    translation="[40, 188]"
+                    translation="[40, 140]"
                     width="1200"
                     height="32"
                     text=""
@@ -154,17 +154,17 @@
                     color="0xE50914FF" />
                 <Label
                     id="heroTitle"
-                    translation="[40, 224]"
+                    translation="[40, 172]"
                     width="1100"
-                    height="70"
+                    height="60"
                     text="Loading catalogs..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[40, 298]"
+                    translation="[40, 236]"
                     width="980"
-                    height="56"
+                    height="52"
                     text=""
                     wrap="true"
                     maxLines="2"
@@ -173,13 +173,13 @@
                 <!-- Primary / secondary chrome (visual affordance; OK still opens the focused card). -->
                 <Rectangle
                     id="heroPrimaryBg"
-                    translation="[40, 368]"
+                    translation="[40, 300]"
                     width="220"
                     height="44"
                     color="0xE50914FF" />
                 <Label
                     id="heroPrimaryLabel"
-                    translation="[40, 368]"
+                    translation="[40, 300]"
                     width="220"
                     height="44"
                     text="OK  ·  Play"
@@ -189,13 +189,13 @@
                     color="0xFFFFFFFF" />
                 <Rectangle
                     id="heroSecondaryBg"
-                    translation="[280, 368]"
+                    translation="[280, 300]"
                     width="240"
                     height="44"
                     color="0x2A2A2AFF" />
                 <Label
                     id="heroSecondaryLabel"
-                    translation="[280, 368]"
+                    translation="[280, 300]"
                     width="240"
                     height="44"
                     text="More info"
@@ -302,16 +302,16 @@
 
             <RowList
                 id="catalogList"
-                translation="[260, 500]"
-                itemSize="[1600, 370]"
-                rowItemSize="[[210, 350]]"
-                rowItemSpacing="[[18, 0]]"
-                rowSpacings="[14]"
-                rowLabelOffset="[[0, 6]]"
+                translation="[260, 470]"
+                itemSize="[1600, 340]"
+                rowItemSize="[[176, 310]]"
+                rowItemSpacing="[[22, 0]]"
+                rowSpacings="[10]"
+                rowLabelOffset="[[0, 0]]"
                 rowLabelFont="font:MediumBoldSystemFont"
                 rowLabelColor="0xFFFFFFFF"
                 itemComponentName="CatalogCard"
-                numRows="3"
+                numRows="4"
                 showRowLabel="[true]"
                 showRowCounter="[false]"
                 drawFocusFeedback="false"
@@ -324,9 +324,9 @@
                 translation="[260, 580]"
                 width="1580"
                 height="460"
-                itemSize="[220, 360]"
-                itemSpacing="[24, 18]"
-                numColumns="6"
+                itemSize="[190, 320]"
+                itemSpacing="[30, 22]"
+                numColumns="7"
                 numRows="1"
                 itemComponentName="CatalogCard"
                 drawFocusFeedback="false"
