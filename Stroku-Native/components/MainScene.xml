@@ -201,22 +201,24 @@
 
             <!-- Content-area search removed in v21; Buscar lives in the left rail. -->
 
+            <!-- Discover filter strip: Y≈400 under hero; catalogList at Y=468 when shown.
+                 Library/Home catalog stays at Y=450 (no filter strip). -->
             <Group id="discoverFilterGroup" visible="false">
                 <Rectangle
                     id="discoverTypeFocus"
-                    translation="[492, 470]"
+                    translation="[492, 400]"
                     width="260"
                     height="58"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[498, 476]"
+                    translation="[498, 406]"
                     width="248"
                     height="46"
                     color="0x1A1A1DFF" />
                 <Label
                     id="discoverTypeLabel"
-                    translation="[524, 482]"
+                    translation="[524, 412]"
                     width="180"
                     height="34"
                     text="Pelicula"
@@ -224,7 +226,7 @@
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[708, 482]"
+                    translation="[708, 412]"
                     width="28"
                     height="34"
                     text="v"
@@ -235,19 +237,19 @@
 
                 <Rectangle
                     id="discoverCatalogFocus"
-                    translation="[780, 470]"
+                    translation="[780, 400]"
                     width="260"
                     height="58"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[786, 476]"
+                    translation="[786, 406]"
                     width="248"
                     height="46"
                     color="0x1A1A1DFF" />
                 <Label
                     id="discoverCatalogLabel"
-                    translation="[812, 482]"
+                    translation="[812, 412]"
                     width="170"
                     height="34"
                     text="Popular"
@@ -255,7 +257,7 @@
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[996, 482]"
+                    translation="[996, 412]"
                     width="28"
                     height="34"
                     text="v"
@@ -266,19 +268,19 @@
 
                 <Rectangle
                     id="discoverGenreFocus"
-                    translation="[1068, 470]"
+                    translation="[1068, 400]"
                     width="260"
                     height="58"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[1074, 476]"
+                    translation="[1074, 406]"
                     width="248"
                     height="46"
                     color="0x1A1A1DFF" />
                 <Label
                     id="discoverGenreLabel"
-                    translation="[1100, 482]"
+                    translation="[1100, 412]"
                     width="170"
                     height="34"
                     text="Genero"
@@ -286,7 +288,7 @@
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[1284, 482]"
+                    translation="[1284, 412]"
                     width="28"
                     height="34"
                     text="v"
@@ -315,14 +317,16 @@
                 vertFocusAnimationStyle="floatingFocus"
                 visible="true" />
 
+            <!-- v24: Discover uses catalogList (same RowList as Library/Home).
+                 discoverGrid kept hidden as unused leftover for FindNode safety. -->
             <MarkupGrid
                 id="discoverGrid"
-                translation="[504, 452]"
+                translation="[504, 468]"
                 width="1384"
                 height="480"
-                itemSize="[170, 300]"
-                itemSpacing="[18, 22]"
-                numColumns="7"
+                itemSize="[220, 350]"
+                itemSpacing="[22, 22]"
+                numColumns="5"
                 numRows="1"
                 itemComponentName="CatalogCard"
                 drawFocusFeedback="false"

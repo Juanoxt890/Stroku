@@ -439,7 +439,11 @@ sub FocusActiveContent()
     else if m.primaryInfoGroup.visible
         m.primaryInfoList.SetFocus(true)
     else if m.activeTab = "discover"
-        m.discoverGrid.SetFocus(true)
+        if m.catalogList.visible
+            m.catalogList.SetFocus(true)
+        else
+            FocusDiscoverFilters()
+        end if
     else
         FocusBoardOrNav()
     end if
@@ -502,18 +506,23 @@ sub RenderBoard(focusContent as boolean)
 end sub
 
 sub RenderDiscover(focusContent as boolean)
+    ' Layout (v24): same content column as Library/Home (X=504, CatalogCard 220x350).
+    ' Filters sit in a thin strip under the hero at Y≈400; catalogList at Y=468 so
+    ' posters do not sit under the chips. Library stays at Y=450 (no filter strip).
     m.primaryTitle.text = "Descubrir"
     m.primarySubtitle.text = "ARRIBA filtros    OK cambiar    * más"
     SetHeroBillboardVisible(true)
+    HideHeroCtas()
     SetHeroChrome("Descubrir", "Filtra por tipo, catálogo y género.", "")
     m.catalogRows = m.discoverRows
     m.catalogNames = m.discoverNames
+    m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 452)
+    m.catalogList.visible = true
+    m.catalogList.translation = ScaleUiXY(504, 468)
     UpdateDiscoverFilterLabels()
-    m.discoverGrid.visible = true
-    RebuildDiscoverGrid()
-    if focusContent then m.discoverGrid.SetFocus(true)
+    RebuildCatalog()
+    if focusContent then m.catalogList.SetFocus(true)
 end sub
 
 sub RenderLibrary(focusContent as boolean)
@@ -545,6 +554,7 @@ sub RenderLibrary(focusContent as boolean)
     m.catalogList.visible = true
     m.catalogList.translation = ScaleUiXY(504, 450)
     SetHeroBillboardVisible(true)
+    HideHeroCtas()
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
     else
@@ -1341,6 +1351,7 @@ sub FocusDiscoverFilters()
     if m.discoverFilterFocus < 0 then m.discoverFilterFocus = 0
     UpdateDiscoverFilterFocus()
     m.discoverGrid.SetFocus(false)
+    m.catalogList.SetFocus(false)
     m.top.SetFocus(true)
 end sub
 
@@ -2401,8 +2412,12 @@ sub FetchDiscoverCatalog()
     if m.activeTab = "discover"
         m.catalogRows = m.discoverRows
         m.catalogNames = m.discoverNames
+        m.discoverGrid.visible = false
+        m.discoverFilterGroup.visible = true
+        m.catalogList.visible = true
+        m.catalogList.translation = ScaleUiXY(504, 468)
         UpdateDiscoverFilterLabels()
-        RebuildDiscoverGrid()
+        RebuildCatalog()
     end if
     StartRequest(DiscoverCatalogUrl(), "discoverCatalog|0")
 end sub
@@ -2722,7 +2737,12 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
         end if
         if m.activeTab = "discover"
             m.catalogRows = m.discoverRows
-            RebuildDiscoverGrid()
+            m.catalogNames = m.discoverNames
+            m.discoverGrid.visible = false
+            m.discoverFilterGroup.visible = true
+            m.catalogList.visible = true
+            m.catalogList.translation = ScaleUiXY(504, 468)
+            RebuildCatalog()
         end if
     else if target = "search"
         m.discoverRequestActive = false
@@ -2749,7 +2769,13 @@ sub HandleSearchMetaResponse(data as object, rowIndex as integer)
     m.discoverRequestActive = false
     if m.activeTab = "discover"
         m.catalogRows = m.discoverRows
-        RebuildDiscoverGrid()
+        m.catalogNames = m.discoverNames
+        m.discoverGrid.visible = false
+        m.discoverFilterGroup.visible = false
+        m.catalogList.visible = true
+        m.catalogList.translation = ScaleUiXY(504, 450)
+        RebuildCatalog()
+        m.catalogList.SetFocus(true)
     end if
 end sub
 
@@ -2821,6 +2847,8 @@ sub RebuildCatalog()
     end if
 end sub
 
+' v24: Discover uses catalogList + RebuildCatalog (same as Library/Home).
+' Kept for reference; not called from active UI paths.
 sub RebuildDiscoverGrid()
     content = CreateObject("roSGNode", "ContentNode")
     if m.discoverRows <> invalid and m.discoverRows.Count() > 0
@@ -3194,7 +3222,7 @@ end function
 
 sub FocusBoardOrNav()
     if m.screenMode <> "home" then return
-    if m.activeTab <> "board" and m.activeTab <> "library" then return
+    if m.activeTab <> "board" and m.activeTab <> "library" and m.activeTab <> "discover" then return
     if not m.catalogList.visible then return
     if m.heroCtaFocus >= 0 then return
     if m.topBarFocus >= 0 then return
@@ -4917,8 +4945,6 @@ function onKeyEvent(key as string, press as boolean) as boolean
                     FocusAddonList()
                 else if m.primaryInfoGroup.visible
                     m.primaryInfoList.SetFocus(true)
-                else if m.activeTab = "discover"
-                    m.discoverGrid.SetFocus(true)
                 else
                     m.catalogList.SetFocus(true)
                 end if
@@ -4950,11 +4976,11 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 return true
             else if key = "down"
                 BlurDiscoverFilters()
-                m.discoverGrid.SetFocus(true)
+                m.catalogList.SetFocus(true)
                 return true
             else if key = "back"
                 BlurDiscoverFilters()
-                m.discoverGrid.SetFocus(true)
+                m.catalogList.SetFocus(true)
                 return true
             else if key = "up"
                 BlurDiscoverFilters()
@@ -5015,7 +5041,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
             FocusNavRail(m.navIndex)
             return true
         else if key = "up" and not IsNavRailFocused() and m.topBarFocus < 0
-            if m.activeTab = "discover"
+            if m.activeTab = "discover" and m.discoverFilterGroup.visible
                 FocusDiscoverFilters()
                 return true
             end if
