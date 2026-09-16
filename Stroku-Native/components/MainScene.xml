@@ -20,24 +20,16 @@
 
         <Group id="homeGroup">
             <Rectangle translation="[0, 0]" width="248" height="1080" color="0x0B0B0DFF" />
-            <Label
-                translation="[16, 36]"
-                width="196"
-                height="46"
-                text="Stroku890"
-                font="font:SmallBoldSystemFont"
-                color="0xFFFFFFFF"
-                horizAlign="center" />
-            <Label
-                translation="[34, 78]"
-                width="170"
-                height="28"
-                text=""
-                font="font:SmallSystemFont"
-                color="0xE50914FF" />
+            <Poster
+                id="brandLogo"
+                translation="[14, 28]"
+                width="220"
+                height="72"
+                uri="pkg:/images/brand_lockup.png"
+                loadDisplayMode="scaleToFit" />
             <LabelList
                 id="navList"
-                translation="[20, 140]"
+                translation="[20, 152]"
                 width="208"
                 height="460"
                 itemSize="[208, 58]"
@@ -64,7 +56,8 @@
                 translation="[772, 30]"
                 width="32"
                 height="36"
-                text="O"
+                text=""
+                visible="false"
                 horizAlign="center"
                 vertAlign="center"
                 font="font:SmallSystemFont"
@@ -92,16 +85,16 @@
 
             <Label
                 id="setupAddress"
-                translation="[20, 78]"
-                width="208"
-                height="44"
-                horizAlign="left"
+                translation="[14, 104]"
+                width="220"
+                height="36"
+                horizAlign="center"
                 vertAlign="top"
                 wrap="true"
                 maxLines="2"
                 text=""
                 font="font:SmallestSystemFont"
-                color="0x666666FF" />
+                color="0x555555FF" />
 
             <Label
                 id="primaryTitle"
@@ -123,63 +116,62 @@
 
             <!-- Netflix-style billboard: backdrop + title + short description.
                  Updated from focus handlers; hidden on Settings/Calendar/Addons. -->
-            <Group id="heroBillboard" translation="[248, 100]" visible="true">
+            <Group id="heroBillboard" translation="[248, 86]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
                     width="1672"
-                    height="400"
+                    height="460"
                     loadDisplayMode="scaleToZoom" />
                 <Rectangle
                     id="heroPosterScrim"
                     translation="[0, 0]"
-                    width="820"
-                    height="400"
-                    color="0x000000B3" />
+                    width="900"
+                    height="460"
+                    color="0x000000CC" />
                 <Rectangle
                     id="heroPosterFade"
-                    translation="[0, 220]"
+                    translation="[0, 260]"
                     width="1672"
-                    height="180"
-                    color="0x0B0B0DF2" />
+                    height="200"
+                    color="0x0B0B0DF5" />
                 <Label
                     id="heroMeta"
-                    translation="[48, 168]"
+                    translation="[56, 200]"
                     width="1100"
                     height="32"
                     text=""
                     font="font:SmallBoldSystemFont"
-                    color="0xE8E8E8FF" />
+                    color="0xE5E5E5FF" />
                 <Label
                     id="heroTitle"
-                    translation="[48, 204]"
+                    translation="[56, 236]"
                     width="1100"
-                    height="70"
+                    height="78"
                     text="Cargando catálogos..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[48, 278]"
-                    width="900"
+                    translation="[56, 318]"
+                    width="860"
                     height="52"
                     text=""
                     wrap="true"
                     maxLines="2"
                     font="font:MediumSystemFont"
                     color="0xE5E5E5FF" />
-                <!-- Decorative CTAs: OK on the focused poster still plays/opens. -->
                 <Rectangle
                     id="heroPrimaryBg"
-                    translation="[48, 344]"
-                    width="220"
-                    height="44"
+                    translation="[56, 388]"
+                    width="240"
+                    height="48"
                     color="0xE50914FF" />
                 <Label
                     id="heroPrimaryLabel"
-                    translation="[48, 344]"
-                    width="220"
-                    height="44"
+                    translation="[56, 388]"
+                    width="240"
+                    height="48"
                     text="Reproducir"
                     horizAlign="center"
                     vertAlign="center"
@@ -187,20 +179,20 @@
                     color="0xFFFFFFFF" />
                 <Rectangle
                     id="heroSecondaryBg"
-                    translation="[284, 344]"
+                    translation="[312, 388]"
                     width="200"
-                    height="44"
-                    color="0x1A1A1DFF" />
+                    height="48"
+                    color="0x2A2A2AFF" />
                 <Label
                     id="heroSecondaryLabel"
-                    translation="[284, 344]"
+                    translation="[312, 388]"
                     width="200"
-                    height="44"
+                    height="48"
                     text="Más info"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
-                    color="0xE5E5E5FF" />
+                    color="0xFFFFFFFF" />
             </Group>
 
             <Group id="discoverFilterGroup" visible="false">
@@ -300,11 +292,11 @@
 
             <RowList
                 id="catalogList"
-                translation="[280, 520]"
-                itemSize="[1580, 340]"
-                rowItemSize="[[176, 310]]"
-                rowItemSpacing="[[22, 0]]"
-                rowSpacings="[10]"
+                translation="[280, 560]"
+                itemSize="[1580, 360]"
+                rowItemSize="[[196, 340]]"
+                rowItemSpacing="[[18, 0]]"
+                rowSpacings="[16]"
                 rowLabelOffset="[[0, 0]]"
                 rowLabelFont="font:MediumBoldSystemFont"
                 rowLabelColor="0xFFFFFFFF"

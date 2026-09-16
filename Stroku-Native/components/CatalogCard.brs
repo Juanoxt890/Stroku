@@ -23,7 +23,7 @@ sub onContentChanged()
         if content.DoesExist("progress") and content.progress > 0.0 and content.progress < 1.0
             progressBarBg.visible = true
             progressBarFill.visible = true
-            progressBarFill.width = ScaleUi(158 * content.progress)
+            progressBarFill.width = ScaleUi(168 * content.progress)
         else
             progressBarBg.visible = false
             progressBarFill.visible = false
@@ -35,13 +35,12 @@ sub onFocusChanged()
     hasFocus = m.top.itemHasFocus
     m.focusFrame.visible = hasFocus
     if m.focusInset <> invalid then m.focusInset.visible = hasFocus
+    m.title.visible = hasFocus
     if hasFocus
         m.title.color = "0xFFFFFFFF"
         m.focusFrame.color = "0xE50914FF"
-        ' Brief allows 1.08–1.12; stay at 1.08 to protect low-end RowList.
         m.top.scale = [1.08, 1.08]
     else
-        m.title.color = "0xB3B3B3FF"
         m.top.scale = [1.0, 1.0]
     end if
 end sub

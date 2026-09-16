@@ -9,50 +9,51 @@
     <script type="text/brightscript" uri="pkg:/components/CatalogCard.brs" />
 
     <children>
-        <!-- Outer accent ring (proven geometry; do not enlarge past rowItemSize). -->
         <Rectangle
             id="focusFrame"
-            width="168"
-            height="246"
+            width="184"
+            height="276"
             color="0xE50914FF"
             visible="false" />
         <Rectangle
             id="focusInset"
-            translation="[3, 3]"
-            width="162"
-            height="240"
-            color="0x141414FF"
+            translation="[4, 4]"
+            width="176"
+            height="268"
+            color="0x0B0B0DFF"
             visible="false" />
         <Poster
             id="poster"
-            translation="[5, 5]"
-            width="158"
-            height="236"
+            translation="[8, 8]"
+            width="168"
+            height="252"
             loadDisplayMode="scaleToZoom" />
         <Rectangle
             id="progressBarBg"
-            translation="[5, 235]"
-            width="158"
+            translation="[8, 252]"
+            width="168"
             height="6"
-            color="0x404040FF"
+            color="0x333333FF"
             visible="false" />
         <Rectangle
             id="progressBarFill"
-            translation="[5, 235]"
+            translation="[8, 252]"
             width="0"
             height="6"
             color="0xE50914FF"
             visible="false" />
+        <!-- Title only when focused — keeps rows poster-forward like Netflix. -->
         <Label
             id="title"
-            translation="[0, 252]"
-            width="168"
-            height="48"
+            translation="[0, 286]"
+            width="184"
+            height="40"
             horizAlign="center"
             vertAlign="top"
             wrap="true"
-            maxLines="2"
-            font="font:SmallSystemFont"
-            color="0xB3B3B3FF" />
+            maxLines="1"
+            font="font:SmallBoldSystemFont"
+            color="0xFFFFFFFF"
+            visible="false" />
     </children>
 </component>
