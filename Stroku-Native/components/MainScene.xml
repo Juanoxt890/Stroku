@@ -123,7 +123,7 @@
 
             <!-- Cinematic billboard: large backdrop, gradient fade, meta + CTAs.
                  Updated from focus handlers; hidden on Settings/Calendar/Addons. -->
-            <Group id="heroBillboard" translation="[228, 88]" visible="true">
+            <Group id="heroBillboard" translation="[228, 132]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
@@ -302,14 +302,14 @@
 
             <RowList
                 id="catalogList"
-                translation="[260, 470]"
+                translation="[260, 510]"
                 itemSize="[1600, 340]"
                 rowItemSize="[[176, 310]]"
                 rowItemSpacing="[[22, 0]]"
                 rowSpacings="[10]"
                 rowLabelOffset="[[0, 0]]"
                 rowLabelFont="font:MediumBoldSystemFont"
-                rowLabelColor="0xFFFFFFFF"
+                rowLabelColor="0xE5E5E5FF"
                 itemComponentName="CatalogCard"
                 numRows="4"
                 showRowLabel="[true]"

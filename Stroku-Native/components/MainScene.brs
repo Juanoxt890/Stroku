@@ -260,8 +260,11 @@ sub init()
     LoadStremioAccount()
     InitializePrimaryShell()
     FetchBoardCatalogs()
+    ShowStatus("Cargando catálogos...", true)
 
-    m.catalogList.SetFocus(true)
+    ' Never focus an empty RowList: on many Roku builds it swallows the remote
+    ' and nothing moves until content exists.
+    m.navList.SetFocus(true)
 end sub
 
 sub InitializePrimaryShell()
@@ -401,7 +404,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(260, 470)
+    m.catalogList.translation = ScaleUiXY(260, 510)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -436,9 +439,9 @@ sub RenderBoard(focusContent as boolean)
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 470)
+    m.catalogList.translation = ScaleUiXY(260, 510)
     RebuildCatalog()
-    if focusContent then m.catalogList.SetFocus(true)
+    if focusContent then FocusBoardOrNav()
 end sub
 
 sub RenderDiscover(focusContent as boolean)
@@ -483,7 +486,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 470)
+    m.catalogList.translation = ScaleUiXY(260, 510)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome("Library", "Your Stremio library and watch history are empty.", "")
@@ -2472,7 +2475,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(260, 470)
+                m.catalogList.translation = ScaleUiXY(260, 510)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2638,6 +2641,8 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
         if m.activeTab = "board"
             m.catalogRows = m.boardRows
             RebuildCatalog()
+            HideStatus()
+            FocusBoardOrNav()
         end if
     else if target = "discover"
         m.discoverRequestActive = false
@@ -2659,7 +2664,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(260, 470)
+            m.catalogList.translation = ScaleUiXY(260, 510)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2688,15 +2693,8 @@ function IsImdbId(value as string) as boolean
 end function
 
 sub RebuildCatalog()
-    ' Skip full ContentNode rebuild on tab re-entry when rows are unchanged.
-    fingerprint = CatalogRowsFingerprint(m.catalogRows, m.catalogNames)
-    if fingerprint <> "" and fingerprint = m.catalogContentFingerprint and m.catalogList.content <> invalid
-        if m.screenMode = "home" and m.catalogList.visible and not m.navList.HasFocus() and not m.primaryInfoList.HasFocus() and not m.settingsList.HasFocus() and m.discoverFilterFocus < 0
-            m.catalogList.SetFocus(true)
-        end if
-        return
-    end if
-
+    ' Always rebuild. A stale fingerprint skip left empty rows focused and the
+    ' remote unresponsive after the premium UI pass.
     root = CreateObject("roSGNode", "ContentNode")
 
     for rowIndex = 0 to m.catalogRows.Count() - 1
@@ -2732,10 +2730,8 @@ sub RebuildCatalog()
     end for
 
     m.catalogList.content = root
-    m.catalogContentFingerprint = fingerprint
-    if m.screenMode = "home" and m.catalogList.visible and not m.navList.HasFocus() and not m.primaryInfoList.HasFocus() and not m.settingsList.HasFocus() and m.discoverFilterFocus < 0
-        m.catalogList.SetFocus(true)
-    end if
+    m.catalogContentFingerprint = CatalogRowsFingerprint(m.catalogRows, m.catalogNames)
+    FocusBoardOrNav()
 end sub
 
 sub RebuildDiscoverGrid()
@@ -2903,6 +2899,28 @@ sub OpenSeriesEpisodes(item as object)
     StartRequest(CinemetaMetaUrl("series", SafeString(item, "id")), "meta|series")
 end sub
 
+
+
+function CatalogHasItems() as boolean
+    if m.catalogRows = invalid then return false
+    for each row in m.catalogRows
+        if row <> invalid and row.Count() > 0 then return true
+    end for
+    return false
+end function
+
+sub FocusBoardOrNav()
+    if m.screenMode <> "home" then return
+    if m.activeTab <> "board" and m.activeTab <> "library" then return
+    if not m.catalogList.visible then return
+    if m.primaryInfoList.HasFocus() or m.settingsList.HasFocus() then return
+    if m.discoverFilterFocus >= 0 then return
+    if CatalogHasItems()
+        m.catalogList.SetFocus(true)
+    else
+        m.navList.SetFocus(true)
+    end if
+end sub
 
 function CatalogRowsFingerprint(rows as object, names as object) as string
     if rows = invalid then return ""
@@ -4688,6 +4706,11 @@ function onKeyEvent(key as string, press as boolean) as boolean
         else if key = "right" and m.activeTab = "settings" and m.settingsList.HasFocus() and m.settingsTabIndex < m.settingsTabs.Count() - 1
             m.settingsTabIndex = m.settingsTabIndex + 1
             RenderSettings(true)
+            return true
+        else if m.catalogList.HasFocus() and not CatalogHasItems()
+            ' Empty RowList can trap the remote; bounce focus back to the nav.
+            m.navList.SetFocus(true)
+            if key = "left" or key = "up" or key = "back" or key = "OK" then return true
             return true
         else if key = "left" and not m.navList.HasFocus()
             m.navList.SetFocus(true)
