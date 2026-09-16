@@ -20,6 +20,12 @@ sub init()
     m.catalogList = m.top.FindNode("catalogList")
     m.discoverGrid = m.top.FindNode("discoverGrid")
     m.navList = m.top.FindNode("navList")
+    m.navItems = []
+    for navItemIndex = 0 to 5
+        m.navItems.Push(m.top.FindNode("navItem" + navItemIndex.ToStr()))
+    end for
+    m.navRailFocused = false
+    m.navContentNodes = []
     m.searchBar = m.top.FindNode("searchBar")
     m.searchPrompt = m.top.FindNode("searchPrompt")
     m.primaryTitle = m.top.FindNode("primaryTitle")
@@ -221,9 +227,7 @@ sub init()
     m.exitVideoDialog = invalid
     m.exitAppDialog = invalid
 
-    m.navList.ObserveField("itemSelected", "onNavSelected")
-    m.navList.ObserveField("itemFocused", "onNavFocused")
-    m.navList.wrap = false
+    ' Fixed Group of 6 nav rows (v21): manual focus — no MarkupList scroll.
     m.primaryInfoList.ObserveField("itemSelected", "onPrimaryInfoSelected")
     m.settingsList.ObserveField("itemSelected", "onSettingsRowSelected")
     m.settingsList.ObserveField("itemFocused", "onSettingsRowFocused")
@@ -274,7 +278,7 @@ sub init()
     ShowStatus("Cargando catálogos...", true)
 
     ' Never focus an empty RowList — it can swallow the remote on some builds.
-    m.navList.SetFocus(true)
+    FocusNavRail(0)
 end sub
 
 sub InitializePrimaryShell()
@@ -285,37 +289,68 @@ sub InitializePrimaryShell()
 end sub
 
 ' Rebuilt on every language change, so the labels follow the active language.
-' MarkupList + NavItem: title, iconUri, selected (active tab accent when unfocused).
+' Fixed Group of 6 NavItems: title, iconUri, selected (active tab accent when unfocused).
 sub UpdateNavContent()
-    content = CreateObject("roSGNode", "ContentNode")
+    m.navContentNodes = []
     for index = 0 to m.navIds.Count() - 1
         id = m.navIds[index]
-        child = content.CreateChild("NavItemContent")
+        child = CreateObject("roSGNode", "NavItemContent")
         child.title = TrText("nav." + id)
         child.navId = id
         child.iconUri = "pkg:/images/nav/nav_" + id + ".png"
         child.selected = id = m.activeTab
+        m.navContentNodes.Push(child)
+        if index < m.navItems.Count() and m.navItems[index] <> invalid
+            m.navItems[index].itemContent = child
+        end if
     end for
-    m.navList.content = content
-    m.navList.JumpToItem = m.navIndex
+    SyncNavItemFocus()
 end sub
 
-sub onNavFocused(event as object)
-    index = event.GetData()
-    if index >= 0 and index < m.navIds.Count()
-        m.navIndex = index
-    end if
+sub SyncNavItemFocus()
+    if m.navItems = invalid then return
+    for index = 0 to m.navItems.Count() - 1
+        item = m.navItems[index]
+        if item <> invalid
+            item.itemHasFocus = m.navRailFocused and index = m.navIndex
+        end if
+    end for
 end sub
 
-sub onNavSelected(event as object)
-    index = event.GetData()
+function IsNavRailFocused() as boolean
+    return m.navRailFocused = true
+end function
+
+sub FocusNavRail(index as integer)
+    if index < 0 then index = 0
+    if index >= m.navIds.Count() then index = m.navIds.Count() - 1
+    m.navIndex = index
+    m.navRailFocused = true
+    BlurTopBar()
+    m.catalogList.SetFocus(false)
+    m.discoverGrid.SetFocus(false)
+    m.settingsList.SetFocus(false)
+    m.calendarList.SetFocus(false)
+    m.addonList.SetFocus(false)
+    m.primaryInfoList.SetFocus(false)
+    m.top.SetFocus(true)
+    SyncNavItemFocus()
+end sub
+
+sub BlurNavRail()
+    m.navRailFocused = false
+    SyncNavItemFocus()
+end sub
+
+sub ActivateNavItem(index as integer)
     if index < 0 or index >= m.navIds.Count() then return
     tabName = m.navIds[index]
     if tabName = m.activeTab
+        BlurNavRail()
         FocusActiveContent()
     else
         SetActiveTab(tabName, false)
-        m.navList.SetFocus(true)
+        FocusNavRail(index)
     end if
 end sub
 
@@ -328,24 +363,25 @@ sub SetActiveTab(tabName as string, focusContent as boolean)
         end if
     end for
     ' Keep rail selected accent in sync even when focus is on content.
-    if m.navList.content <> invalid
-        for index = 0 to m.navIds.Count() - 1
-            child = m.navList.content.getChild(index)
+    if m.navContentNodes <> invalid
+        for index = 0 to m.navContentNodes.Count() - 1
+            child = m.navContentNodes[index]
             if child <> invalid and child.hasField("selected")
                 child.selected = m.navIds[index] = tabName
             end if
         end for
     end if
-    m.navList.JumpToItem = m.navIndex
+    ' No JumpToItem — fixed rows never scroll away.
+    SyncNavItemFocus()
     RenderActiveTab(focusContent)
     if tabName = "discover" and IsCatalogRowsEmpty(m.discoverRows) and not m.discoverRequestActive
         FetchDiscoverCatalog()
     end if
 end sub
 
-' The top bar is the row above every screen's content: search only (v19).
-' Like the Discover filter row and the Addons chips, it is not a focusable node
-' -- it is drawn from here and driven while the scene holds focus.
+' Rail Buscar (v21): search control lives in the left rail above Inicio.
+' Like Discover filters / Addons chips, it is not a focusable node — drawn here
+' and driven while the scene holds focus (m.topBarFocus).
 function TopBarItemCount() as integer
     ' Search only — Apoyar removed from Home top bar (still in Settings → General).
     return 1
@@ -368,8 +404,9 @@ end sub
 sub FocusTopBar(index as integer)
     m.topBarFocus = index
     UpdateTopBar()
-    ' Every content list has to be blurred or it swallows OK and the arrows
-    ' before onKeyEvent ever sees them.
+    ' Rail search owns top-bar focus; blur nav rows + content lists so the scene
+    ' receives OK / arrows (same pattern as Discover filters / Addons chips).
+    BlurNavRail()
     m.catalogList.SetFocus(false)
     m.discoverGrid.SetFocus(false)
     m.settingsList.SetFocus(false)
@@ -392,6 +429,7 @@ sub ActivateTopBarItem(index as integer)
 end sub
 
 sub FocusActiveContent()
+    BlurNavRail()
     if m.settingsGroup.visible
         m.settingsList.SetFocus(true)
     else if m.calendarGroup.visible
@@ -418,6 +456,7 @@ sub RenderActiveTab(focusContent as boolean)
     m.coffeeGroup.visible = false
     m.topBarFocus = -1
     UpdateTopBar()
+    BlurNavRail()
     BlurHeroCtas()
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
@@ -859,6 +898,7 @@ end sub
 ' the scene takes focus or it keeps swallowing OK and the arrows.
 sub FocusAddonChips()
     if m.activeTab <> "addons" then return
+    BlurNavRail()
     if m.addonChipIndex < 0 then m.addonChipIndex = 0
     UpdateAddonChips()
     m.addonList.SetFocus(false)
@@ -1297,6 +1337,7 @@ end function
 
 sub FocusDiscoverFilters()
     if m.activeTab <> "discover" then return
+    BlurNavRail()
     if m.discoverFilterFocus < 0 then m.discoverFilterFocus = 0
     UpdateDiscoverFilterFocus()
     m.discoverGrid.SetFocus(false)
@@ -3171,7 +3212,7 @@ sub FocusBoardOrNav()
     if CatalogHasItems()
         m.catalogList.SetFocus(true)
     else
-        m.navList.SetFocus(true)
+        FocusNavRail(m.navIndex)
     end if
 end sub
 
@@ -4845,25 +4886,56 @@ function onKeyEvent(key as string, press as boolean) as boolean
 
     if m.screenMode = "home"
         if m.topBarFocus >= 0
-            if key = "left" and m.topBarFocus > 0
-                m.topBarFocus = m.topBarFocus - 1
-                UpdateTopBar()
-            else if key = "left"
-                ' Leftmost item: fall out of the top bar to the nav rail, the
-                ' same way the Addons chip row does.
-                BlurTopBar()
-                m.navList.SetFocus(true)
-            else if key = "right" and m.topBarFocus < TopBarItemCount() - 1
-                m.topBarFocus = m.topBarFocus + 1
-                UpdateTopBar()
-            else if key = "OK"
+            ' Rail Buscar (above Inicio): OK opens search; DOWN → Inicio.
+            if key = "OK"
                 ActivateTopBarItem(m.topBarFocus)
             else if key = "down" or key = "back"
                 BlurTopBar()
-                ' v20: no hero CTAs — down from search goes straight to catalog/content.
+                FocusNavRail(0)
+            else if key = "right"
+                ' Search sits in the rail — right enters content for the active tab.
+                BlurTopBar()
                 FocusActiveContent()
             end if
             return true
+        else if IsNavRailFocused()
+            if key = "up"
+                if m.navIndex <= 0
+                    FocusTopBar(0)
+                else
+                    m.navIndex = m.navIndex - 1
+                    SyncNavItemFocus()
+                end if
+                return true
+            else if key = "down"
+                if m.navIndex < m.navIds.Count() - 1
+                    m.navIndex = m.navIndex + 1
+                    SyncNavItemFocus()
+                end if
+                return true
+            else if key = "OK"
+                ActivateNavItem(m.navIndex)
+                return true
+            else if key = "right"
+                BlurNavRail()
+                if m.settingsGroup.visible
+                    m.settingsList.SetFocus(true)
+                else if m.calendarGroup.visible
+                    m.calendarList.SetFocus(true)
+                else if m.addonsGroup.visible
+                    FocusAddonList()
+                else if m.primaryInfoGroup.visible
+                    m.primaryInfoList.SetFocus(true)
+                else if m.activeTab = "discover"
+                    m.discoverGrid.SetFocus(true)
+                else
+                    m.catalogList.SetFocus(true)
+                end if
+                return true
+            else if key = "back"
+                ' Stay on rail; mirror prior MarkupList back behavior (no exit).
+                return true
+            end if
         else if m.heroCtaFocus >= 0
             ' Defensive: CTA focus path disabled; escape to search or content.
             BlurHeroCtas()
@@ -4909,7 +4981,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
             else if key = "left"
                 ' Leftmost chip: fall out of the toolbar to the nav rail.
                 BlurAddonChips()
-                m.navList.SetFocus(true)
+                FocusNavRail(m.navIndex)
                 return true
             else if key = "right" and m.addonChipIndex < AddonChips().Count() - 1
                 m.addonChipIndex = m.addonChipIndex + 1
@@ -4948,27 +5020,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
         else if key = "OK" and m.catalogList.visible and m.catalogList.HasFocus() and IsSeeAllItem(m.focusedCatalogItem)
             ActivateCatalogItem(m.focusedCatalogItem)
             return true
-        else if key = "left" and not m.navList.HasFocus()
-            m.navList.SetFocus(true)
+        else if key = "left" and not IsNavRailFocused()
+            FocusNavRail(m.navIndex)
             return true
-        else if key = "right" and m.navList.HasFocus()
-            if m.settingsGroup.visible
-                m.settingsList.SetFocus(true)
-            else if m.calendarGroup.visible
-                m.calendarList.SetFocus(true)
-            else if m.addonsGroup.visible
-                ' Without this the Addons screen handed focus to the hidden
-                ' catalog list and the remote stopped responding.
-                FocusAddonList()
-            else if m.primaryInfoGroup.visible
-                m.primaryInfoList.SetFocus(true)
-            else if m.activeTab = "discover"
-                m.discoverGrid.SetFocus(true)
-            else
-                m.catalogList.SetFocus(true)
-            end if
-            return true
-        else if key = "up" and not m.navList.HasFocus()
+        else if key = "up" and not IsNavRailFocused() and m.topBarFocus < 0
             if m.activeTab = "discover"
                 FocusDiscoverFilters()
                 return true
@@ -4977,7 +5032,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 FocusAddonChips()
                 return true
             end if
-            ' v20: UP from Board/Library catalog goes to search (top bar), never dead CTAs.
+            ' v21: UP from Board/Library catalog → rail Buscar (or nav via left).
             FocusTopBar(0)
             return true
         end if

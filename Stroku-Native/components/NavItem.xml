@@ -13,18 +13,18 @@
         <Rectangle
             id="rowBg"
             width="440"
-            height="72"
+            height="68"
             color="0x00000000" />
         <Rectangle
             id="accentBar"
-            translation="[0, 10]"
+            translation="[0, 8]"
             width="6"
             height="52"
             color="0xE50914FF"
             visible="false" />
         <Poster
             id="icon"
-            translation="[28, 14]"
+            translation="[28, 12]"
             width="44"
             height="44"
             loadDisplayMode="scaleToFit" />
@@ -32,7 +32,7 @@
             id="label"
             translation="[90, 0]"
             width="320"
-            height="72"
+            height="68"
             vertAlign="center"
             font="font:MediumSystemFont"
             color="0xB3B3B3FF" />

@@ -19,28 +19,42 @@
         <Rectangle translation="[0, 0]" width="1920" height="2" color="0xE50914FF" />
 
         <Group id="homeGroup">
-            <!-- Left rail 25% FHD (480px). MarkupList + NavItem for icon+label. -->
+            <!-- Left rail 25% FHD (480px): logo → Buscar → 6 fixed nav rows (no MarkupList scroll). -->
             <Rectangle id="leftRailBg" translation="[0, 0]" width="480" height="1080" color="0x0B0B0BFF" />
             <Rectangle translation="[480, 0]" width="2" height="1080" color="0x1A1A1DFF" />
             <Poster
                 id="brandLogo"
                 translation="[20, 16]"
                 width="440"
-                height="120"
+                height="100"
                 uri="pkg:/images/brand_lockup.png"
                 loadDisplayMode="scaleToFit" />
-            <MarkupList
-                id="navList"
-                translation="[20, 156]"
+            <!-- Buscar in rail above Inicio (v21); not over hero content. -->
+            <Poster
+                id="searchBar"
+                translation="[20, 128]"
                 width="440"
-                height="500"
-                itemSize="[440, 72]"
-                itemSpacing="[0, 6]"
-                numRows="6"
-                itemComponentName="NavItem"
-                drawFocusFeedback="false"
-                wrap="false"
-                vertFocusAnimationStyle="fixedFocus" />
+                height="52"
+                uri="pkg:/images/search_bar_bg.png"
+                loadDisplayMode="scaleToFit" />
+            <Label
+                id="searchPrompt"
+                translation="[44, 136]"
+                width="392"
+                height="36"
+                text="Buscar"
+                vertAlign="center"
+                font="font:SmallSystemFont"
+                color="0x808080FF" />
+            <!-- Fixed Group of 6: item 68 + spacing 8; all rows always visible. -->
+            <Group id="navList" translation="[20, 200]">
+                <NavItem id="navItem0" translation="[0, 0]" />
+                <NavItem id="navItem1" translation="[0, 76]" />
+                <NavItem id="navItem2" translation="[0, 152]" />
+                <NavItem id="navItem3" translation="[0, 228]" />
+                <NavItem id="navItem4" translation="[0, 304]" />
+                <NavItem id="navItem5" translation="[0, 380]" />
+            </Group>
 
             <!-- Apoyar removed from Home top bar (v19); coffee/support stay in Settings. -->
             <Rectangle
@@ -96,8 +110,7 @@
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
 
-            <!-- Netflix-style billboard below search (v20): starts ~Y110 so Buscar is not clipped.
-                 Search nodes are siblings AFTER this group for z-order above heroPoster. -->
+            <!-- Netflix-style billboard (v21): search lives in left rail, not over hero. -->
             <Group id="heroBillboard" translation="[480, 110]" visible="true">
                 <Poster
                     id="heroPoster"
@@ -186,23 +199,7 @@
                     visible="false" />
             </Group>
 
-            <!-- Search ABOVE hero in z-order (drawn after billboard). Y~28–36 clear of hero Y110. -->
-            <Poster
-                id="searchBar"
-                translation="[508, 28]"
-                width="480"
-                height="52"
-                uri="pkg:/images/search_bar_bg.png"
-                loadDisplayMode="scaleToFit" />
-            <Label
-                id="searchPrompt"
-                translation="[532, 36]"
-                width="430"
-                height="36"
-                text="Buscar"
-                vertAlign="center"
-                font="font:SmallSystemFont"
-                color="0x808080FF" />
+            <!-- Content-area search removed in v21; Buscar lives in the left rail. -->
 
             <Group id="discoverFilterGroup" visible="false">
                 <Rectangle
