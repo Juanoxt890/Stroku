@@ -70,15 +70,8 @@ sub init()
     end for
     m.heroTitle = m.top.FindNode("heroTitle")
     m.heroDescription = m.top.FindNode("heroDescription")
-    m.heroMeta = m.top.FindNode("heroMeta")
     m.heroBillboard = m.top.FindNode("heroBillboard")
     m.heroPoster = m.top.FindNode("heroPoster")
-    m.heroPrimaryLabel = m.top.FindNode("heroPrimaryLabel")
-    m.heroSecondaryLabel = m.top.FindNode("heroSecondaryLabel")
-    m.lastHeroPosterUri = ""
-    m.catalogContentFingerprint = ""
-    m.discoverContentFingerprint = ""
-    m.chromeNodeCache = {}
     m.homeGroup = m.top.FindNode("homeGroup")
     m.episodeGroup = m.top.FindNode("episodeGroup")
     m.episodeBackground = m.top.FindNode("episodeBackground")
@@ -259,16 +252,9 @@ sub init()
     LoadPlayerPreferences()
     LoadStremioAccount()
     InitializePrimaryShell()
-    ' Status BEFORE requests: a fast Task callback can HideStatus before we
-    ' ever show loading, or re-show loading after success and leave it stuck.
-    m.boardCatalogPending = 0
-    m.boardCatalogErrors = 0
-    ShowStatus("Cargando catálogos...", true)
     FetchBoardCatalogs()
 
-    ' Never focus an empty RowList: on many Roku builds it swallows the remote
-    ' and nothing moves until content exists.
-    m.navList.SetFocus(true)
+    m.catalogList.SetFocus(true)
 end sub
 
 sub InitializePrimaryShell()
@@ -445,7 +431,7 @@ sub RenderBoard(focusContent as boolean)
     m.catalogList.visible = true
     m.catalogList.translation = ScaleUiXY(260, 510)
     RebuildCatalog()
-    if focusContent then FocusBoardOrNav()
+    if focusContent then m.catalogList.SetFocus(true)
 end sub
 
 sub RenderDiscover(focusContent as boolean)
@@ -2315,8 +2301,6 @@ sub FetchCatalog(contentType as string, rowIndex as integer)
 end sub
 
 sub FetchBoardCatalogs()
-    ' Prefer cinemeta-catalogs hosts (no 307 hop). Roku roUrlTransfer often fails
-    ' or stalls on redirecting v3-cinemeta catalog URLs.
     urls = [
         "https://cinemeta-catalogs.strem.io/top/catalog/movie/top.json"
         "https://cinemeta-catalogs.strem.io/top/catalog/series/top.json"
@@ -2325,42 +2309,9 @@ sub FetchBoardCatalogs()
         "https://v3-channels.strem.io/catalog/channel/top.json"
         "https://caching.stremio.net/publicdomainmovies.now.sh/catalog/movie/publicdomainmovies.json"
     ]
-    m.boardCatalogPending = urls.Count()
-    m.boardCatalogErrors = 0
-    m.boardCatalogLastError = ""
     for index = 0 to urls.Count() - 1
-        StartBoardCatalogRequest(urls[index], "boardCatalog|" + index.ToStr())
+        StartRequest(urls[index], "boardCatalog|" + index.ToStr())
     end for
-end sub
-
-sub StartBoardCatalogRequest(url as string, requestId as string)
-    task = CreateObject("roSGNode", "HttpTask")
-    task.url = url
-    task.requestId = requestId
-    task.timeoutMs = 25000
-    task.ObserveField("response", "onHttpResponse")
-    m.tasks.Push(task)
-    task.control = "RUN"
-end sub
-
-sub CompleteBoardCatalogRequest(ok as boolean, errorMessage as string)
-    if m.boardCatalogPending > 0 then m.boardCatalogPending = m.boardCatalogPending - 1
-    if not ok
-        m.boardCatalogErrors = m.boardCatalogErrors + 1
-        if errorMessage <> "" then m.boardCatalogLastError = errorMessage
-    end if
-    if m.boardCatalogPending > 0 then return
-
-    if CatalogHasItems()
-        HideStatus()
-        FocusBoardOrNav()
-        return
-    end if
-
-    msg = m.boardCatalogLastError
-    if msg = "" then msg = "No se pudieron cargar los catálogos."
-    ShowStatus(msg, false)
-    m.navList.SetFocus(true)
 end sub
 
 sub FetchDiscoverCatalog()
@@ -2519,11 +2470,7 @@ sub onHttpResponse(event as object)
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
             if requestType = "discoverCatalog" then m.discoverRequestActive = false
-            if requestType = "boardCatalog" or requestType = "catalog"
-                CompleteBoardCatalogRequest(false, response.error)
-            else
-                ShowStatus(response.error, false)
-            end if
+            ShowStatus(response.error, false)
         else if requestType = "config"
             m.pendingAddonUrl = ""
             ShowStatus(TrFormat("status.addon.verifyFailed", response.error), false)
@@ -2560,8 +2507,8 @@ sub onHttpResponse(event as object)
     end if
 
     if requestType = "catalog" or requestType = "boardCatalog"
+        HideStatus()
         HandleCatalogResponse(response.data, Val(parts[1]), "board")
-        CompleteBoardCatalogRequest(true, "")
     else if requestType = "discoverCatalog"
         HideStatus()
         HandleCatalogResponse(response.data, Val(parts[1]), "discover")
@@ -2734,8 +2681,6 @@ function IsImdbId(value as string) as boolean
 end function
 
 sub RebuildCatalog()
-    ' Always rebuild. A stale fingerprint skip left empty rows focused and the
-    ' remote unresponsive after the premium UI pass.
     root = CreateObject("roSGNode", "ContentNode")
 
     for rowIndex = 0 to m.catalogRows.Count() - 1
@@ -2771,16 +2716,12 @@ sub RebuildCatalog()
     end for
 
     m.catalogList.content = root
-    m.catalogContentFingerprint = CatalogRowsFingerprint(m.catalogRows, m.catalogNames)
-    FocusBoardOrNav()
+    if m.screenMode = "home" and m.catalogList.visible and not m.navList.HasFocus() and not m.primaryInfoList.HasFocus() and not m.settingsList.HasFocus() and m.discoverFilterFocus < 0
+        m.catalogList.SetFocus(true)
+    end if
 end sub
 
 sub RebuildDiscoverGrid()
-    fingerprint = CatalogRowsFingerprint(m.discoverRows, m.discoverNames)
-    if fingerprint <> "" and fingerprint = m.discoverContentFingerprint and m.discoverGrid.content <> invalid
-        return
-    end if
-
     content = CreateObject("roSGNode", "ContentNode")
     if m.discoverRows <> invalid and m.discoverRows.Count() > 0
         for each item in m.discoverRows[0]
@@ -2809,7 +2750,6 @@ sub RebuildDiscoverGrid()
         end for
     end if
     m.discoverGrid.content = content
-    m.discoverContentFingerprint = fingerprint
 end sub
 
 function GetDiscoverGridItem(index as integer) as dynamic
@@ -2941,84 +2881,22 @@ sub OpenSeriesEpisodes(item as object)
 end sub
 
 
-
-function CatalogHasItems() as boolean
-    if m.catalogRows = invalid then return false
-    for each row in m.catalogRows
-        if row <> invalid and row.Count() > 0 then return true
-    end for
-    return false
-end function
-
-sub FocusBoardOrNav()
-    if m.screenMode <> "home" then return
-    if m.activeTab <> "board" and m.activeTab <> "library" then return
-    if not m.catalogList.visible then return
-    if m.primaryInfoList.HasFocus() or m.settingsList.HasFocus() then return
-    if m.discoverFilterFocus >= 0 then return
-    if CatalogHasItems()
-        m.catalogList.SetFocus(true)
-    else
-        m.navList.SetFocus(true)
-    end if
-end sub
-
-function CatalogRowsFingerprint(rows as object, names as object) as string
-    if rows = invalid then return ""
-    parts = []
-    nameCount = 0
-    if names <> invalid then nameCount = names.Count()
-    for rowIndex = 0 to rows.Count() - 1
-        rowName = ""
-        if rowIndex < nameCount then rowName = names[rowIndex]
-        row = rows[rowIndex]
-        count = 0
-        firstId = ""
-        lastId = ""
-        if row <> invalid
-            count = row.Count()
-            if count > 0
-                firstId = SafeString(row[0], "id")
-                lastId = SafeString(row[count - 1], "id")
-            end if
-        end if
-        parts.Push(rowName + ":" + count.ToStr() + ":" + firstId + ":" + lastId)
-    end for
-    return JoinStrings(parts, "|")
-end function
-
 sub SetHeroBillboardVisible(visible as boolean)
     if m.heroBillboard <> invalid then m.heroBillboard.visible = visible
-    ' Billboard owns the section header on Board/Discover/Library; keep primary
-    ' labels for Settings/Calendar/Addons where the hero is hidden.
-    if m.primaryTitle <> invalid then m.primaryTitle.visible = not visible
-    if m.primarySubtitle <> invalid then m.primarySubtitle.visible = not visible
 end sub
 
 sub ClearHeroPoster()
     if m.heroPoster <> invalid then m.heroPoster.uri = ""
-    m.lastHeroPosterUri = ""
-    if m.heroMeta <> invalid then m.heroMeta.text = ""
 end sub
 
 sub SetHeroChrome(title as string, description as string, posterUrl as string)
-    SetHeroChromeEx(title, description, posterUrl, "")
-end sub
-
-sub SetHeroChromeEx(title as string, description as string, posterUrl as string, meta as string)
     if m.heroTitle <> invalid then m.heroTitle.text = title
     if m.heroDescription <> invalid then m.heroDescription.text = description
-    if m.heroMeta <> invalid then m.heroMeta.text = meta
     if m.heroPoster <> invalid
-        ' Avoid thrashing the Poster decoder when focus moves within the same title.
-        if posterUrl = ""
-            if m.lastHeroPosterUri <> ""
-                m.heroPoster.uri = ""
-                m.lastHeroPosterUri = ""
-            end if
-        else if posterUrl <> m.lastHeroPosterUri
+        if posterUrl <> ""
             m.heroPoster.uri = posterUrl
-            m.lastHeroPosterUri = posterUrl
+        else
+            m.heroPoster.uri = ""
         end if
     end if
 end sub
@@ -3029,27 +2907,16 @@ sub UpdateHeroFromItem(item as object)
     description = HomeHeroDescription(item)
     posterUrl = SafeString(item, "background")
     if posterUrl = "" then posterUrl = SafeString(item, "poster")
-    SetHeroChromeEx(title, description, posterUrl, HomeHeroMeta(item))
+    SetHeroChrome(title, description, posterUrl)
 end sub
-
-function HomeHeroMeta(item as object) as string
-    parts = []
-    typeText = SafeString(item, "type")
-    if typeText <> "" then parts.Push(UCase(typeText))
-    year = SafeString(item, "releaseInfo")
-    if year = "" then year = SafeString(item, "year")
-    if year <> "" then parts.Push(year)
-    genres = SafeString(item, "genres")
-    if genres = "" and item.DoesExist("genre") then genres = SafeString(item, "genre")
-    if genres <> "" then parts.Push(genres)
-    return JoinStrings(parts, "  ·  ")
-end function
 
 function HomeHeroDescription(item as object) as string
     description = SafeString(item, "description")
-    if description = "" then return ""
-    ' Keep synopsis short for 10-foot readability.
-    if Len(description) > 180 then description = Left(description, 177) + "..."
+    if SafeString(item, "type") = "movie"
+        hint = "Streams load automatically"
+        if description <> "" then return description + "    " + hint
+        return hint
+    end if
     return description
 end function
 
@@ -4036,14 +3903,7 @@ sub ApplyStaticChromeText()
 end sub
 
 sub ApplyChromeLabel(id as string, text as string)
-    node = invalid
-    if m.chromeNodeCache <> invalid and m.chromeNodeCache.DoesExist(id)
-        node = m.chromeNodeCache[id]
-    else
-        node = m.top.FindNode(id)
-        if m.chromeNodeCache = invalid then m.chromeNodeCache = {}
-        m.chromeNodeCache[id] = node
-    end if
+    node = m.top.FindNode(id)
     if node <> invalid then node.text = text
 end sub
 
@@ -4748,11 +4608,6 @@ function onKeyEvent(key as string, press as boolean) as boolean
             m.settingsTabIndex = m.settingsTabIndex + 1
             RenderSettings(true)
             return true
-        else if m.catalogList.HasFocus() and not CatalogHasItems()
-            ' Empty RowList can trap the remote; bounce focus back to the nav.
-            m.navList.SetFocus(true)
-            if key = "left" or key = "up" or key = "back" or key = "OK" then return true
-            return true
         else if key = "left" and not m.navList.HasFocus()
             m.navList.SetFocus(true)
             return true
@@ -5092,25 +4947,14 @@ function StreamCardLine1(stream as object, qualityText as string, sizeText as st
     return JoinStrings(parts, "  ·  ")
 end function
 
-' Line 2: Audio + Subs languages (structured fields first, then release-name parse).
+' Line 2: languages / audio / subtitle hints parsed from name/title/description/filename.
 function StreamCardLine2(stream as object) as string
-    fieldAudio = ExtractStreamLanguageField(stream, ["audioLanguages", "audioLangs", "lang", "language", "languages", "audio"])
-    fieldSubs = ExtractStreamLanguageField(stream, ["subtitleLanguages", "subLangs", "subtitles", "subs"])
     haystack = StreamParseHaystack(stream)
-    parsedLangs = ExtractStreamLanguages(haystack)
-    parsedSubs = ExtractStreamSubtitles(haystack)
-    audioCodec = ExtractStreamAudio(haystack)
-
-    audioLabel = fieldAudio
-    if audioLabel = "" then audioLabel = parsedLangs
-    subsLabel = fieldSubs
-    if subsLabel = "" then subsLabel = parsedSubs
-
+    languages = ExtractStreamLanguages(haystack)
+    audio = ExtractStreamAudio(haystack)
     parts = []
-    if audioLabel <> "" then parts.Push("Audio: " + audioLabel)
-    if subsLabel <> "" then parts.Push("Subs: " + subsLabel)
-    if audioCodec <> "" then parts.Push(audioCodec)
-
+    if languages <> "" then parts.Push(languages)
+    if audio <> "" then parts.Push(audio)
     if parts.Count() = 0
         ' Fall back to a cleaned release first-line without crushing everything together.
         release = StreamCardTitle(stream)
@@ -5142,127 +4986,12 @@ function StreamParseHaystack(stream as object) as string
     chunks.Push(SafeString(stream, "name"))
     chunks.Push(SafeString(stream, "title"))
     chunks.Push(SafeString(stream, "description"))
-    chunks.Push(FormatStreamLangValue(stream, "lang"))
-    chunks.Push(FormatStreamLangValue(stream, "language"))
-    chunks.Push(FormatStreamLangValue(stream, "languages"))
-    chunks.Push(FormatStreamLangValue(stream, "audio"))
-    chunks.Push(FormatStreamLangValue(stream, "audioLanguages"))
-    chunks.Push(FormatStreamLangValue(stream, "subtitles"))
     if stream.DoesExist("behaviorHints") and stream.behaviorHints <> invalid
         hints = stream.behaviorHints
         chunks.Push(SafeString(hints, "bingeGroup").Replace("|", " "))
         chunks.Push(SafeString(hints, "filename"))
-        chunks.Push(FormatStreamLangValue(hints, "audioLanguages"))
-        chunks.Push(FormatStreamLangValue(hints, "subtitleLanguages"))
-        chunks.Push(FormatStreamLangValue(hints, "lang"))
-        chunks.Push(FormatStreamLangValue(hints, "languages"))
-        chunks.Push(FormatStreamLangValue(hints, "audio"))
-        chunks.Push(FormatStreamLangValue(hints, "subtitles"))
     end if
     return JoinStrings(chunks, " ")
-end function
-
-' Pull a language-ish field from stream or behaviorHints (string / array / object).
-function ExtractStreamLanguageField(stream as object, keys as object) as string
-    if stream = invalid then return ""
-    for each key in keys
-        value = FormatStreamLangValue(stream, key)
-        if value <> "" then return value
-    end for
-    if stream.DoesExist("behaviorHints") and stream.behaviorHints <> invalid
-        hints = stream.behaviorHints
-        for each key in keys
-            value = FormatStreamLangValue(hints, key)
-            if value <> "" then return value
-        end for
-    end if
-    return ""
-end function
-
-function FormatStreamLangValue(obj as object, key as string) as string
-    if obj = invalid or not obj.DoesExist(key) then return ""
-    value = obj[key]
-    if value = invalid then return ""
-    valueType = Type(value)
-    if valueType = "roArray"
-        parts = []
-        for each entry in value
-            if entry <> invalid
-                text = entry.ToStr().Trim()
-                if text <> "" then parts.Push(NormalizeLanguageLabel(text))
-            end if
-        end for
-        return JoinStrings(parts, ", ")
-    end if
-    if valueType = "roAssociativeArray"
-        ' Common Stremio shape: { eng: true, spa: true } or { language: "eng" }
-        parts = []
-        if value.DoesExist("language")
-            text = FormatStreamLangValue(value, "language")
-            if text <> "" then return text
-        end if
-        for each entryKey in value
-            flag = value[entryKey]
-            if flag = true or flag = 1 or (Type(flag) = "String" and flag <> "")
-                parts.Push(NormalizeLanguageLabel(entryKey))
-            end if
-        end for
-        return JoinStrings(parts, ", ")
-    end if
-    text = value.ToStr().Trim()
-    if text = "" then return ""
-    if IsAudioCodecToken(text) then return ""
-    ' Comma / slash / pipe separated lists
-    text = text.Replace("/", ",").Replace("|", ",").Replace(";", ",")
-    parts = []
-    start = 0
-    ' Simple split on commas without depending on Split() availability quirks
-    remaining = text
-    while remaining <> ""
-        idx = Instr(1, remaining, ",")
-        if idx = 0
-            piece = remaining.Trim()
-            remaining = ""
-        else
-            piece = Left(remaining, idx - 1).Trim()
-            remaining = Mid(remaining, idx + 1).Trim()
-        end if
-        if piece <> "" then parts.Push(NormalizeLanguageLabel(piece))
-    end while
-    return JoinStrings(parts, ", ")
-end function
-
-function IsAudioCodecToken(raw as string) as boolean
-    code = UCase(raw.Trim())
-    codecs = {
-        "AAC": true, "AC3": true, "EAC3": true, "E-AC3": true, "DDP": true, "DD+": true,
-        "DTS": true, "DTS-HD": true, "DTS:X": true, "TRUEHD": true, "ATMOS": true,
-        "FLAC": true, "OPUS": true, "MP3": true, "PCM": true
-    }
-    return codecs.DoesExist(code)
-end function
-
-function NormalizeLanguageLabel(raw as string) as string
-    code = UCase(raw.Trim())
-    map = {
-        "EN": "English", "ENG": "English", "ENGLISH": "English", "EN-US": "English", "EN-GB": "English",
-        "ES": "Spanish", "SPA": "Spanish", "ESP": "Spanish", "SPANISH": "Spanish", "ES-ES": "Spanish", "ES-MX": "Spanish", "ES-419": "Spanish",
-        "LATINO": "Latino", "LAT": "Latino", "MX": "Latino",
-        "CASTELLANO": "Castellano", "CAST": "Castellano",
-        "FR": "French", "FRE": "French", "FRA": "French", "FRENCH": "French", "VFF": "VFF", "VFQ": "VFQ", "TRUEFRENCH": "TrueFrench",
-        "DE": "German", "GER": "German", "DEU": "German", "GERMAN": "German",
-        "IT": "Italian", "ITA": "Italian", "ITALIAN": "Italian",
-        "PT": "Portuguese", "POR": "Portuguese", "PORTUGUESE": "Portuguese", "PT-BR": "Portuguese", "BRA": "Portuguese",
-        "JA": "Japanese", "JPN": "Japanese", "JAPANESE": "Japanese",
-        "KO": "Korean", "KOR": "Korean", "KOREAN": "Korean",
-        "ZH": "Chinese", "CHI": "Chinese", "ZHO": "Chinese", "CHINESE": "Chinese",
-        "RU": "Russian", "RUS": "Russian", "RUSSIAN": "Russian",
-        "MULTI": "Multi", "MUL": "Multi", "DUAL": "Dual", "VO": "VO", "VOS": "VOS", "VOSTFR": "VOSTFR"
-    }
-    if map.DoesExist(code) then return map[code]
-    ' Title-case short free-text labels
-    if Len(raw) <= 18 then return raw
-    return Left(raw, 18)
 end function
 
 function ExtractStreamLanguages(haystack as string) as string
@@ -5270,7 +4999,6 @@ function ExtractStreamLanguages(haystack as string) as string
     upper = UCase(haystack)
     found = []
     ' Longer / more specific tokens first so LATINO wins over LAT, MULTI before MUL.
-    ' Subtitle-only markers are handled by ExtractStreamSubtitles so Audio stays clean.
     tokens = [
         ["LATINO", "Latino"],
         ["CASTELLANO", "Castellano"],
@@ -5280,11 +5008,15 @@ function ExtractStreamLanguages(haystack as string) as string
         ["GERMAN", "German"],
         ["ITALIAN", "Italian"],
         ["PORTUGUESE", "Portuguese"],
-        ["TRUEFRENCH", "TrueFrench"],
         ["MULTI", "Multi"],
         ["DUAL", "Dual"],
+        ["TRUEFRENCH", "TrueFrench"],
         ["VFF", "VFF"],
         ["VFQ", "VFQ"],
+        ["VOSTFR", "VOSTFR"],
+        ["SUBFORCED", "Subs"],
+        ["SUBS", "Subs"],
+        ["VOS", "VOS"],
         ["SPA", "Spanish"],
         ["ESP", "Spanish"],
         ["ENG", "English"],
@@ -5311,61 +5043,6 @@ function ExtractStreamLanguages(haystack as string) as string
         end if
         if found.Count() >= 4 then exit for
     end for
-    return JoinStrings(found, ", ")
-end function
-
-function ExtractStreamSubtitles(haystack as string) as string
-    if haystack = "" then return ""
-    upper = UCase(haystack)
-    found = []
-    ' Patterns like "Subs: Eng", "Sub Spanish", "VOSTFR", "forced subs"
-    tokens = [
-        ["VOSTFR", "French"],
-        ["SUBFORCED", "Forced"],
-        ["FORCED SUB", "Forced"],
-        ["SUBTITLE", ""],
-        ["SUBTITLES", ""],
-        ["SUBS", ""],
-        ["SUB:", ""],
-        ["SUB ", ""]
-    ]
-    hasSubMarker = false
-    for each pair in tokens
-        if Instr(1, upper, pair[0]) > 0
-            hasSubMarker = true
-            if pair[1] <> ""
-                already = false
-                for each existing in found
-                    if existing = pair[1] then already = true
-                end for
-                if not already then found.Push(pair[1])
-            end if
-        end if
-    end for
-    if not hasSubMarker then return JoinStrings(found, ", ")
-    ' When a sub marker exists, also harvest language tokens near the haystack.
-    langs = ExtractStreamLanguages(haystack)
-    ' Manual merge from ExtractStreamLanguages result
-    if langs <> ""
-        remaining = langs
-        while remaining <> ""
-            idx = Instr(1, remaining, ",")
-            if idx = 0
-                piece = remaining.Trim()
-                remaining = ""
-            else
-                piece = Left(remaining, idx - 1).Trim()
-                remaining = Mid(remaining, idx + 1).Trim()
-            end if
-            if piece <> ""
-                already = false
-                for each existing in found
-                    if existing = piece then already = true
-                end for
-                if not already then found.Push(piece)
-            end if
-        end while
-    end if
     return JoinStrings(found, ", ")
 end function
 

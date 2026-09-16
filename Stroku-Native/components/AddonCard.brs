@@ -75,7 +75,7 @@ sub onContentChanged()
     if content.badgeKind = "installed"
         m.badgePill.color = "0x2E9E76FF"
     else
-        m.badgePill.color = "0x2A2A2AFF"
+        m.badgePill.color = "0x4C3FA0FF"
     end if
 
     onStateChanged()
@@ -101,12 +101,12 @@ sub onStateChanged()
     if focused
         m.card.color = "0x3A1518FF"
         m.name.color = "0xFFFFFFFF"
-        m.description.color = "0xE5E5E5FF"
+        m.description.color = "0xD6D2E4FF"
         m.messageLabel.color = "0xFFFFFFFF"
     else
         m.card.color = "0x2A2A2AFF"
         if content.selectable
-            m.name.color = "0xE5E5E5FF"
+            m.name.color = "0xEDEBF5FF"
         else
             m.name.color = "0xB3B3B3FF"
         end if

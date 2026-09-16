@@ -12,15 +12,8 @@ sub onContentChanged()
     content = m.top.itemContent
     if content = invalid then return
 
-    ' Always assign URI. Skipping "unchanged" reloads left recycled RowList
-    ' cards blank on some firmware after content swaps.
-    posterUri = content.HDPosterUrl
-    if posterUri = invalid then posterUri = ""
-    m.poster.uri = posterUri
-
-    titleText = content.title
-    if titleText = invalid then titleText = ""
-    m.title.text = titleText
+    m.poster.uri = content.HDPosterUrl
+    m.title.text = content.title
     onFocusChanged()
 
     progressBarBg = m.top.FindNode("progressBarBg")
@@ -43,9 +36,10 @@ sub onFocusChanged()
     if hasFocus
         m.title.color = "0xFFFFFFFF"
         m.focusFrame.color = "0xE50914FF"
-        ' Do not scale the RowList item Group: on several Roku builds that makes
-        ' posters vanish while row labels still render.
+        ' Mild Netflix-style pop without clipping neighboring cards hard.
+        m.top.scale = [1.06, 1.06]
     else
         m.title.color = "0xB3B3B3FF"
+        m.top.scale = [1.0, 1.0]
     end if
 end sub

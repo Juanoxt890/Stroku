@@ -382,18 +382,18 @@ sub updateButtons()
     if hasAudioTracks
         m.audioButton.blendColor = "0xFFFFFFFF"
     else
-        m.audioButton.blendColor = "0x808080FF"
+        m.audioButton.blendColor = "0x9D92C7FF"
     end if
     hasSubs = m.top.subtitleOptions <> invalid and m.top.subtitleOptions.Count() > 0
     if hasSubs
         m.subtitleButton.blendColor = "0xFFFFFFFF"
     else
-        m.subtitleButton.blendColor = "0x808080FF"
+        m.subtitleButton.blendColor = "0x9D92C7FF"
     end if
     if m.top.hasNextEpisode
         m.nextButton.blendColor = "0xFFFFFFFF"
     else
-        m.nextButton.blendColor = "0x808080FF"
+        m.nextButton.blendColor = "0x9D92C7FF"
     end if
     
     ' Speed button is always active

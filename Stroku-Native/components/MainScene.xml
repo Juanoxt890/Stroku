@@ -8,7 +8,6 @@
     </interface>
 
     <script type="text/brightscript" uri="pkg:/components/UiScale.brs" />
-    <script type="text/brightscript" uri="pkg:/components/DesignTokens.brs" />
     <script type="text/brightscript" uri="pkg:/components/Locale.brs" />
     <script type="text/brightscript" uri="pkg:/components/MainScene.brs" />
 
@@ -22,12 +21,13 @@
         <Group id="homeGroup">
             <Rectangle translation="[0, 0]" width="228" height="1080" color="0x0B0B0BFF" />
             <Label
-                translation="[34, 36]"
-                width="170"
+                translation="[16, 36]"
+                width="196"
                 height="46"
                 text="Stroku890"
-                font="font:MediumBoldSystemFont"
-                color="0xFFFFFFFF" />
+                font="font:SmallBoldSystemFont"
+                color="0xFFFFFFFF"
+                horizAlign="center" />
             <Label
                 translation="[34, 78]"
                 width="170"
@@ -121,7 +121,7 @@
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
 
-            <!-- Cinematic billboard: large backdrop, gradient fade, meta + CTAs.
+            <!-- Netflix-style billboard: backdrop + title + short description.
                  Updated from focus handlers; hidden on Settings/Calendar/Addons. -->
             <Group id="heroBillboard" translation="[228, 132]" visible="true">
                 <Poster
@@ -129,80 +129,37 @@
                     translation="[0, 0]"
                     width="1692"
                     height="360"
-                    loadDisplayMode="scaleToZoom"
-                    loadWidth="960"
-                    loadHeight="540" />
+                    loadDisplayMode="scaleToZoom" />
                 <Rectangle
                     id="heroPosterScrim"
                     translation="[0, 0]"
-                    width="720"
+                    width="1692"
                     height="360"
-                    color="0x000000AA" />
+                    color="0x00000088" />
                 <Rectangle
                     id="heroPosterFade"
-                    translation="[0, 160]"
+                    translation="[0, 180]"
                     width="1692"
-                    height="200"
-                    color="0x141414F2" />
-                <Label
-                    id="heroMeta"
-                    translation="[40, 140]"
-                    width="1200"
-                    height="32"
-                    text=""
-                    font="font:SmallBoldSystemFont"
-                    color="0xE50914FF" />
+                    height="180"
+                    color="0x141414EE" />
                 <Label
                     id="heroTitle"
-                    translation="[40, 172]"
-                    width="1100"
+                    translation="[32, 220]"
+                    width="1200"
                     height="60"
                     text="Loading catalogs..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[40, 236]"
-                    width="980"
-                    height="52"
+                    translation="[32, 288]"
+                    width="1400"
+                    height="56"
                     text=""
                     wrap="true"
                     maxLines="2"
                     font="font:MediumSystemFont"
-                    color="0xE5E5E5FF" />
-                <!-- Primary / secondary chrome (visual affordance; OK still opens the focused card). -->
-                <Rectangle
-                    id="heroPrimaryBg"
-                    translation="[40, 300]"
-                    width="220"
-                    height="44"
-                    color="0xE50914FF" />
-                <Label
-                    id="heroPrimaryLabel"
-                    translation="[40, 300]"
-                    width="220"
-                    height="44"
-                    text="OK  ·  Play"
-                    horizAlign="center"
-                    vertAlign="center"
-                    font="font:SmallBoldSystemFont"
-                    color="0xFFFFFFFF" />
-                <Rectangle
-                    id="heroSecondaryBg"
-                    translation="[280, 300]"
-                    width="240"
-                    height="44"
-                    color="0x2A2A2AFF" />
-                <Label
-                    id="heroSecondaryLabel"
-                    translation="[280, 300]"
-                    width="240"
-                    height="44"
-                    text="More info"
-                    horizAlign="center"
-                    vertAlign="center"
-                    font="font:SmallBoldSystemFont"
-                    color="0xE5E5E5FF" />
+                    color="0xB3B3B3FF" />
             </Group>
 
             <Group id="discoverFilterGroup" visible="false">
@@ -762,8 +719,8 @@
                 translation="[160, 210]"
                 width="1600"
                 height="720"
-                itemSize="[1600, 172]"
-                itemSpacing="[0, 14]"
+                itemSize="[1600, 168]"
+                itemSpacing="[0, 12]"
                 numRows="4"
                 itemComponentName="StreamCard"
                 drawFocusFeedback="false"
@@ -953,7 +910,7 @@
                 maxLines="2"
                 text=""
                 font="font:SmallSystemFont"
-                color="0xB3B3B3FF" />
+                color="0x8F8AA8FF" />
         </Group>
 
         <Rectangle
@@ -961,7 +918,7 @@
             translation="[350, 430]"
             width="1220"
             height="220"
-            color="0x141414F2"
+            color="0x191733F2"
             visible="false" />
         <BusySpinner
             id="spinner"

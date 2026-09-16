@@ -97,11 +97,11 @@ sub onStateChanged()
     if focused
         m.card.color = "0x3A1518FF"
         m.titleLabel.color = "0xFFFFFFFF"
-        m.metaLabel.color = "0xE5E5E5FF"
+        m.metaLabel.color = "0xE7E3FFFF"
         m.chevron.color = "0xE5E5E5FF"
     else
         m.card.color = "0x2A2A2AFF"
-        m.titleLabel.color = "0xE5E5E5FF"
+        m.titleLabel.color = "0xEDEBF5FF"
         m.metaLabel.color = "0xB3B3B3FF"
         m.chevron.color = "0x808080FF"
     end if
@@ -112,7 +112,7 @@ sub onStateChanged()
         m.dateChip.color = "0xE50914FF"
         m.monthLabel.color = "0xFFFFFFFF"
     else if focused
-        m.dateChip.color = "0x2A2A2AFF"
+        m.dateChip.color = "0x352E63FF"
         m.monthLabel.color = "0xE5E5E5FF"
     else
         m.dateChip.color = "0x2A2A2AFF"

@@ -16,9 +16,9 @@ sub execute()
     transfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
     transfer.InitClientCertificates()
     transfer.RetainBodyOnError(true)
-    transfer.EnableEncodings(false)
+    transfer.EnableEncodings(true)
     transfer.AddHeader("Accept", "application/json")
-    transfer.AddHeader("User-Agent", "Stroku890/0.1 Roku")
+    transfer.AddHeader("User-Agent", "Stroku/0.1 Roku")
     if UCase(m.top.method) = "POST"
         transfer.AddHeader("Content-Type", "application/json")
     end if

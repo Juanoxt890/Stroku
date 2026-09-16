@@ -1,6 +1,6 @@
 # Stroku890 — sideload guide
 
-This fork (`Juanoxt890/Stroku`) ships a **premium Netflix/Disney+-style dark UI**, Spanish as the default UI language on first launch, and Roku-oriented performance care (cached nodes, deferred poster reloads, skipped catalog rebuilds when rows are unchanged). All original languages remain available under **Ajustes → Interfaz → Idioma**.
+This fork (`Juanoxt890/Stroku`) ships a Netflix-style dark UI and **Spanish as the default UI language** on first launch. All original languages remain available under **Ajustes → Interfaz → Idioma**.
 
 ## Package
 
@@ -36,7 +36,5 @@ Sideload zip path: `Stroku-Native/dist/stroku-native.zip`
 
 ## Notes
 
-- Do not remove nav tabs, settings rows, add-on flows, calendar, library, discover, search, or player options — this fork restyles, localizes defaults, and tunes performance.
+- Do not remove nav tabs, settings rows, add-on flows, calendar, library, discover, search, or player options — this fork only restyles and localizes defaults.
 - UiScale (Settings → Interface) still maps the 1920×1080 design space to HD/FHD.
-- Stream picker line 2 shows **Audio** / **Subs** when languages can be inferred from stream fields or the release name.
-- `build_version=3` marks the premium TV UI pass (`DesignTokens`, cinematic hero, poster-forward rows).
