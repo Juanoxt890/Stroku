@@ -35,7 +35,7 @@ sub onFocusChanged()
     m.title.visible = hasFocus
     if hasFocus
         m.focusFrame.color = "0xE50914FF"
-        m.top.scale = [1.1, 1.1]
+        m.top.scale = [1.12, 1.12]
     else
         m.top.scale = [1.0, 1.0]
     end if

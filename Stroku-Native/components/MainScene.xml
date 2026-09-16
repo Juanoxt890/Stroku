@@ -15,11 +15,11 @@
         <!-- Everything inside uiRoot is authored in 1920x1080 design space and is
              mapped onto the device design resolution by UiScale.brs. -->
         <Group id="uiRoot">
-        <Rectangle id="background" width="1920" height="1080" color="0x0B0B0DFF" />
+        <Rectangle id="background" width="1920" height="1080" color="0x0B0B0BFF" />
         <Rectangle translation="[0, 0]" width="1920" height="2" color="0xE50914FF" />
 
         <Group id="homeGroup">
-            <Rectangle translation="[0, 0]" width="248" height="1080" color="0x0B0B0DFF" />
+            <Rectangle translation="[0, 0]" width="248" height="1080" color="0x0B0B0BFF" />
             <Poster
                 id="brandLogo"
                 translation="[4, 14]"
@@ -144,7 +144,7 @@
                     translation="[0, 360]"
                     width="1672"
                     height="220"
-                    color="0x0B0B0DFF" />
+                    color="0x0B0B0BFF" />
                 <Label
                     id="heroMeta"
                     translation="[56, 268]"
@@ -981,6 +981,7 @@
         </Group>
 
         <Timer id="linkPollTimer" duration="3" repeat="true" />
+        <Timer id="heroDebounceTimer" duration="0.2" repeat="false" />
 
         <!-- The player stays outside uiRoot: the video surface always fills the
              whole screen, and its overlays are scaled inside the component. -->

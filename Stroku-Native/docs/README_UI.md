@@ -1,6 +1,6 @@
 # Stroku Native — UI capability inventory & Netflix-style map
 
-**Phase 1 deliverable only.** Documents current product truth in `Stroku-Native/` so Phase 2 Home can bind to **real** tasks/fields without inventing JSON or renaming registry keys.
+**Phase 1 inventory + Phase 2 Home notes.** Documents product truth in `Stroku-Native/` and what Phase 2 Home Lolomo actually landed against **real** tasks/fields (no dummy JSON, no registry renames).
 
 | Item | Value |
 |---|---|
@@ -156,10 +156,10 @@ Keys used: `OK`, `back`, `play`, `replay`, `fastforward`, `rewind`, `left`, `rig
 Chrome buttons: `playButton`, `nextButton`, `subtitleButton`, `speedButton`, `audioButton`  
 Actions emitted to MainScene (`onVideoAction`): `close`, `next`, `subtitleSyncOffset`, `subtitleSelection`
 
-### Hero CTAs (visual only today)
+### Hero CTAs (Phase 2 wired)
 
-`heroPrimaryLabel` = “Reproducir”, `heroSecondaryLabel` = “Más info” (`FocusHeroButtons`)  
-**Not wired to focus/OK yet** — selection still goes through `catalogList` / `discoverGrid` (`onCatalogSelected` / `onDiscoverGridSelected`). Phase 2 may bind CTAs without inventing new data.
+`heroPrimaryLabel` = “Reproducir”, `heroSecondaryLabel` = “Más info” (`FocusHeroButtons` labels; `FocusHeroCtas` / `ActivateHeroCta` for focus+OK)  
+Wired to `ActivateCatalogItem` (same path as `onCatalogSelected`). Catalog OK path unchanged. No My List stub on hero.
 
 ---
 
@@ -295,7 +295,7 @@ Playback ContentNode: `url`, `title`, optional `playStart`, `streamFormat`, `sub
 |---|---|
 | Search | Top bar → KeyboardDialog → movie/series/channel catalogs or IMDb meta |
 | Library saved / watched rows | `library.row.saved` / `library.row.watched` from `libraryById` |
-| Continue watching | **No dedicated Board row**; `progress` on CatalogCard/EpisodeCard from `state.timeOffset/duration` when `0 < progress < 0.9` |
+| Continue watching | **Phase 2:** optional Board row **Continuar viendo** when `libraryById` progress in `0 < p < 0.9`; else progress only on cards |
 | Resume dialog | `dialog.resume.*` before play |
 | Deep link | `args.contentId` http → `PlayExternal` |
 | Empty library | hero empty copy |
@@ -365,7 +365,7 @@ Focus path: `onCatalogFocused` / `onDiscoverGridFocused` → `UpdateHeroFromItem
 | 1 | Left nav tabs | `navList`, `m.navIds`, `SetActiveTab` | **Left rail** |
 | 2 | Board / Home rows | `RenderBoard`, `catalogList`, `FetchBoardCatalogs` | **Rows** under Hero |
 | 3 | Hero billboard | `heroBillboard`, `UpdateHeroFromItem` | **Hero** |
-| 4 | Hero CTAs Reproducir / Más info | `FocusHeroButtons` (labels only) | **Hero CTA** (wire in P2) |
+| 4 | Hero CTAs Reproducir / Más info | `FocusHeroCtas` / `ActivateHeroCta` → `ActivateCatalogItem` | **Hero CTA** (P2 wired) |
 | 5 | Top search | `OpenSearch`, `searchBar` | **Left rail / top** Search |
 | 6 | Support / coffee | `OpenCoffeeSupport`, `coffeeGroup` | **Dialog** / rail footer |
 | 7 | Discover filters + grid | `RenderDiscover`, `discoverGrid` | **Row** + filter chips / Discover page |
@@ -507,3 +507,39 @@ Implement Netflix Home **only** against existing Board pipeline: keep `FetchBoar
 ' Dialogs    -> KeyboardDialog/Dialog helpers + coffee/uiScale/status
 ' Player     -> StrokuVideoPlayer
 ```
+
+---
+
+## 18. Phase 2 — what landed (Home Lolomo / build 15)
+
+Shipped in `feature/premium-tv-ui` as **stroku890-v15** (`build_version=15`). Home restyle + binding only; Details/Search/Settings/Player left alone except shared chrome helpers.
+
+### Binding (unchanged pipeline)
+
+- `FetchBoardCatalogs` → `HttpTask` `boardCatalog|{i}` → `HandleCatalogResponse(..., "board")` → `m.boardRows` / `m.boardNames`
+- `SyncBoardCatalogRows()` builds `m.catalogRows` / `m.catalogNames` for Home
+- `RebuildCatalog` → `catalogList` / `CatalogCard` (`title`, `HDPosterUrl`, `SDPosterUrl`, optional `progress`)
+- Hero still via `UpdateHeroFromItem` / `HomeHeroMeta` / `HomeHeroDescription` on live meta (`name`, `background||poster`, `description`, `releaseInfo|year`, `type`, `imdbRating`, `runtime`)
+
+### UI / behavior landed
+
+| Item | Notes |
+|---|---|
+| Home bg | `#0B0B0B` (was `#0B0B0D` close) + accent `#E50914` |
+| Left rail | Preserved ids `board/discover/library/calendar/addons/settings` |
+| Hero ~55% | Existing ~580px billboard; CTAs **Reproducir** / **Más info** |
+| Hero CTA wiring | `FocusHeroCtas` / `ActivateHeroCta` → `ActivateCatalogItem` → same `OpenMovieStreams` / `OpenSeriesEpisodes` / `OpenBoardSeeAll` as catalog OK |
+| Hero focus path | UP from Board/Library rows → CTAs → UP again → top bar; DOWN returns to rows; OK activates |
+| Hero debounce | `heroDebounceTimer` 200ms → `onHeroDebounceFire` |
+| Continue row | **Only if** `libraryById` has `0 < progress < 0.9`; title **Continuar viendo**; same CatalogCard fields; prepended via `SyncBoardCatalogRows` |
+| My List CTA | **Not** added (no Home library-toggle control; Options/* library toggle remains on episodes/streams) |
+| CatalogCard | `drawFocusFeedback=false`, thick red ring, focus scale **1.12** |
+| Search | Short **Buscar** |
+| Setup IP | Remains hidden on Home chrome (`ShowSetupAddress` keeps text for Options/debug) |
+| Empty catalogs | Still-loading rows omitted from RowList; failed `boardCatalog` → `MarkBoardRowEmpty` header + **Sin títulos** empty state; `FocusBoardOrNav` / `CatalogHasItems` avoid empty focus traps |
+| GetCatalogItem | Maps compacted RowList row index → non-empty `m.catalogRows` |
+
+### Explicitly untouched
+
+Registry section `Stroku` + keys · HttpTask / addon protocol · stream URL selection · `StrokuVideoPlayer` · Details/Search/Settings rewrites · nav ids · requestId prefixes
+

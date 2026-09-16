@@ -9,7 +9,7 @@
     <children>
         <!-- Thick Netflix-red focus ring; poster fills most of rowItemSize [[226,370]]. -->
         <Rectangle id="focusFrame" width="226" height="340" color="0xE50914FF" visible="false" />
-        <Rectangle id="focusInset" translation="[7,7]" width="212" height="326" color="0x0B0B0DFF" visible="false" />
+        <Rectangle id="focusInset" translation="[7,7]" width="212" height="326" color="0x0B0B0BFF" visible="false" />
         <Poster id="poster" translation="[7,7]" width="212" height="326" loadDisplayMode="scaleToZoom" />
         <Rectangle id="progressBarBg" translation="[7,325]" width="212" height="8" color="0x333333FF" visible="false" />
         <Rectangle id="progressBarFill" translation="[7,325]" width="0" height="8" color="0xE50914FF" visible="false" />

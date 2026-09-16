@@ -77,6 +77,11 @@ sub init()
     m.heroSecondaryLabel = m.top.FindNode("heroSecondaryLabel")
     m.heroPrimaryBg = m.top.FindNode("heroPrimaryBg")
     m.heroSecondaryBg = m.top.FindNode("heroSecondaryBg")
+    m.heroDebounceTimer = m.top.FindNode("heroDebounceTimer")
+    m.heroCtaFocus = -1
+    m.focusedCatalogItem = invalid
+    m.pendingHeroItem = invalid
+    m.boardContinueActive = false
     m.homeGroup = m.top.FindNode("homeGroup")
     m.episodeGroup = m.top.FindNode("episodeGroup")
     m.episodeBackground = m.top.FindNode("episodeBackground")
@@ -241,6 +246,9 @@ sub init()
     m.video.ObserveField("duration", "onVideoDurationChanged")
     m.top.ObserveField("configurationUrl", "onConfigurationUrlChanged")
     m.linkPollTimer.ObserveField("fire", "onLinkPollTimer")
+    if m.heroDebounceTimer <> invalid
+        m.heroDebounceTimer.ObserveField("fire", "onHeroDebounceFire")
+    end if
 
     LoadAddonConfiguration()
     LoadSubtitlePreferences()
@@ -258,8 +266,10 @@ sub init()
     LoadStremioAccount()
     InitializePrimaryShell()
     FetchBoardCatalogs()
+    ShowStatus("Cargando catálogos...", true)
 
-    m.catalogList.SetFocus(true)
+    ' Never focus an empty RowList — it can swallow the remote on some builds.
+    m.navList.SetFocus(true)
 end sub
 
 sub InitializePrimaryShell()
@@ -381,7 +391,7 @@ sub FocusActiveContent()
     else if m.activeTab = "discover"
         m.discoverGrid.SetFocus(true)
     else
-        m.catalogList.SetFocus(true)
+        FocusBoardOrNav()
     end if
 end sub
 
@@ -396,6 +406,7 @@ sub RenderActiveTab(focusContent as boolean)
     m.coffeeGroup.visible = false
     m.topBarFocus = -1
     UpdateTopBar()
+    BlurHeroCtas()
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
@@ -432,12 +443,11 @@ sub RenderBoard(focusContent as boolean)
     SetHeroBillboardVisible(true)
     FocusHeroButtons()
     SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
-    m.catalogRows = m.boardRows
-    m.catalogNames = m.boardNames
+    SyncBoardCatalogRows()
     m.catalogList.visible = true
     m.catalogList.translation = ScaleUiXY(268, 668)
     RebuildCatalog()
-    if focusContent then m.catalogList.SetFocus(true)
+    if focusContent then FocusBoardOrNav()
 end sub
 
 sub RenderDiscover(focusContent as boolean)
@@ -2406,8 +2416,8 @@ end sub
 
 sub LoadHomeCatalogs()
     m.boardRows = [[], [], [], [], [], []]
-    m.catalogRows = m.boardRows
-    m.catalogNames = m.boardNames
+    m.boardContinueActive = false
+    SyncBoardCatalogRows()
     ' Keep top-bar chrome short — never use long dialog.search.title (FR/DE/IT/PT).
     m.searchPrompt.text = "Buscar"
     RebuildCatalog()
@@ -2479,6 +2489,9 @@ sub onHttpResponse(event as object)
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
             if requestType = "discoverCatalog" then m.discoverRequestActive = false
+            if requestType = "boardCatalog" and parts.Count() > 1
+                MarkBoardRowEmpty(Val(parts[1]))
+            end if
             ShowStatus(response.error, false)
         else if requestType = "config"
             m.pendingAddonUrl = ""
@@ -2638,8 +2651,10 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.boardRows[rowIndex] = items
         end if
         if m.activeTab = "board"
-            m.catalogRows = m.boardRows
+            SyncBoardCatalogRows()
             RebuildCatalog()
+            HideStatus()
+            FocusBoardOrNav()
         end if
     else if target = "discover"
         m.discoverRequestActive = false
@@ -2693,16 +2708,28 @@ sub RebuildCatalog()
     root = CreateObject("roSGNode", "ContentNode")
 
     for rowIndex = 0 to m.catalogRows.Count() - 1
+        rowItems = m.catalogRows[rowIndex]
+        if rowItems = invalid then rowItems = []
+        ' Omit still-loading empty rows so RowList never focuses a blank row.
+        if rowItems.Count() > 0
+
         rowNode = root.CreateChild("ContentNode")
         rowTitle = ""
         if rowIndex < m.catalogNames.Count() then rowTitle = m.catalogNames[rowIndex]
-        ' Presentation-only: append See All / Ver todo to Board row labels.
-        if m.activeTab = "board" and rowTitle <> ""
+        ' Presentation-only: append See All / Ver todo to Board feed rows (not Continue).
+        skipSeeAll = m.boardContinueActive and rowIndex = 0
+        if m.activeTab = "board" and rowTitle <> "" and not skipSeeAll
+            ' Empty-state rows keep the header but skip See All suffix.
+            if rowItems.Count() = 1 and SafeString(rowItems[0], "type") = "empty"
+                skipSeeAll = true
+            end if
+        end if
+        if m.activeTab = "board" and rowTitle <> "" and not skipSeeAll
             rowTitle = rowTitle + "   ·  " + TrText("board.seeAll")
         end if
         rowNode.title = rowTitle
 
-        for each item in m.catalogRows[rowIndex]
+        for each item in rowItems
             itemNode = rowNode.CreateChild("ContentNode")
             itemNode.title = SafeString(item, "name")
             itemNode.HDPosterUrl = SafeString(item, "poster")
@@ -2728,11 +2755,12 @@ sub RebuildCatalog()
                 itemNode.AddFields({ progress: progress })
             end if
         end for
+        end if
     end for
 
     m.catalogList.content = root
-    if m.screenMode = "home" and m.catalogList.visible and not m.navList.HasFocus() and not m.primaryInfoList.HasFocus() and not m.settingsList.HasFocus() and m.discoverFilterFocus < 0
-        m.catalogList.SetFocus(true)
+    if m.heroCtaFocus < 0 and m.topBarFocus < 0
+        FocusBoardOrNav()
     end if
 end sub
 
@@ -2783,7 +2811,8 @@ sub onDiscoverGridFocused(event as object)
     if m.discoverFilterFocus >= 0 then return
     item = GetDiscoverGridItem(event.GetData())
     if item = invalid then return
-    UpdateHeroFromItem(item)
+    m.focusedCatalogItem = item
+    ScheduleHeroUpdate(item)
     meta = SafeString(item, "type")
     year = SafeString(item, "releaseInfo")
     if year = "" then year = SafeString(item, "year")
@@ -2807,8 +2836,11 @@ sub onCatalogFocused(event as object)
     item = GetCatalogItem(position)
     if item = invalid then return
 
-    UpdateHeroFromItem(item)
-    if m.activeTab = "discover" and SafeString(item, "type") <> "action"
+    if SafeString(item, "type") <> "empty"
+        m.focusedCatalogItem = item
+    end if
+    ScheduleHeroUpdate(item)
+    if m.activeTab = "discover" and SafeString(item, "type") <> "action" and SafeString(item, "type") <> "empty"
         meta = SafeString(item, "type")
         year = SafeString(item, "releaseInfo")
         if year = "" then year = SafeString(item, "year")
@@ -2819,18 +2851,7 @@ end sub
 
 sub onCatalogSelected(event as object)
     item = GetCatalogItem(event.GetData())
-    if item = invalid then return
-
-    if SafeString(item, "type") = "action"
-        OpenBoardSeeAll(item)
-        return
-    end if
-
-    if SafeString(item, "type") = "series"
-        OpenSeriesEpisodes(item)
-    else
-        OpenMovieStreams(item)
-    end if
+    ActivateCatalogItem(item)
 end sub
 
 sub OpenMovieStreams(item as object)
@@ -2962,12 +2983,196 @@ end function
 
 function GetCatalogItem(position as object) as dynamic
     if position = invalid or position.Count() < 2 then return invalid
-    rowIndex = position[0]
+    visibleRow = position[0]
     itemIndex = position[1]
-    if rowIndex < 0 or rowIndex >= m.catalogRows.Count() then return invalid
-    if itemIndex < 0 or itemIndex >= m.catalogRows[rowIndex].Count() then return invalid
-    return m.catalogRows[rowIndex][itemIndex]
+    if visibleRow < 0 or itemIndex < 0 then return invalid
+    ' RebuildCatalog skips empty rows, so RowList indices are compacted.
+    seen = -1
+    for rowIndex = 0 to m.catalogRows.Count() - 1
+        rowItems = m.catalogRows[rowIndex]
+        if rowItems <> invalid and rowItems.Count() > 0
+            seen = seen + 1
+            if seen = visibleRow
+                if itemIndex >= rowItems.Count() then return invalid
+                return rowItems[itemIndex]
+            end if
+        end if
+    end for
+    return invalid
 end function
+
+sub ActivateCatalogItem(item as object)
+    if item = invalid then return
+    itemType = SafeString(item, "type")
+    if itemType = "empty" then return
+    if itemType = "action"
+        OpenBoardSeeAll(item)
+        return
+    end if
+    m.focusedCatalogItem = item
+    if itemType = "series"
+        OpenSeriesEpisodes(item)
+    else
+        OpenMovieStreams(item)
+    end if
+end sub
+
+' Board Home rows = optional Continue (library progress) + live m.boardRows feeds.
+sub MarkBoardRowEmpty(rowIndex as integer)
+    if rowIndex < 0 or rowIndex >= m.boardRows.Count() then return
+    m.boardRows[rowIndex] = [{
+        id: "empty:" + rowIndex.ToStr()
+        name: "Sin títulos"
+        type: "empty"
+        poster: ""
+        description: "Este catálogo no tiene títulos todavía."
+    }]
+    if m.activeTab = "board"
+        SyncBoardCatalogRows()
+        RebuildCatalog()
+        FocusBoardOrNav()
+    end if
+end sub
+
+sub SyncBoardCatalogRows()
+    continueItems = BuildContinueWatchingItems()
+    if continueItems.Count() > 0
+        rows = [continueItems]
+        names = ["Continuar viendo"]
+        for index = 0 to m.boardRows.Count() - 1
+            rows.Push(m.boardRows[index])
+            names.Push(m.boardNames[index])
+        end for
+        m.catalogRows = rows
+        m.catalogNames = names
+        m.boardContinueActive = true
+    else
+        m.catalogRows = m.boardRows
+        m.catalogNames = m.boardNames
+        m.boardContinueActive = false
+    end if
+end sub
+
+function BuildContinueWatchingItems() as object
+    items = []
+    if m.libraryById = invalid then return items
+    for each id in m.libraryById
+        libraryItem = m.libraryById[id]
+        if libraryItem <> invalid
+            removed = false
+            if libraryItem.DoesExist("removed") then removed = libraryItem.removed
+            if not removed
+                progress = LibraryItemProgress(libraryItem)
+                if progress > 0.0 and progress < 0.9
+                    items.Push(LibraryCatalogItem(libraryItem))
+                end if
+            end if
+        end if
+    end for
+    SortLibraryCatalogItemsByLastWatched(items)
+    return items
+end function
+
+function LibraryItemProgress(libraryItem as object) as dynamic
+    if libraryItem = invalid then return 0.0
+    if not libraryItem.DoesExist("state") or libraryItem.state = invalid then return 0.0
+    state = libraryItem.state
+    if not state.DoesExist("timeOffset") or not state.DoesExist("duration") then return 0.0
+    offset = state.timeOffset
+    dur = state.duration
+    if offset > 0 and dur > 0 then return offset / dur
+    return 0.0
+end function
+
+function CatalogHasItems() as boolean
+    if m.catalogRows = invalid then return false
+    for each row in m.catalogRows
+        ' Include empty-state placeholders so failed catalogs remain reachable.
+        if row <> invalid and row.Count() > 0 then return true
+    end for
+    return false
+end function
+
+sub FocusBoardOrNav()
+    if m.screenMode <> "home" then return
+    if m.activeTab <> "board" and m.activeTab <> "library" then return
+    if not m.catalogList.visible then return
+    if m.heroCtaFocus >= 0 then return
+    if m.topBarFocus >= 0 then return
+    if m.primaryInfoList.HasFocus() or m.settingsList.HasFocus() then return
+    if m.discoverFilterFocus >= 0 then return
+    if CatalogHasItems()
+        m.catalogList.SetFocus(true)
+    else
+        m.navList.SetFocus(true)
+    end if
+end sub
+
+sub ScheduleHeroUpdate(item as object)
+    m.pendingHeroItem = item
+    if m.heroDebounceTimer = invalid
+        UpdateHeroFromItem(item)
+        return
+    end if
+    m.heroDebounceTimer.control = "stop"
+    m.heroDebounceTimer.control = "start"
+end sub
+
+sub onHeroDebounceFire()
+    if m.pendingHeroItem <> invalid
+        UpdateHeroFromItem(m.pendingHeroItem)
+        if SafeString(m.pendingHeroItem, "type") <> "empty"
+            SyncHeroCtaChrome()
+        end if
+    end if
+end sub
+
+sub SyncHeroCtaChrome()
+    FocusHeroButtons()
+    UpdateHeroCtaFocus()
+end sub
+
+sub FocusHeroCtas(index as integer)
+    if m.activeTab <> "board" and m.activeTab <> "library" and m.activeTab <> "discover" then return
+    if m.focusedCatalogItem = invalid then return
+    if SafeString(m.focusedCatalogItem, "type") = "empty" then return
+    if SafeString(m.focusedCatalogItem, "type") = "action" then return
+    m.heroCtaFocus = index
+    m.top.SetFocus(true)
+    UpdateHeroCtaFocus()
+end sub
+
+sub BlurHeroCtas()
+    m.heroCtaFocus = -1
+    UpdateHeroCtaFocus()
+end sub
+
+sub UpdateHeroCtaFocus()
+    if m.heroPrimaryBg = invalid or m.heroSecondaryBg = invalid then return
+    if m.heroCtaFocus = 0
+        m.heroPrimaryBg.color = "0xFFFFFFFF"
+        if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0x0B0B0BFF"
+        m.heroSecondaryBg.color = "0x2A2A2EFF"
+        if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0xFFFFFFFF"
+    else if m.heroCtaFocus = 1
+        m.heroPrimaryBg.color = "0xE50914FF"
+        if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0xFFFFFFFF"
+        m.heroSecondaryBg.color = "0xFFFFFFFF"
+        if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0x0B0B0BFF"
+    else
+        m.heroPrimaryBg.color = "0xE50914FF"
+        if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0xFFFFFFFF"
+        m.heroSecondaryBg.color = "0x2A2A2EFF"
+        if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0xFFFFFFFF"
+    end if
+end sub
+
+sub ActivateHeroCta(index as integer)
+    item = m.focusedCatalogItem
+    if item = invalid then item = m.pendingHeroItem
+    ' Both CTAs use the same product path as catalog OK (no separate Details screen).
+    ActivateCatalogItem(item)
+end sub
 
 function CinemetaMetaUrl(contentType as string, id as string) as string
     return "https://v3-cinemeta.strem.io/meta/" + contentType + "/" + id + ".json"
@@ -3947,8 +4152,14 @@ end sub
 sub FocusHeroButtons()
     if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.text = "Reproducir"
     if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.text = "Más info"
-    if m.heroPrimaryBg <> invalid then m.heroPrimaryBg.color = "0xE50914FF"
-    if m.heroSecondaryBg <> invalid then m.heroSecondaryBg.color = "0x2A2A2EFF"
+    if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.color = "0xFFFFFFFF"
+    if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.color = "0xFFFFFFFF"
+    if m.heroCtaFocus < 0
+        if m.heroPrimaryBg <> invalid then m.heroPrimaryBg.color = "0xE50914FF"
+        if m.heroSecondaryBg <> invalid then m.heroSecondaryBg.color = "0x2A2A2EFF"
+    else
+        UpdateHeroCtaFocus()
+    end if
 end sub
 
 sub ApplyChromeLabel(id as string, text as string)
@@ -4102,6 +4313,9 @@ sub HandleLibraryResponse(data as object)
     RebuildLibraryCatalogItemsFromMap()
     if m.activeTab = "library"
         RenderLibrary(false)
+    else if m.activeTab = "board"
+        SyncBoardCatalogRows()
+        RebuildCatalog()
     else
         RebuildCatalog()
     end if
@@ -4585,7 +4799,32 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 ActivateTopBarItem(m.topBarFocus)
             else if key = "down" or key = "back"
                 BlurTopBar()
+                ' Prefer hero CTAs when a live catalog title is focused on Board.
+                if (key = "down") and (m.activeTab = "board" or m.activeTab = "library" or m.activeTab = "discover") and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and SafeString(m.focusedCatalogItem, "type") <> "action"
+                    FocusHeroCtas(0)
+                else
+                    FocusActiveContent()
+                end if
+            end if
+            return true
+        else if m.heroCtaFocus >= 0
+            if key = "left" and m.heroCtaFocus > 0
+                m.heroCtaFocus = m.heroCtaFocus - 1
+                UpdateHeroCtaFocus()
+            else if key = "left"
+                BlurHeroCtas()
+                m.navList.SetFocus(true)
+            else if key = "right" and m.heroCtaFocus < 1
+                m.heroCtaFocus = m.heroCtaFocus + 1
+                UpdateHeroCtaFocus()
+            else if key = "OK"
+                ActivateHeroCta(m.heroCtaFocus)
+            else if key = "down" or key = "back"
+                BlurHeroCtas()
                 FocusActiveContent()
+            else if key = "up"
+                BlurHeroCtas()
+                FocusTopBar(0)
             end if
             return true
         else if m.activeTab = "discover" and m.discoverFilterFocus >= 0
@@ -4687,6 +4926,11 @@ function onKeyEvent(key as string, press as boolean) as boolean
             end if
             if m.activeTab = "addons" and m.addonsGroup.visible
                 FocusAddonChips()
+                return true
+            end if
+            ' Board/Library: hero CTAs sit between rows and the top bar (Netflix Lolomo).
+            if (m.activeTab = "board" or m.activeTab = "library") and m.heroBillboard <> invalid and m.heroBillboard.visible and m.focusedCatalogItem <> invalid and SafeString(m.focusedCatalogItem, "type") <> "empty" and SafeString(m.focusedCatalogItem, "type") <> "action"
+                FocusHeroCtas(0)
                 return true
             end if
             FocusTopBar(0)

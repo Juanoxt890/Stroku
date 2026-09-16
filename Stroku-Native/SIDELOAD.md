@@ -17,7 +17,7 @@ rm -f dist/stroku-native.zip
 zip -r dist/stroku-native.zip manifest source components images -x "*.DS_Store"
 ```
 
-Sideload zip path: `Stroku-Native/dist/stroku890-v12.zip` (also `stroku-native.zip` via npm package script).
+Sideload zip path: `Stroku-Native/dist/stroku890-v15.zip` (also `stroku-native.zip` via npm package script).
 
 Versioned builds: `dist/stroku890-vN.zip` must match `manifest` `build_version=N`.
 
