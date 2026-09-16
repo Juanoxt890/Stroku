@@ -6,8 +6,6 @@ sub init()
 end sub
 
 sub onContentChanged()
-    ' Cards are created and recycled by the RowList long after the scene has
-    ' resolved its scale, so the check happens on every content binding.
     EnsureUiScale(m.top)
 
     content = m.top.itemContent
@@ -40,8 +38,8 @@ sub onFocusChanged()
     if hasFocus
         m.title.color = "0xFFFFFFFF"
         m.focusFrame.color = "0xE50914FF"
-        ' Keep the same mild pop that worked on device (1.06). Do not raise it.
-        m.top.scale = [1.06, 1.06]
+        ' Brief allows 1.08–1.12; stay at 1.08 to protect low-end RowList.
+        m.top.scale = [1.08, 1.08]
     else
         m.title.color = "0xB3B3B3FF"
         m.top.scale = [1.0, 1.0]

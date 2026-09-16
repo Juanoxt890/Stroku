@@ -70,8 +70,11 @@ sub init()
     end for
     m.heroTitle = m.top.FindNode("heroTitle")
     m.heroDescription = m.top.FindNode("heroDescription")
+    m.heroMeta = m.top.FindNode("heroMeta")
     m.heroBillboard = m.top.FindNode("heroBillboard")
     m.heroPoster = m.top.FindNode("heroPoster")
+    m.heroPrimaryLabel = m.top.FindNode("heroPrimaryLabel")
+    m.heroSecondaryLabel = m.top.FindNode("heroSecondaryLabel")
     m.homeGroup = m.top.FindNode("homeGroup")
     m.episodeGroup = m.top.FindNode("episodeGroup")
     m.episodeBackground = m.top.FindNode("episodeBackground")
@@ -394,7 +397,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(280, 520)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -425,11 +428,11 @@ sub RenderBoard(focusContent as boolean)
     m.primaryTitle.text = "Inicio"
     m.primarySubtitle.text = "Populares, destacados y más"
     SetHeroBillboardVisible(true)
-    SetHeroChrome("Inicio", "Explora catálogos de Stremio en tu tele.", "")
+    SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(280, 520)
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
 end sub
@@ -476,7 +479,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(280, 520)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome("Library", "Your Stremio library and watch history are empty.", "")
@@ -2465,7 +2468,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(260, 510)
+                m.catalogList.translation = ScaleUiXY(280, 520)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2652,7 +2655,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(260, 510)
+            m.catalogList.translation = ScaleUiXY(280, 520)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2887,11 +2890,17 @@ end sub
 
 sub ClearHeroPoster()
     if m.heroPoster <> invalid then m.heroPoster.uri = ""
+    if m.heroMeta <> invalid then m.heroMeta.text = ""
 end sub
 
 sub SetHeroChrome(title as string, description as string, posterUrl as string)
+    SetHeroChromeEx(title, description, posterUrl, "")
+end sub
+
+sub SetHeroChromeEx(title as string, description as string, posterUrl as string, meta as string)
     if m.heroTitle <> invalid then m.heroTitle.text = title
     if m.heroDescription <> invalid then m.heroDescription.text = description
+    if m.heroMeta <> invalid then m.heroMeta.text = meta
     if m.heroPoster <> invalid
         if posterUrl <> ""
             m.heroPoster.uri = posterUrl
@@ -2907,16 +2916,32 @@ sub UpdateHeroFromItem(item as object)
     description = HomeHeroDescription(item)
     posterUrl = SafeString(item, "background")
     if posterUrl = "" then posterUrl = SafeString(item, "poster")
-    SetHeroChrome(title, description, posterUrl)
+    SetHeroChromeEx(title, description, posterUrl, HomeHeroMeta(item))
 end sub
+
+function HomeHeroMeta(item as object) as string
+    parts = []
+    year = SafeString(item, "releaseInfo")
+    if year = "" then year = SafeString(item, "year")
+    if year <> "" then parts.Push(year)
+    typeText = SafeString(item, "type")
+    if typeText = "movie" then
+        parts.Push("Película")
+    else if typeText = "series" then
+        parts.Push("Serie")
+    else if typeText <> "" then
+        parts.Push(typeText)
+    end if
+    rating = SafeString(item, "imdbRating")
+    if rating <> "" then parts.Push(rating)
+    runtime = SafeString(item, "runtime")
+    if runtime <> "" then parts.Push(runtime)
+    return JoinStrings(parts, "  ·  ")
+end function
 
 function HomeHeroDescription(item as object) as string
     description = SafeString(item, "description")
-    if SafeString(item, "type") = "movie"
-        hint = "Los streams se cargan al elegir"
-        if description <> "" then return description + "    " + hint
-        return hint
-    end if
+    if Len(description) > 180 then description = Left(description, 177) + "..."
     return description
 end function
 

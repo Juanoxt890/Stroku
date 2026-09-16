@@ -15,11 +15,11 @@
         <!-- Everything inside uiRoot is authored in 1920x1080 design space and is
              mapped onto the device design resolution by UiScale.brs. -->
         <Group id="uiRoot">
-        <Rectangle id="background" width="1920" height="1080" color="0x141414FF" />
+        <Rectangle id="background" width="1920" height="1080" color="0x0B0B0DFF" />
         <Rectangle translation="[0, 0]" width="1920" height="2" color="0xE50914FF" />
 
         <Group id="homeGroup">
-            <Rectangle translation="[0, 0]" width="228" height="1080" color="0x0B0B0BFF" />
+            <Rectangle translation="[0, 0]" width="248" height="1080" color="0x0B0B0DFF" />
             <Label
                 translation="[16, 36]"
                 width="196"
@@ -37,26 +37,26 @@
                 color="0xE50914FF" />
             <LabelList
                 id="navList"
-                translation="[24, 150]"
-                width="180"
-                height="430"
-                itemSize="[180, 58]"
+                translation="[20, 140]"
+                width="208"
+                height="460"
+                itemSize="[208, 58]"
                 numRows="6"
                 color="0xB3B3B3FF"
                 focusedColor="0xFFFFFFFF"
                 focusBitmapBlendColor="0xE50914FF" />
             <Rectangle
                 id="searchBar"
-                translation="[260, 22]"
-                width="640"
-                height="54"
-                color="0x2A2A2AFF" />
+                translation="[280, 22]"
+                width="520"
+                height="52"
+                color="0x1A1A1DFF" />
             <Label
                 id="searchPrompt"
-                translation="[296, 31]"
+                translation="[304, 30]"
                 width="460"
                 height="36"
-                text="Search or paste link"
+                text="Buscar"
                 vertAlign="center"
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
@@ -75,16 +75,16 @@
                  out of the content into the top bar. -->
             <Rectangle
                 id="supportChipBg"
-                translation="[1600, 22]"
-                width="220"
-                height="54"
-                color="0x2A2A2AFF" />
+                translation="[1640, 22]"
+                width="200"
+                height="52"
+                color="0x1A1A1DFF" />
             <Label
                 id="supportChipLabel"
-                translation="[1600, 22]"
-                width="220"
-                height="54"
-                text="Support"
+                translation="[1640, 22]"
+                width="200"
+                height="52"
+                text="Apoyar"
                 horizAlign="center"
                 vertAlign="center"
                 font="font:SmallSystemFont"
@@ -92,10 +92,10 @@
 
             <Label
                 id="setupAddress"
-                translation="[10, 88]"
+                translation="[20, 78]"
                 width="208"
-                height="48"
-                horizAlign="center"
+                height="44"
+                horizAlign="left"
                 vertAlign="top"
                 wrap="true"
                 maxLines="2"
@@ -123,43 +123,83 @@
 
             <!-- Netflix-style billboard: backdrop + title + short description.
                  Updated from focus handlers; hidden on Settings/Calendar/Addons. -->
-            <Group id="heroBillboard" translation="[228, 132]" visible="true">
+            <Group id="heroBillboard" translation="[248, 100]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
-                    width="1692"
-                    height="360"
+                    width="1672"
+                    height="400"
                     loadDisplayMode="scaleToZoom" />
-                <!-- Left readability panel + bottom fade into the row list. -->
                 <Rectangle
                     id="heroPosterScrim"
                     translation="[0, 0]"
-                    width="780"
-                    height="360"
-                    color="0x000000AA" />
+                    width="820"
+                    height="400"
+                    color="0x000000B3" />
                 <Rectangle
                     id="heroPosterFade"
-                    translation="[0, 200]"
-                    width="1692"
-                    height="160"
-                    color="0x141414F2" />
+                    translation="[0, 220]"
+                    width="1672"
+                    height="180"
+                    color="0x0B0B0DF2" />
+                <Label
+                    id="heroMeta"
+                    translation="[48, 168]"
+                    width="1100"
+                    height="32"
+                    text=""
+                    font="font:SmallBoldSystemFont"
+                    color="0xE8E8E8FF" />
                 <Label
                     id="heroTitle"
-                    translation="[40, 200]"
+                    translation="[48, 204]"
                     width="1100"
-                    height="64"
+                    height="70"
                     text="Cargando catálogos..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[40, 272]"
-                    width="980"
-                    height="60"
+                    translation="[48, 278]"
+                    width="900"
+                    height="52"
                     text=""
                     wrap="true"
                     maxLines="2"
                     font="font:MediumSystemFont"
+                    color="0xE5E5E5FF" />
+                <!-- Decorative CTAs: OK on the focused poster still plays/opens. -->
+                <Rectangle
+                    id="heroPrimaryBg"
+                    translation="[48, 344]"
+                    width="220"
+                    height="44"
+                    color="0xE50914FF" />
+                <Label
+                    id="heroPrimaryLabel"
+                    translation="[48, 344]"
+                    width="220"
+                    height="44"
+                    text="Reproducir"
+                    horizAlign="center"
+                    vertAlign="center"
+                    font="font:SmallBoldSystemFont"
+                    color="0xFFFFFFFF" />
+                <Rectangle
+                    id="heroSecondaryBg"
+                    translation="[284, 344]"
+                    width="200"
+                    height="44"
+                    color="0x1A1A1DFF" />
+                <Label
+                    id="heroSecondaryLabel"
+                    translation="[284, 344]"
+                    width="200"
+                    height="44"
+                    text="Más info"
+                    horizAlign="center"
+                    vertAlign="center"
+                    font="font:SmallBoldSystemFont"
                     color="0xE5E5E5FF" />
             </Group>
 
@@ -260,8 +300,8 @@
 
             <RowList
                 id="catalogList"
-                translation="[260, 510]"
-                itemSize="[1600, 340]"
+                translation="[280, 520]"
+                itemSize="[1580, 340]"
                 rowItemSize="[[176, 310]]"
                 rowItemSpacing="[[22, 0]]"
                 rowSpacings="[10]"
