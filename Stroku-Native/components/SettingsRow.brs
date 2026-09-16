@@ -52,9 +52,9 @@ sub onContentChanged()
     if isToggle
         m.toggleLabel.text = UCase(content.value)
         if content.toggleOn
-            m.togglePill.color = "0x2E9E76FF"
+            m.togglePill.color = "0xE50914FF"
         else
-            m.togglePill.color = "0x333333FF"
+            m.togglePill.color = "0x1A1A1DFF"
         end if
     else
         m.value.text = content.value
@@ -80,7 +80,7 @@ sub onStateChanged()
         m.value.color = "0xE7E3FFFF"
         m.chevron.color = "0xE5E5E5FF"
     else
-        m.card.color = "0x2A2A2AFF"
+        m.card.color = "0x1A1A1DFF"
         if content.selectable
             m.label.color = "0xEDEBF5FF"
         else

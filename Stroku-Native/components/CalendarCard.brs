@@ -100,7 +100,7 @@ sub onStateChanged()
         m.metaLabel.color = "0xE7E3FFFF"
         m.chevron.color = "0xE5E5E5FF"
     else
-        m.card.color = "0x2A2A2AFF"
+        m.card.color = "0x1A1A1DFF"
         m.titleLabel.color = "0xEDEBF5FF"
         m.metaLabel.color = "0xB3B3B3FF"
         m.chevron.color = "0x808080FF"
@@ -115,7 +115,7 @@ sub onStateChanged()
         m.dateChip.color = "0x352E63FF"
         m.monthLabel.color = "0xE5E5E5FF"
     else
-        m.dateChip.color = "0x2A2A2AFF"
+        m.dateChip.color = "0x1A1A1DFF"
         m.monthLabel.color = "0xE50914FF"
     end if
 end sub

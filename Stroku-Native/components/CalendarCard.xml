@@ -22,7 +22,7 @@
             translation="[3, 3]"
             width="962"
             height="112"
-            color="0x2A2A2AFF" />
+            color="0x1A1A1DFF" />
 
         <!-- The date chip is the calendar's identity: a tall block on the leading
              edge carrying the day number over a short month. -->
@@ -31,7 +31,7 @@
             translation="[3, 3]"
             width="112"
             height="112"
-            color="0x2A2A2AFF" />
+            color="0x1A1A1DFF" />
         <Label
             id="dayLabel"
             translation="[3, 16]"
@@ -110,7 +110,7 @@
             translation="[6, 108]"
             width="956"
             height="2"
-            color="0x2A2A2AFF"
+            color="0x1A1A1DFF"
             visible="false" />
 
         <!-- Inert copy: empty states and the signed-out explanation. -->

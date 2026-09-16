@@ -420,6 +420,8 @@ function LocaleStringsEnglish() as object
         "discover.type.channel": "Channel"
 
         "library.subtitle": "Saved titles and watch history"
+        "library.row.saved": "Library - Last Watched"
+        "library.row.watched": "Previously Watched - Last Watched"
         "library.hero.signedOut": "Sign in to sync your Stremio library on Roku."
         "library.hero.empty": "Your Stremio library and watch history are empty."
         "library.hero.counts": "{saved} saved item(s)    {watched} watched item(s)"
@@ -678,10 +680,10 @@ function LocaleStringsSpanish() as object
         "dialog.addon.resources": "Recursos:"
         "dialog.addon.manifest": "Manifiesto:"
 
-        "dialog.connect.title": "Conectar Stremio"
-        "dialog.connect.openUrl": "En tu telefono, abre:{0}"
-        "dialog.connect.code": "Codigo: {0}"
-        "dialog.connect.waiting": "Esperando la aprobacion..."
+        "dialog.connect.title": "Vincular Stremio"
+        "dialog.connect.openUrl": "En el movil:{0}"
+        "dialog.connect.code": "Codigo {0}"
+        "dialog.connect.waiting": "Esperando..."
 
         "dialog.search.title": "Buscar o pegar un enlace"
         "dialog.search.message": "Busca peliculas, series y canales. Tambien puedes pegar IDs de IMDb, enlaces HTTP directos o manifiestos de complementos de Stremio."
@@ -780,6 +782,8 @@ function LocaleStringsSpanish() as object
         "discover.type.channel": "Canal"
 
         "library.subtitle": "Titulos guardados e historial de visionado"
+        "library.row.saved": "Biblioteca - Recientes"
+        "library.row.watched": "Vistos antes - Recientes"
         "library.hero.signedOut": "Inicia sesion para sincronizar tu biblioteca de Stremio en Roku."
         "library.hero.empty": "Tu biblioteca de Stremio y tu historial estan vacios."
         "library.hero.counts": "{saved} elemento(s) guardado(s)    {watched} elemento(s) visto(s)"
@@ -1140,6 +1144,8 @@ function LocaleStringsFrench() as object
         "discover.type.channel": "Chaine"
 
         "library.subtitle": "Titres enregistres et historique de visionnage"
+        "library.row.saved": "Bibliotheque - Recents"
+        "library.row.watched": "Deja vus - Recents"
         "library.hero.signedOut": "Connectez-vous pour synchroniser votre bibliotheque Stremio sur le Roku."
         "library.hero.empty": "Votre bibliotheque Stremio et votre historique sont vides."
         "library.hero.counts": "{saved} element(s) enregistre(s)    {watched} element(s) visionne(s)"
@@ -1500,6 +1506,8 @@ function LocaleStringsGerman() as object
         "discover.type.channel": "Kanal"
 
         "library.subtitle": "Gespeicherte Titel und Wiedergabeverlauf"
+        "library.row.saved": "Bibliothek - Zuletzt"
+        "library.row.watched": "Bereits gesehen - Zuletzt"
         "library.hero.signedOut": "Melde dich an, um deine Stremio-Bibliothek auf dem Roku zu synchronisieren."
         "library.hero.empty": "Deine Stremio-Bibliothek und dein Wiedergabeverlauf sind leer."
         "library.hero.counts": "{saved} gespeicherte(r) Eintrag(e)    {watched} gesehene(r) Eintrag(e)"
@@ -1860,6 +1868,8 @@ function LocaleStringsItalian() as object
         "discover.type.channel": "Canale"
 
         "library.subtitle": "Titoli salvati e cronologia di visione"
+        "library.row.saved": "Libreria - Recenti"
+        "library.row.watched": "Gia visti - Recenti"
         "library.hero.signedOut": "Accedi per sincronizzare la tua libreria Stremio sul Roku."
         "library.hero.empty": "La tua libreria Stremio e la cronologia sono vuote."
         "library.hero.counts": "{saved} elemento/i salvato/i    {watched} elemento/i visto/i"
@@ -2220,6 +2230,8 @@ function LocaleStringsPortuguese() as object
         "discover.type.channel": "Canal"
 
         "library.subtitle": "Titulos guardados e historico de visualizacao"
+        "library.row.saved": "Biblioteca - Recentes"
+        "library.row.watched": "Vistos antes - Recentes"
         "library.hero.signedOut": "Inicia sessao para sincronizar a tua biblioteca do Stremio no Roku."
         "library.hero.empty": "A tua biblioteca do Stremio e o historico estao vazios."
         "library.hero.counts": "{saved} item(ns) guardado(s)    {watched} item(ns) visto(s)"

@@ -22,7 +22,7 @@
             translation="[3, 3]"
             width="962"
             height="128"
-            color="0x2A2A2AFF" />
+            color="0x1A1A1DFF" />
         <Rectangle
             id="accentBar"
             translation="[3, 3]"
@@ -40,7 +40,7 @@
             translation="[30, 25]"
             width="84"
             height="84"
-            color="0x2A2A2AFF" />
+            color="0x1A1A1DFF" />
         <Label
             id="logoLetter"
             translation="[30, 25]"
@@ -101,7 +101,7 @@
             translation="[780, 44]"
             width="152"
             height="42"
-            color="0x2E9E76FF" />
+            color="0xE50914FF" />
         <Label
             id="badgeLabel"
             translation="[780, 44]"

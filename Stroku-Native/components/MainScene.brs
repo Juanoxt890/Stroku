@@ -324,7 +324,7 @@ sub UpdateTopBar()
         m.searchBar.color = "0xE50914FF"
         m.searchPrompt.color = "0xFFFFFFFF"
     else
-        m.searchBar.color = "0x2A2A2AFF"
+        m.searchBar.color = "0x1A1A1DFF"
         m.searchPrompt.color = "0x808080FF"
     end if
 
@@ -332,7 +332,7 @@ sub UpdateTopBar()
         m.supportChipBg.color = "0xE50914FF"
         m.supportChipLabel.color = "0xFFFFFFFF"
     else
-        m.supportChipBg.color = "0x2A2A2AFF"
+        m.supportChipBg.color = "0x1A1A1DFF"
         m.supportChipLabel.color = "0xB3B3B3FF"
     end if
 end sub
@@ -453,17 +453,17 @@ sub RenderDiscover(focusContent as boolean)
 end sub
 
 sub RenderLibrary(focusContent as boolean)
-    m.primaryTitle.text = "Library"
-    m.primarySubtitle.text = "Saved titles and watch history"
+    m.primaryTitle.text = TrText("nav.library")
+    m.primarySubtitle.text = TrText("library.subtitle")
     if m.stremioAuthKey = ""
         RenderInfoList([
-            InfoAction("Library is only available for logged in users", "none", invalid)
-            InfoAction("Access your favorite movies and TV shows anytime, anywhere", "none", invalid)
-            InfoAction("Recommendations tailored to your viewing history", "none", invalid)
-            InfoAction("Log in", "login", invalid)
+            InfoAction(TrText("library.signedOut.title"), "none", invalid)
+            InfoAction(TrText("library.signedOut.benefit1"), "none", invalid)
+            InfoAction(TrText("library.signedOut.benefit2"), "none", invalid)
+            InfoAction(TrText("library.signedOut.login"), "login", invalid)
         ], focusContent)
         SetHeroBillboardVisible(false)
-        SetHeroChrome("Library", "Sign in to sync your Stremio library on Roku.", "")
+        SetHeroChrome(TrText("nav.library"), TrText("library.hero.signedOut"), "")
         return
     end if
 
@@ -471,20 +471,23 @@ sub RenderLibrary(focusContent as boolean)
     m.catalogNames = []
     if m.libraryItems.Count() > 0
         m.libraryRows.Push(m.libraryItems)
-        m.catalogNames.Push("Library - Last Watched")
+        m.catalogNames.Push(TrText("library.row.saved"))
     end if
     if m.watchedItems.Count() > 0
         m.libraryRows.Push(m.watchedItems)
-        m.catalogNames.Push("Previously Watched - Last Watched")
+        m.catalogNames.Push(TrText("library.row.watched"))
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
     m.catalogList.translation = ScaleUiXY(280, 520)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
-        SetHeroChrome("Library", "Your Stremio library and watch history are empty.", "")
+        SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
     else
-        SetHeroChrome("Library", m.libraryItems.Count().ToStr() + " saved item(s)    " + m.watchedItems.Count().ToStr() + " watched item(s)", "")
+        counts = TrText("library.hero.counts")
+        counts = LocaleReplace(counts, "{saved}", m.libraryItems.Count().ToStr())
+        counts = LocaleReplace(counts, "{watched}", m.watchedItems.Count().ToStr())
+        SetHeroChrome(TrText("nav.library"), counts, "")
     end if
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
@@ -807,21 +810,20 @@ sub UpdateAddonChips()
             if chip.actionType = "addonFilterAll" then selected = m.addonFilter = "all"
 
             if chip.actionType = "addAddon"
-                ' Stremio reserves one green primary action for adding an add-on.
+                ' Primary CTA uses accent (premium bible).
                 if focused
-                    background.color = "0x3FCB96FF"
+                    background.color = "0xE50914FF"
                 else
-                    background.color = "0x2E9E76FF"
+                    background.color = "0x3A1518FF"
                 end if
                 label.color = "0xFFFFFFFF"
-            else if focused
                 background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
             else if selected
                 background.color = "0x3A1518FF"
                 label.color = "0xE5E5E5FF"
             else
-                background.color = "0x2A2A2AFF"
+                background.color = "0x1A1A1DFF"
                 label.color = "0xB3B3B3FF"
             end if
         end if
@@ -1144,7 +1146,7 @@ sub UpdateSettingsTabs()
                 background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
             else
-                background.color = "0x2A2A2AFF"
+                background.color = "0x1A1A1DFF"
                 label.color = "0xB3B3B3FF"
             end if
         end if
@@ -2069,7 +2071,7 @@ sub ApplyUiScaleSettings()
     ' Paint the letterbox margins left by a reduced manual scale in the app colour
     ' instead of the Roku default background image.
     m.top.backgroundURI = ""
-    m.top.backgroundColor = "0x141414FF"
+    m.top.backgroundColor = "0x0B0B0DFF"
 
     m.uiRoot.translation = [scale.offsetX, scale.offsetY]
     EnsureUiScale(m.uiRoot)
@@ -2380,7 +2382,7 @@ sub SearchCatalogs(query as string)
         m.discoverRows = [[], []]
         m.discoverNames = ["IMDb ID - Movie", "IMDb ID - Series"]
         m.discoverRequestActive = true
-        m.searchPrompt.text = "Results for " + Chr(34) + query + Chr(34)
+        m.searchPrompt.text = TrFormat("search.resultsFor", Chr(34) + query + Chr(34))
         SetActiveTab("discover", true)
         ShowStatus(TrText("status.search.resolvingImdb"), true)
         StartRequest(CinemetaMetaUrl("movie", lowerQuery), "searchMeta|0")
@@ -2391,7 +2393,7 @@ sub SearchCatalogs(query as string)
     m.discoverRows = [[], [], []]
     m.discoverNames = ["Search Suggestions - Movie", "Search Suggestions - Series", "Search Suggestions - Channel"]
     m.discoverRequestActive = true
-    m.searchPrompt.text = "Results for " + Chr(34) + query + Chr(34)
+    m.searchPrompt.text = TrFormat("search.resultsFor", Chr(34) + query + Chr(34))
     SetActiveTab("discover", true)
     ShowStatus(TrText("status.search.searchingCatalogs"), true)
     StartRequest("https://v3-cinemeta.strem.io/catalog/movie/top/search=" + encodedQuery + ".json", "search|0")
@@ -2576,10 +2578,10 @@ sub HandleStreamRequestError(message as string)
             FindSubtitles(m.streams[streamIndex])
             return
         end if
-        ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+        ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
     else
         RecoverFromNextEpisodeFailure()
-        ShowNoStreamsScreen("No add-on returned a direct playable stream. " + message)
+        ShowNoStreamsScreen(TrFormat("noStreams.noDirectStream", message))
     end if
 end sub
 
@@ -2621,10 +2623,10 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
     if target = "board"
         action = {
             id: "seeall:" + rowIndex.ToStr()
-            name: "See All"
+            name: TrText("board.seeAll")
             type: "action"
             poster: ""
-            description: "Open this catalog in Discover"
+            description: TrText("board.seeAll.description")
             rowIndex: rowIndex
         }
         items.Push(action)
@@ -2688,7 +2690,13 @@ sub RebuildCatalog()
 
     for rowIndex = 0 to m.catalogRows.Count() - 1
         rowNode = root.CreateChild("ContentNode")
-        rowNode.title = m.catalogNames[rowIndex]
+        rowTitle = ""
+        if rowIndex < m.catalogNames.Count() then rowTitle = m.catalogNames[rowIndex]
+        ' Presentation-only: append See All / Ver todo to Board row labels.
+        if m.activeTab = "board" and rowTitle <> ""
+            rowTitle = rowTitle + "   ·  " + TrText("board.seeAll")
+        end if
+        rowNode.title = rowTitle
 
         for each item in m.catalogRows[rowIndex]
             itemNode = rowNode.CreateChild("ContentNode")
@@ -2864,11 +2872,11 @@ sub OpenSeriesEpisodes(item as object)
     m.choiceReturnMode = "home"
     m.choiceMode = "loading"
     m.episodeRequestActive = true
-    m.choiceTitle.text = "Loading episodes for " + SafeString(item, "name")
+    m.choiceTitle.text = TrFormat("episodes.loadingFor", SafeString(item, "name"))
 
     content = CreateObject("roSGNode", "ContentNode")
     child = content.CreateChild("ContentNode")
-    child.title = "Loading episodes..."
+    child.title = TrText("episodes.loading")
     m.streamList.visible = false
     m.choiceList.visible = true
     m.choiceList.content = content
@@ -3029,9 +3037,9 @@ sub RebuildSeasonGrid()
         child = content.CreateChild("ContentNode")
         season = m.seasons[index]
         if season = 0
-            child.title = "Specials"
+            child.title = TrText("episodes.specials")
         else
-            child.title = "Season " + season.ToStr()
+            child.title = TrFormat("episodes.season", season.ToStr())
         end if
         if index = m.selectedSeasonIndex
             child.shortDescriptionLine1 = "selected"
@@ -3181,7 +3189,7 @@ sub FindStreams(contentType as string, id as string, title as string, returnMode
     end for
 
     if matchingAddons.Count() = 0
-        ShowNoStreamsScreen("No installed add-on can provide a playable stream for this title. Press * to add or configure a stream add-on, then try again.")
+        ShowNoStreamsScreen(TrText("noStreams.noStreamAddon"))
         return
     end if
 
@@ -3254,7 +3262,7 @@ sub HandleStreamsResponse(data as object, addonIndex as integer)
         return
     end if
 
-    ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+    ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
 end sub
 
 function DirectStreamUrl(stream as dynamic) as string
@@ -3298,9 +3306,9 @@ sub ShowNoStreamsScreen(message as string)
     HideStatus()
     m.noStreamsPoster.uri = SafeString(m.selectedItem, "poster")
     m.noStreamsMessage.text = message
-    m.noStreamsHint.text = "BACK: Catalog                              *: CONFIGURE ADD-ONS"
+    m.noStreamsHint.text = TrText("noStreams.hint.catalog")
     if m.streamReturnMode = "episodes"
-        m.noStreamsHint.text = "BACK: Episodes                              *: CONFIGURE ADD-ONS"
+        m.noStreamsHint.text = TrText("noStreams.hint.episodes")
     end if
 
     m.homeGroup.visible = false
@@ -3540,7 +3548,7 @@ end sub
 sub PlayExternal(args as object)
     if args = invalid or not args.DoesExist("url") then return
     stream = { url: args.url }
-    title = "External stream"
+    title = TrText("streams.externalTitle")
     if args.DoesExist("title") then title = args.title
     m.playbackReturnMode = "home"
     PlayStream(stream, title, [])
@@ -3735,7 +3743,7 @@ end sub
 
 sub ReturnFromVideo()
     if m.playbackReturnMode = "streams" and m.streams.Count() > 0
-        ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+        ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
         if m.selectedStreamIndex >= 0 and m.selectedStreamIndex < m.streams.Count()
             m.streamList.JumpToItem = m.selectedStreamIndex
         end if
@@ -4729,7 +4737,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
         if m.subtitleRequestActive
             ClearActiveSubtitleRequest()
             HideStatus()
-            ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+            ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
             m.streamList.JumpToItem = m.selectedStreamIndex
             return true
         end if

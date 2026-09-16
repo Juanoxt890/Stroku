@@ -33,7 +33,7 @@
             translation="[8, 252]"
             width="168"
             height="6"
-            color="0x333333FF"
+            color="0x1A1A1DFF"
             visible="false" />
         <Rectangle
             id="progressBarFill"
