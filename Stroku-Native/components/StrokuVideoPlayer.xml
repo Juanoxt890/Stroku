@@ -257,7 +257,7 @@
 
         <Group id="speedMenu" visible="false">
             <Rectangle width="1920" height="1080" color="0x00000099" />
-            <Rectangle translation="[510, 160]" width="900" height="760" color="0x191733FA" />
+            <Rectangle translation="[510, 160]" width="900" height="760" color="0x141414FA" />
             <Rectangle translation="[510, 160]" width="10" height="760" color="0xE50914FF" />
             <Label
                 id="speedMenuTitle"
@@ -281,7 +281,7 @@
 
         <Group id="audioMenu" visible="false">
             <Rectangle width="1920" height="1080" color="0x00000099" />
-            <Rectangle translation="[510, 160]" width="900" height="760" color="0x191733FA" />
+            <Rectangle translation="[510, 160]" width="900" height="760" color="0x141414FA" />
             <Rectangle translation="[510, 160]" width="10" height="760" color="0xE50914FF" />
             <Label
                 id="audioMenuTitle"
@@ -305,7 +305,7 @@
 
         <Group id="subtitleMenu" visible="false">
             <Rectangle width="1920" height="1080" color="0x00000099" />
-            <Rectangle translation="[510, 160]" width="900" height="760" color="0x191733FA" />
+            <Rectangle translation="[510, 160]" width="900" height="760" color="0x141414FA" />
             <Rectangle translation="[510, 160]" width="10" height="760" color="0xE50914FF" />
             <Label
                 id="subtitleMenuTitle"

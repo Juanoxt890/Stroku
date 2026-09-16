@@ -343,7 +343,7 @@ function LocaleStringsEnglish() as object
         "dialog.quickActions.addAddon": "Add Stremio Add-on"
         "dialog.quickActions.addAddonCount": "Add Stremio Add-on ({0} installed)"
 
-        "uiScale.message": "Stroku fits itself to this TV automatically ({0}). Lower the scale only if your TV cuts off the purple border around the edge of the screen."
+        "uiScale.message": "Stroku fits itself to this TV automatically ({0}). Lower the scale only if your TV cuts off the red border around the edge of the screen."
         "uiScale.automaticFit": "(automatic fit)"
 
         "status.refreshingLibrary": "Refreshing your Stremio library..."
@@ -703,7 +703,7 @@ function LocaleStringsSpanish() as object
         "dialog.quickActions.addAddon": "Anadir complemento de Stremio"
         "dialog.quickActions.addAddonCount": "Anadir complemento de Stremio ({0} instalados)"
 
-        "uiScale.message": "Stroku se adapta automaticamente a este televisor ({0}). Reduce la escala solo si tu televisor recorta el borde morado de los bordes de la pantalla."
+        "uiScale.message": "Stroku se adapta automaticamente a este televisor ({0}). Reduce la escala solo si tu televisor recorta el borde rojo de los bordes de la pantalla."
         "uiScale.automaticFit": "(ajuste automatico)"
 
         "status.refreshingLibrary": "Actualizando tu biblioteca de Stremio..."
@@ -1063,7 +1063,7 @@ function LocaleStringsFrench() as object
         "dialog.quickActions.addAddon": "Ajouter un module Stremio"
         "dialog.quickActions.addAddonCount": "Ajouter un module Stremio ({0} installes)"
 
-        "uiScale.message": "Stroku s'adapte automatiquement a ce televiseur ({0}). Reduisez l'echelle uniquement si votre televiseur coupe la bordure violette sur les bords de l'ecran."
+        "uiScale.message": "Stroku s'adapte automatiquement a ce televiseur ({0}). Reduisez l'echelle uniquement si votre televiseur coupe la bordure rouge sur les bords de l'ecran."
         "uiScale.automaticFit": "(ajustement automatique)"
 
         "status.refreshingLibrary": "Actualisation de votre bibliotheque Stremio..."
@@ -1783,7 +1783,7 @@ function LocaleStringsItalian() as object
         "dialog.quickActions.addAddon": "Aggiungi add-on Stremio"
         "dialog.quickActions.addAddonCount": "Aggiungi add-on Stremio ({0} installati)"
 
-        "uiScale.message": "Stroku si adatta automaticamente a questa TV ({0}). Riduci la scala solo se la TV taglia il bordo viola lungo i lati dello schermo."
+        "uiScale.message": "Stroku si adatta automaticamente a questa TV ({0}). Riduci la scala solo se la TV taglia il bordo rosso lungo i lati dello schermo."
         "uiScale.automaticFit": "(adattamento automatico)"
 
         "status.refreshingLibrary": "Aggiornamento della tua libreria Stremio..."

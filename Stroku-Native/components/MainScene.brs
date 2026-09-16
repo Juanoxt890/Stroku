@@ -70,8 +70,15 @@ sub init()
     end for
     m.heroTitle = m.top.FindNode("heroTitle")
     m.heroDescription = m.top.FindNode("heroDescription")
+    m.heroMeta = m.top.FindNode("heroMeta")
     m.heroBillboard = m.top.FindNode("heroBillboard")
     m.heroPoster = m.top.FindNode("heroPoster")
+    m.heroPrimaryLabel = m.top.FindNode("heroPrimaryLabel")
+    m.heroSecondaryLabel = m.top.FindNode("heroSecondaryLabel")
+    m.lastHeroPosterUri = ""
+    m.catalogContentFingerprint = ""
+    m.discoverContentFingerprint = ""
+    m.chromeNodeCache = {}
     m.homeGroup = m.top.FindNode("homeGroup")
     m.episodeGroup = m.top.FindNode("episodeGroup")
     m.episodeBackground = m.top.FindNode("episodeBackground")
@@ -394,7 +401,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(260, 500)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -429,7 +436,7 @@ sub RenderBoard(focusContent as boolean)
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(260, 500)
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
 end sub
@@ -476,7 +483,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(260, 500)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome("Library", "Your Stremio library and watch history are empty.", "")
@@ -2465,7 +2472,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(260, 510)
+                m.catalogList.translation = ScaleUiXY(260, 500)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2652,7 +2659,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(260, 510)
+            m.catalogList.translation = ScaleUiXY(260, 500)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2681,6 +2688,15 @@ function IsImdbId(value as string) as boolean
 end function
 
 sub RebuildCatalog()
+    ' Skip full ContentNode rebuild on tab re-entry when rows are unchanged.
+    fingerprint = CatalogRowsFingerprint(m.catalogRows, m.catalogNames)
+    if fingerprint <> "" and fingerprint = m.catalogContentFingerprint and m.catalogList.content <> invalid
+        if m.screenMode = "home" and m.catalogList.visible and not m.navList.HasFocus() and not m.primaryInfoList.HasFocus() and not m.settingsList.HasFocus() and m.discoverFilterFocus < 0
+            m.catalogList.SetFocus(true)
+        end if
+        return
+    end if
+
     root = CreateObject("roSGNode", "ContentNode")
 
     for rowIndex = 0 to m.catalogRows.Count() - 1
@@ -2716,12 +2732,18 @@ sub RebuildCatalog()
     end for
 
     m.catalogList.content = root
+    m.catalogContentFingerprint = fingerprint
     if m.screenMode = "home" and m.catalogList.visible and not m.navList.HasFocus() and not m.primaryInfoList.HasFocus() and not m.settingsList.HasFocus() and m.discoverFilterFocus < 0
         m.catalogList.SetFocus(true)
     end if
 end sub
 
 sub RebuildDiscoverGrid()
+    fingerprint = CatalogRowsFingerprint(m.discoverRows, m.discoverNames)
+    if fingerprint <> "" and fingerprint = m.discoverContentFingerprint and m.discoverGrid.content <> invalid
+        return
+    end if
+
     content = CreateObject("roSGNode", "ContentNode")
     if m.discoverRows <> invalid and m.discoverRows.Count() > 0
         for each item in m.discoverRows[0]
@@ -2750,6 +2772,7 @@ sub RebuildDiscoverGrid()
         end for
     end if
     m.discoverGrid.content = content
+    m.discoverContentFingerprint = fingerprint
 end sub
 
 function GetDiscoverGridItem(index as integer) as dynamic
@@ -2881,22 +2904,62 @@ sub OpenSeriesEpisodes(item as object)
 end sub
 
 
+function CatalogRowsFingerprint(rows as object, names as object) as string
+    if rows = invalid then return ""
+    parts = []
+    nameCount = 0
+    if names <> invalid then nameCount = names.Count()
+    for rowIndex = 0 to rows.Count() - 1
+        rowName = ""
+        if rowIndex < nameCount then rowName = names[rowIndex]
+        row = rows[rowIndex]
+        count = 0
+        firstId = ""
+        lastId = ""
+        if row <> invalid
+            count = row.Count()
+            if count > 0
+                firstId = SafeString(row[0], "id")
+                lastId = SafeString(row[count - 1], "id")
+            end if
+        end if
+        parts.Push(rowName + ":" + count.ToStr() + ":" + firstId + ":" + lastId)
+    end for
+    return JoinStrings(parts, "|")
+end function
+
 sub SetHeroBillboardVisible(visible as boolean)
     if m.heroBillboard <> invalid then m.heroBillboard.visible = visible
+    ' Billboard owns the section header on Board/Discover/Library; keep primary
+    ' labels for Settings/Calendar/Addons where the hero is hidden.
+    if m.primaryTitle <> invalid then m.primaryTitle.visible = not visible
+    if m.primarySubtitle <> invalid then m.primarySubtitle.visible = not visible
 end sub
 
 sub ClearHeroPoster()
     if m.heroPoster <> invalid then m.heroPoster.uri = ""
+    m.lastHeroPosterUri = ""
+    if m.heroMeta <> invalid then m.heroMeta.text = ""
 end sub
 
 sub SetHeroChrome(title as string, description as string, posterUrl as string)
+    SetHeroChromeEx(title, description, posterUrl, "")
+end sub
+
+sub SetHeroChromeEx(title as string, description as string, posterUrl as string, meta as string)
     if m.heroTitle <> invalid then m.heroTitle.text = title
     if m.heroDescription <> invalid then m.heroDescription.text = description
+    if m.heroMeta <> invalid then m.heroMeta.text = meta
     if m.heroPoster <> invalid
-        if posterUrl <> ""
+        ' Avoid thrashing the Poster decoder when focus moves within the same title.
+        if posterUrl = ""
+            if m.lastHeroPosterUri <> ""
+                m.heroPoster.uri = ""
+                m.lastHeroPosterUri = ""
+            end if
+        else if posterUrl <> m.lastHeroPosterUri
             m.heroPoster.uri = posterUrl
-        else
-            m.heroPoster.uri = ""
+            m.lastHeroPosterUri = posterUrl
         end if
     end if
 end sub
@@ -2907,16 +2970,27 @@ sub UpdateHeroFromItem(item as object)
     description = HomeHeroDescription(item)
     posterUrl = SafeString(item, "background")
     if posterUrl = "" then posterUrl = SafeString(item, "poster")
-    SetHeroChrome(title, description, posterUrl)
+    SetHeroChromeEx(title, description, posterUrl, HomeHeroMeta(item))
 end sub
+
+function HomeHeroMeta(item as object) as string
+    parts = []
+    typeText = SafeString(item, "type")
+    if typeText <> "" then parts.Push(UCase(typeText))
+    year = SafeString(item, "releaseInfo")
+    if year = "" then year = SafeString(item, "year")
+    if year <> "" then parts.Push(year)
+    genres = SafeString(item, "genres")
+    if genres = "" and item.DoesExist("genre") then genres = SafeString(item, "genre")
+    if genres <> "" then parts.Push(genres)
+    return JoinStrings(parts, "  ·  ")
+end function
 
 function HomeHeroDescription(item as object) as string
     description = SafeString(item, "description")
-    if SafeString(item, "type") = "movie"
-        hint = "Streams load automatically"
-        if description <> "" then return description + "    " + hint
-        return hint
-    end if
+    if description = "" then return ""
+    ' Keep synopsis short for 10-foot readability.
+    if Len(description) > 180 then description = Left(description, 177) + "..."
     return description
 end function
 
@@ -3903,7 +3977,14 @@ sub ApplyStaticChromeText()
 end sub
 
 sub ApplyChromeLabel(id as string, text as string)
-    node = m.top.FindNode(id)
+    node = invalid
+    if m.chromeNodeCache <> invalid and m.chromeNodeCache.DoesExist(id)
+        node = m.chromeNodeCache[id]
+    else
+        node = m.top.FindNode(id)
+        if m.chromeNodeCache = invalid then m.chromeNodeCache = {}
+        m.chromeNodeCache[id] = node
+    end if
     if node <> invalid then node.text = text
 end sub
 
@@ -4947,14 +5028,25 @@ function StreamCardLine1(stream as object, qualityText as string, sizeText as st
     return JoinStrings(parts, "  ·  ")
 end function
 
-' Line 2: languages / audio / subtitle hints parsed from name/title/description/filename.
+' Line 2: Audio + Subs languages (structured fields first, then release-name parse).
 function StreamCardLine2(stream as object) as string
+    fieldAudio = ExtractStreamLanguageField(stream, ["audioLanguages", "audioLangs", "lang", "language", "languages", "audio"])
+    fieldSubs = ExtractStreamLanguageField(stream, ["subtitleLanguages", "subLangs", "subtitles", "subs"])
     haystack = StreamParseHaystack(stream)
-    languages = ExtractStreamLanguages(haystack)
-    audio = ExtractStreamAudio(haystack)
+    parsedLangs = ExtractStreamLanguages(haystack)
+    parsedSubs = ExtractStreamSubtitles(haystack)
+    audioCodec = ExtractStreamAudio(haystack)
+
+    audioLabel = fieldAudio
+    if audioLabel = "" then audioLabel = parsedLangs
+    subsLabel = fieldSubs
+    if subsLabel = "" then subsLabel = parsedSubs
+
     parts = []
-    if languages <> "" then parts.Push(languages)
-    if audio <> "" then parts.Push(audio)
+    if audioLabel <> "" then parts.Push("Audio: " + audioLabel)
+    if subsLabel <> "" then parts.Push("Subs: " + subsLabel)
+    if audioCodec <> "" then parts.Push(audioCodec)
+
     if parts.Count() = 0
         ' Fall back to a cleaned release first-line without crushing everything together.
         release = StreamCardTitle(stream)
@@ -4986,12 +5078,127 @@ function StreamParseHaystack(stream as object) as string
     chunks.Push(SafeString(stream, "name"))
     chunks.Push(SafeString(stream, "title"))
     chunks.Push(SafeString(stream, "description"))
+    chunks.Push(FormatStreamLangValue(stream, "lang"))
+    chunks.Push(FormatStreamLangValue(stream, "language"))
+    chunks.Push(FormatStreamLangValue(stream, "languages"))
+    chunks.Push(FormatStreamLangValue(stream, "audio"))
+    chunks.Push(FormatStreamLangValue(stream, "audioLanguages"))
+    chunks.Push(FormatStreamLangValue(stream, "subtitles"))
     if stream.DoesExist("behaviorHints") and stream.behaviorHints <> invalid
         hints = stream.behaviorHints
         chunks.Push(SafeString(hints, "bingeGroup").Replace("|", " "))
         chunks.Push(SafeString(hints, "filename"))
+        chunks.Push(FormatStreamLangValue(hints, "audioLanguages"))
+        chunks.Push(FormatStreamLangValue(hints, "subtitleLanguages"))
+        chunks.Push(FormatStreamLangValue(hints, "lang"))
+        chunks.Push(FormatStreamLangValue(hints, "languages"))
+        chunks.Push(FormatStreamLangValue(hints, "audio"))
+        chunks.Push(FormatStreamLangValue(hints, "subtitles"))
     end if
     return JoinStrings(chunks, " ")
+end function
+
+' Pull a language-ish field from stream or behaviorHints (string / array / object).
+function ExtractStreamLanguageField(stream as object, keys as object) as string
+    if stream = invalid then return ""
+    for each key in keys
+        value = FormatStreamLangValue(stream, key)
+        if value <> "" then return value
+    end for
+    if stream.DoesExist("behaviorHints") and stream.behaviorHints <> invalid
+        hints = stream.behaviorHints
+        for each key in keys
+            value = FormatStreamLangValue(hints, key)
+            if value <> "" then return value
+        end for
+    end if
+    return ""
+end function
+
+function FormatStreamLangValue(obj as object, key as string) as string
+    if obj = invalid or not obj.DoesExist(key) then return ""
+    value = obj[key]
+    if value = invalid then return ""
+    valueType = Type(value)
+    if valueType = "roArray"
+        parts = []
+        for each entry in value
+            if entry <> invalid
+                text = entry.ToStr().Trim()
+                if text <> "" then parts.Push(NormalizeLanguageLabel(text))
+            end if
+        end for
+        return JoinStrings(parts, ", ")
+    end if
+    if valueType = "roAssociativeArray"
+        ' Common Stremio shape: { eng: true, spa: true } or { language: "eng" }
+        parts = []
+        if value.DoesExist("language")
+            text = FormatStreamLangValue(value, "language")
+            if text <> "" then return text
+        end if
+        for each entryKey in value
+            flag = value[entryKey]
+            if flag = true or flag = 1 or (Type(flag) = "String" and flag <> "")
+                parts.Push(NormalizeLanguageLabel(entryKey))
+            end if
+        end for
+        return JoinStrings(parts, ", ")
+    end if
+    text = value.ToStr().Trim()
+    if text = "" then return ""
+    if IsAudioCodecToken(text) then return ""
+    ' Comma / slash / pipe separated lists
+    text = text.Replace("/", ",").Replace("|", ",").Replace(";", ",")
+    parts = []
+    start = 0
+    ' Simple split on commas without depending on Split() availability quirks
+    remaining = text
+    while remaining <> ""
+        idx = Instr(1, remaining, ",")
+        if idx = 0
+            piece = remaining.Trim()
+            remaining = ""
+        else
+            piece = Left(remaining, idx - 1).Trim()
+            remaining = Mid(remaining, idx + 1).Trim()
+        end if
+        if piece <> "" then parts.Push(NormalizeLanguageLabel(piece))
+    end while
+    return JoinStrings(parts, ", ")
+end function
+
+function IsAudioCodecToken(raw as string) as boolean
+    code = UCase(raw.Trim())
+    codecs = {
+        "AAC": true, "AC3": true, "EAC3": true, "E-AC3": true, "DDP": true, "DD+": true,
+        "DTS": true, "DTS-HD": true, "DTS:X": true, "TRUEHD": true, "ATMOS": true,
+        "FLAC": true, "OPUS": true, "MP3": true, "PCM": true
+    }
+    return codecs.DoesExist(code)
+end function
+
+function NormalizeLanguageLabel(raw as string) as string
+    code = UCase(raw.Trim())
+    map = {
+        "EN": "English", "ENG": "English", "ENGLISH": "English", "EN-US": "English", "EN-GB": "English",
+        "ES": "Spanish", "SPA": "Spanish", "ESP": "Spanish", "SPANISH": "Spanish", "ES-ES": "Spanish", "ES-MX": "Spanish", "ES-419": "Spanish",
+        "LATINO": "Latino", "LAT": "Latino", "MX": "Latino",
+        "CASTELLANO": "Castellano", "CAST": "Castellano",
+        "FR": "French", "FRE": "French", "FRA": "French", "FRENCH": "French", "VFF": "VFF", "VFQ": "VFQ", "TRUEFRENCH": "TrueFrench",
+        "DE": "German", "GER": "German", "DEU": "German", "GERMAN": "German",
+        "IT": "Italian", "ITA": "Italian", "ITALIAN": "Italian",
+        "PT": "Portuguese", "POR": "Portuguese", "PORTUGUESE": "Portuguese", "PT-BR": "Portuguese", "BRA": "Portuguese",
+        "JA": "Japanese", "JPN": "Japanese", "JAPANESE": "Japanese",
+        "KO": "Korean", "KOR": "Korean", "KOREAN": "Korean",
+        "ZH": "Chinese", "CHI": "Chinese", "ZHO": "Chinese", "CHINESE": "Chinese",
+        "RU": "Russian", "RUS": "Russian", "RUSSIAN": "Russian",
+        "MULTI": "Multi", "MUL": "Multi", "DUAL": "Dual", "VO": "VO", "VOS": "VOS", "VOSTFR": "VOSTFR"
+    }
+    if map.DoesExist(code) then return map[code]
+    ' Title-case short free-text labels
+    if Len(raw) <= 18 then return raw
+    return Left(raw, 18)
 end function
 
 function ExtractStreamLanguages(haystack as string) as string
@@ -4999,6 +5206,7 @@ function ExtractStreamLanguages(haystack as string) as string
     upper = UCase(haystack)
     found = []
     ' Longer / more specific tokens first so LATINO wins over LAT, MULTI before MUL.
+    ' Subtitle-only markers are handled by ExtractStreamSubtitles so Audio stays clean.
     tokens = [
         ["LATINO", "Latino"],
         ["CASTELLANO", "Castellano"],
@@ -5008,15 +5216,11 @@ function ExtractStreamLanguages(haystack as string) as string
         ["GERMAN", "German"],
         ["ITALIAN", "Italian"],
         ["PORTUGUESE", "Portuguese"],
+        ["TRUEFRENCH", "TrueFrench"],
         ["MULTI", "Multi"],
         ["DUAL", "Dual"],
-        ["TRUEFRENCH", "TrueFrench"],
         ["VFF", "VFF"],
         ["VFQ", "VFQ"],
-        ["VOSTFR", "VOSTFR"],
-        ["SUBFORCED", "Subs"],
-        ["SUBS", "Subs"],
-        ["VOS", "VOS"],
         ["SPA", "Spanish"],
         ["ESP", "Spanish"],
         ["ENG", "English"],
@@ -5043,6 +5247,61 @@ function ExtractStreamLanguages(haystack as string) as string
         end if
         if found.Count() >= 4 then exit for
     end for
+    return JoinStrings(found, ", ")
+end function
+
+function ExtractStreamSubtitles(haystack as string) as string
+    if haystack = "" then return ""
+    upper = UCase(haystack)
+    found = []
+    ' Patterns like "Subs: Eng", "Sub Spanish", "VOSTFR", "forced subs"
+    tokens = [
+        ["VOSTFR", "French"],
+        ["SUBFORCED", "Forced"],
+        ["FORCED SUB", "Forced"],
+        ["SUBTITLE", ""],
+        ["SUBTITLES", ""],
+        ["SUBS", ""],
+        ["SUB:", ""],
+        ["SUB ", ""]
+    ]
+    hasSubMarker = false
+    for each pair in tokens
+        if Instr(1, upper, pair[0]) > 0
+            hasSubMarker = true
+            if pair[1] <> ""
+                already = false
+                for each existing in found
+                    if existing = pair[1] then already = true
+                end for
+                if not already then found.Push(pair[1])
+            end if
+        end if
+    end for
+    if not hasSubMarker then return JoinStrings(found, ", ")
+    ' When a sub marker exists, also harvest language tokens near the haystack.
+    langs = ExtractStreamLanguages(haystack)
+    ' Manual merge from ExtractStreamLanguages result
+    if langs <> ""
+        remaining = langs
+        while remaining <> ""
+            idx = Instr(1, remaining, ",")
+            if idx = 0
+                piece = remaining.Trim()
+                remaining = ""
+            else
+                piece = Left(remaining, idx - 1).Trim()
+                remaining = Mid(remaining, idx + 1).Trim()
+            end if
+            if piece <> ""
+                already = false
+                for each existing in found
+                    if existing = piece then already = true
+                end for
+                if not already then found.Push(piece)
+            end if
+        end while
+    end if
     return JoinStrings(found, ", ")
 end function
 

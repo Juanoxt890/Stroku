@@ -2,6 +2,7 @@ sub init()
     m.cardBg = m.top.FindNode("cardBg")
     m.focusFrame = m.top.FindNode("focusFrame")
     m.focusAccent = m.top.FindNode("focusAccent")
+    m.badgePill = m.top.FindNode("badgePill")
     m.line1 = m.top.FindNode("line1")
     m.line2 = m.top.FindNode("line2")
     m.line3 = m.top.FindNode("line3")
@@ -31,6 +32,10 @@ sub onContentChanged()
     if m.line3.text = ""
         m.line3.text = JoinNonEmpty([SafeText(content, "addonName"), SafeText(content, "tracker"), SafeText(content, "seeds")], "  ·  ")
     end if
+
+    if m.badgePill <> invalid
+        m.badgePill.visible = m.badge.text <> ""
+    end if
 end sub
 
 sub onFocusChanged()
@@ -38,13 +43,19 @@ sub onFocusChanged()
     m.focusFrame.visible = focused
     m.focusAccent.visible = focused
     if focused
-        m.line1.color = "0xFFFFFFFF"
-        m.line2.color = "0xFFFFFFFF"
-        m.badge.color = "0xE50914FF"
+        m.cardBg.color = ThemeFocusFill()
+        m.line1.color = ThemeTextPrimary()
+        m.line2.color = ThemeTextPrimary()
+        m.line3.color = ThemeTextSecondary()
+        m.badge.color = ThemeTextPrimary()
+        if m.badgePill <> invalid then m.badgePill.color = ThemeAccent()
     else
-        m.line1.color = "0xFFFFFFFF"
-        m.line2.color = "0xE5E5E5FF"
-        m.badge.color = "0xE50914FF"
+        m.cardBg.color = ThemeSurface()
+        m.line1.color = ThemeTextPrimary()
+        m.line2.color = ThemeTextSecondary()
+        m.line3.color = ThemeTextMuted()
+        m.badge.color = ThemeAccent()
+        if m.badgePill <> invalid then m.badgePill.color = ThemeSurfaceHover()
     end if
 end sub
 

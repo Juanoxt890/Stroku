@@ -2,6 +2,13 @@ sub init()
     m.poster = m.top.FindNode("poster")
     m.title = m.top.FindNode("title")
     m.focusFrame = m.top.FindNode("focusFrame")
+    m.focusHalo = m.top.FindNode("focusHalo")
+    m.progressBarBg = m.top.FindNode("progressBarBg")
+    m.progressBarFill = m.top.FindNode("progressBarFill")
+    m.titleScrim = m.top.FindNode("titleScrim")
+    m.lastPosterUri = ""
+    ' Scale from poster center so neighbors are less clipped on focus pop.
+    m.top.scaleRotateCenter = [101, 148]
 end sub
 
 sub onContentChanged()
@@ -12,20 +19,24 @@ sub onContentChanged()
     content = m.top.itemContent
     if content = invalid then return
 
-    m.poster.uri = content.HDPosterUrl
+    ' Defer redundant poster reloads when RowList rebinds the same artwork.
+    posterUri = content.HDPosterUrl
+    if posterUri = invalid then posterUri = ""
+    if posterUri <> m.lastPosterUri
+        m.poster.uri = posterUri
+        m.lastPosterUri = posterUri
+    end if
     m.title.text = content.title
     onFocusChanged()
 
-    progressBarBg = m.top.FindNode("progressBarBg")
-    progressBarFill = m.top.FindNode("progressBarFill")
-    if progressBarBg <> invalid and progressBarFill <> invalid
+    if m.progressBarBg <> invalid and m.progressBarFill <> invalid
         if content.DoesExist("progress") and content.progress > 0.0 and content.progress < 1.0
-            progressBarBg.visible = true
-            progressBarFill.visible = true
-            progressBarFill.width = ScaleUi(158 * content.progress)
+            m.progressBarBg.visible = true
+            m.progressBarFill.visible = true
+            m.progressBarFill.width = ScaleUi(ThemePosterWidth() * content.progress)
         else
-            progressBarBg.visible = false
-            progressBarFill.visible = false
+            m.progressBarBg.visible = false
+            m.progressBarFill.visible = false
         end if
     end if
 end sub
@@ -33,13 +44,13 @@ end sub
 sub onFocusChanged()
     hasFocus = m.top.itemHasFocus
     m.focusFrame.visible = hasFocus
+    if m.focusHalo <> invalid then m.focusHalo.visible = hasFocus
+    if m.titleScrim <> invalid then m.titleScrim.visible = hasFocus
     if hasFocus
-        m.title.color = "0xFFFFFFFF"
-        m.focusFrame.color = "0xE50914FF"
-        ' Mild Netflix-style pop without clipping neighboring cards hard.
-        m.top.scale = [1.06, 1.06]
+        m.title.color = ThemeTextPrimary()
+        m.top.scale = [ThemeCatalogFocusScale(), ThemeCatalogFocusScale()]
     else
-        m.title.color = "0xB3B3B3FF"
+        m.title.color = ThemeTextMuted()
         m.top.scale = [1.0, 1.0]
     end if
 end sub

@@ -6,6 +6,8 @@ sub init()
     m.date = m.top.FindNode("date")
     m.description = m.top.FindNode("description")
     m.focusFrame = m.top.FindNode("focusFrame")
+    m.progressBarBg = m.top.FindNode("progressBarBg")
+    m.progressBarFill = m.top.FindNode("progressBarFill")
 end sub
 
 sub onContentChanged()
@@ -23,16 +25,14 @@ sub onContentChanged()
     m.date.text = formatDate(content.shortDescriptionLine1)
     m.description.text = content.description
 
-    progressBarBg = m.top.FindNode("progressBarBg")
-    progressBarFill = m.top.FindNode("progressBarFill")
-    if progressBarBg <> invalid and progressBarFill <> invalid
+    if m.progressBarBg <> invalid and m.progressBarFill <> invalid
         if content.DoesExist("progress") and content.progress > 0.0 and content.progress < 1.0
-            progressBarBg.visible = true
-            progressBarFill.visible = true
-            progressBarFill.width = ScaleUi(260 * content.progress)
+            m.progressBarBg.visible = true
+            m.progressBarFill.visible = true
+            m.progressBarFill.width = ScaleUi(260 * content.progress)
         else
-            progressBarBg.visible = false
-            progressBarFill.visible = false
+            m.progressBarBg.visible = false
+            m.progressBarFill.visible = false
         end if
     end if
 end sub

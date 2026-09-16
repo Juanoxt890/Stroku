@@ -6,6 +6,7 @@
     </interface>
 
     <script type="text/brightscript" uri="pkg:/components/UiScale.brs" />
+    <script type="text/brightscript" uri="pkg:/components/DesignTokens.brs" />
     <script type="text/brightscript" uri="pkg:/components/StreamCard.brs" />
 
     <children>
@@ -13,54 +14,61 @@
             id="cardBg"
             translation="[0, 0]"
             width="1600"
-            height="168"
-            color="0x1F1F1FFF" />
+            height="172"
+            color="0x1A1A1AFF" />
         <Rectangle
             id="focusFrame"
             translation="[0, 0]"
             width="1600"
-            height="168"
-            color="0x2A2A2AFF"
+            height="172"
+            color="0x3A1518FF"
             visible="false" />
         <Rectangle
             id="focusAccent"
             translation="[0, 0]"
-            width="8"
-            height="168"
+            width="10"
+            height="172"
             color="0xE50914FF"
             visible="false" />
+        <Rectangle
+            id="badgePill"
+            translation="[1368, 22]"
+            width="200"
+            height="36"
+            color="0x2A2A2AFF" />
 
         <!-- Line 1: quality / resolution / size -->
         <Label
             id="line1"
-            translation="[36, 22]"
-            width="1320"
+            translation="[40, 20]"
+            width="1300"
             height="42"
             font="font:MediumBoldSystemFont"
             color="0xFFFFFFFF" />
         <Label
             id="badge"
-            translation="[1380, 24]"
-            width="190"
+            translation="[1372, 22]"
+            width="192"
             height="36"
-            horizAlign="right"
+            horizAlign="center"
+            vertAlign="center"
             font="font:SmallBoldSystemFont"
             color="0xE50914FF" />
 
-        <!-- Line 2: languages / audio / subtitle hints -->
+        <!-- Line 2: Audio / Subs languages (kept prominent at TV distance) -->
         <Label
             id="line2"
-            translation="[36, 70]"
-            width="1530"
-            height="36"
+            translation="[40, 70]"
+            width="1520"
+            height="40"
             font="font:MediumSystemFont"
             color="0xE5E5E5FF" />
 
-        <!-- Line 3: codec / container / source / addon -->
+        <!-- Line 3: codec / device / source / addon -->
         <Label
             id="line3"
-            translation="[36, 114]"
-            width="1530"
+            translation="[40, 118]"
+            width="1520"
             height="34"
             font="font:SmallSystemFont"
             color="0xB3B3B3FF" />
