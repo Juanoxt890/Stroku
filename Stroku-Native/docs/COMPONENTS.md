@@ -16,3 +16,10 @@
 | Season/Episode | `SeasonTab`, `EpisodeCard` |
 | Addon row | `AddonCard` |
 | Settings row | `SettingsRow` |
+| Calendar row | `CalendarCard` |
+| Locale | `Locale.brs` |
+| HTTP (no UI) | `HttpTask` — **no restyle logic** |
+
+## Groups (`MainScene.xml`)
+
+`homeGroup`, `heroBillboard`, `discoverFilterGroup`, `primaryInfoGroup`, `calendarGroup`, `settingsGroup`, `addonsGroup`, `episodeGroup`, `choiceGroup`, `noStreamsGroup`, `uiScaleGroup`, `coffeeGroup`, `video` (sibling of `uiRoot`).
