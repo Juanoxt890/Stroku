@@ -201,34 +201,45 @@
 
             <!-- Content-area search removed in v21; Buscar lives in the left rail. -->
 
-            <!-- Discover filter strip: Y≈400 under hero; catalogList at Y=468 when shown.
-                 Library/Home catalog stays at Y=450 (no filter strip). -->
+            <!-- Discover filter strip (v25): X=504 under hero, 64px chips, gap 28;
+                 catalogList at Y=468 — UP/DOWN between filters and posters. -->
             <Group id="discoverFilterGroup" visible="false">
                 <Rectangle
                     id="discoverTypeFocus"
-                    translation="[492, 400]"
-                    width="260"
-                    height="58"
+                    translation="[504, 392]"
+                    width="300"
+                    height="64"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[498, 406]"
-                    width="248"
-                    height="46"
+                    id="discoverTypeBg"
+                    translation="[510, 398]"
+                    width="288"
+                    height="52"
                     color="0x1A1A1DFF" />
                 <Label
+                    id="discoverTypeEyebrow"
+                    translation="[528, 400]"
+                    width="252"
+                    height="20"
+                    text="Tipo"
+                    vertAlign="center"
+                    font="font:SmallestSystemFont"
+                    color="0x808080FF" />
+                <Label
                     id="discoverTypeLabel"
-                    translation="[524, 412]"
-                    width="180"
-                    height="34"
+                    translation="[528, 418]"
+                    width="220"
+                    height="30"
                     text="Pelicula"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[708, 412]"
+                    id="discoverTypeChevron"
+                    translation="[756, 418]"
                     width="28"
-                    height="34"
+                    height="30"
                     text="v"
                     horizAlign="center"
                     vertAlign="center"
@@ -237,29 +248,40 @@
 
                 <Rectangle
                     id="discoverCatalogFocus"
-                    translation="[780, 400]"
-                    width="260"
-                    height="58"
+                    translation="[832, 392]"
+                    width="300"
+                    height="64"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[786, 406]"
-                    width="248"
-                    height="46"
+                    id="discoverCatalogBg"
+                    translation="[838, 398]"
+                    width="288"
+                    height="52"
                     color="0x1A1A1DFF" />
                 <Label
+                    id="discoverCatalogEyebrow"
+                    translation="[856, 400]"
+                    width="252"
+                    height="20"
+                    text="Catalogo"
+                    vertAlign="center"
+                    font="font:SmallestSystemFont"
+                    color="0x808080FF" />
+                <Label
                     id="discoverCatalogLabel"
-                    translation="[812, 412]"
-                    width="170"
-                    height="34"
+                    translation="[856, 418]"
+                    width="220"
+                    height="30"
                     text="Popular"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[996, 412]"
+                    id="discoverCatalogChevron"
+                    translation="[1084, 418]"
                     width="28"
-                    height="34"
+                    height="30"
                     text="v"
                     horizAlign="center"
                     vertAlign="center"
@@ -268,29 +290,40 @@
 
                 <Rectangle
                     id="discoverGenreFocus"
-                    translation="[1068, 400]"
-                    width="260"
-                    height="58"
+                    translation="[1160, 392]"
+                    width="300"
+                    height="64"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[1074, 406]"
-                    width="248"
-                    height="46"
+                    id="discoverGenreBg"
+                    translation="[1166, 398]"
+                    width="288"
+                    height="52"
                     color="0x1A1A1DFF" />
                 <Label
-                    id="discoverGenreLabel"
-                    translation="[1100, 412]"
-                    width="170"
-                    height="34"
+                    id="discoverGenreEyebrow"
+                    translation="[1184, 400]"
+                    width="252"
+                    height="20"
                     text="Genero"
+                    vertAlign="center"
+                    font="font:SmallestSystemFont"
+                    color="0x808080FF" />
+                <Label
+                    id="discoverGenreLabel"
+                    translation="[1184, 418]"
+                    width="220"
+                    height="30"
+                    text="Todos"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[1284, 412]"
+                    id="discoverGenreChevron"
+                    translation="[1412, 418]"
                     width="28"
-                    height="34"
+                    height="30"
                     text="v"
                     horizAlign="center"
                     vertAlign="center"
@@ -437,36 +470,35 @@
                  strip, a card list, and a detail panel that explains whatever
                  row is focused. -->
             <Group id="settingsGroup" visible="false">
-                <!-- Three chips of 320 at a 334 stride span 492..1480 beside the
-                     narrow detail rail. UpdateSettingsTabs uses the same stride. -->
-                <Rectangle id="settingsTab0Bg" translation="[492, 150]" width="320" height="56" color="0x1A1A1DFF" />
+                <!-- Three 300px tabs at X=504, stride 324, height 60 (10-ft). -->
+                <Rectangle id="settingsTab0Bg" translation="[504, 148]" width="300" height="60" color="0x1A1A1DFF" />
                 <Label
                     id="settingsTab0Label"
-                    translation="[492, 150]"
-                    width="320"
-                    height="56"
+                    translation="[504, 148]"
+                    width="300"
+                    height="60"
                     text="General"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
-                <Rectangle id="settingsTab1Bg" translation="[826, 150]" width="320" height="56" color="0x1A1A1DFF" />
+                <Rectangle id="settingsTab1Bg" translation="[828, 148]" width="300" height="60" color="0x1A1A1DFF" />
                 <Label
                     id="settingsTab1Label"
-                    translation="[826, 150]"
-                    width="320"
-                    height="56"
+                    translation="[828, 148]"
+                    width="300"
+                    height="60"
                     text="Interfaz"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
-                <Rectangle id="settingsTab2Bg" translation="[1160, 150]" width="320" height="56" color="0x1A1A1DFF" />
+                <Rectangle id="settingsTab2Bg" translation="[1152, 148]" width="300" height="60" color="0x1A1A1DFF" />
                 <Label
                     id="settingsTab2Label"
-                    translation="[1160, 150]"
-                    width="320"
-                    height="56"
+                    translation="[1152, 148]"
+                    width="300"
+                    height="60"
                     text="Reproductor"
                     horizAlign="center"
                     vertAlign="center"
@@ -474,15 +506,15 @@
                     color="0xB3B3B3FF" />
                 <Rectangle
                     id="settingsTabIndicator"
-                    translation="[492, 210]"
-                    width="320"
+                    translation="[504, 212]"
+                    width="300"
                     height="5"
                     color="0xE50914FF" />
 
-                <Rectangle id="settingsListPanel" translation="[492, 228]" width="984" height="612" color="0x141416FF" />
+                <Rectangle id="settingsListPanel" translation="[504, 232]" width="972" height="608" color="0x141416FF" />
                 <MarkupList
                     id="settingsList"
-                    translation="[500, 244]"
+                    translation="[512, 244]"
                     width="968"
                     height="580"
                     itemSize="[968, 74]"
@@ -492,11 +524,11 @@
                     drawFocusFeedback="false"
                     vertFocusAnimationStyle="fixedFocus" />
 
-                <Rectangle id="settingsDetailPanel" translation="[1492, 228]" width="300" height="612" color="0x141416FF" />
-                <Rectangle translation="[1492, 228]" width="6" height="612" color="0xE50914FF" />
+                <Rectangle id="settingsDetailPanel" translation="[1492, 232]" width="300" height="608" color="0x141416FF" />
+                <Rectangle translation="[1492, 232]" width="6" height="608" color="0xE50914FF" />
                 <Label
                     id="settingsDetailEyebrow"
-                    translation="[1512, 258]"
+                    translation="[1512, 260]"
                     width="260"
                     height="32"
                     text=""
@@ -533,16 +565,14 @@
 
             </Group>
 
-            <!-- Addons is its own screen, built on the same panel idiom as
-                 Settings: a chip row of filters and actions, a card list, and a
-                 detail panel that describes whatever card is focused. Stremio's
-                 web app puts the same controls in a single toolbar row, which is
-                 what the chips reproduce. -->
+            <!-- Addons: two chip rows (filters + actions), wider list/detail,
+                 content X=504 after 25% rail. Short ES chip labels via Locale. -->
             <Group id="addonsGroup" visible="false">
-                <Rectangle id="addonChip0Bg" translation="[492, 150]" width="200" height="56" color="0x3A1518FF" />
+                <!-- Row 1: filters -->
+                <Rectangle id="addonChip0Bg" translation="[504, 142]" width="200" height="56" color="0x3A1518FF" />
                 <Label
                     id="addonChip0Label"
-                    translation="[492, 150]"
+                    translation="[504, 142]"
                     width="200"
                     height="56"
                     text="Instalados"
@@ -550,11 +580,11 @@
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xE5E5E5FF" />
-                <Rectangle id="addonChip1Bg" translation="[704, 150]" width="200" height="56" color="0x1A1A1DFF" />
+                <Rectangle id="addonChip1Bg" translation="[728, 142]" width="160" height="56" color="0x1A1A1DFF" />
                 <Label
                     id="addonChip1Label"
-                    translation="[704, 150]"
-                    width="200"
+                    translation="[728, 142]"
+                    width="160"
                     height="56"
                     text="Todos"
                     horizAlign="center"
@@ -562,35 +592,34 @@
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
 
-                <!-- The primary action keeps Stremio's green, which is the one
-                     colour the web app reserves for it. -->
-                <Rectangle id="addonChip2Bg" translation="[1004, 150]" width="240" height="56" color="0xE50914FF" />
+                <!-- Row 2: actions (short labels fit without ellipsis at FHD) -->
+                <Rectangle id="addonChip2Bg" translation="[504, 214]" width="176" height="56" color="0xE50914FF" />
                 <Label
                     id="addonChip2Label"
-                    translation="[1004, 150]"
-                    width="240"
+                    translation="[504, 214]"
+                    width="176"
                     height="56"
-                    text="+ Anadir"
+                    text="Anadir"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
-                <Rectangle id="addonChip3Bg" translation="[1256, 150]" width="200" height="56" color="0x1A1A1DFF" />
+                <Rectangle id="addonChip3Bg" translation="[704, 214]" width="160" height="56" color="0x1A1A1DFF" />
                 <Label
                     id="addonChip3Label"
-                    translation="[1256, 150]"
-                    width="200"
+                    translation="[704, 214]"
+                    width="160"
                     height="56"
                     text="Buscar"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
-                <Rectangle id="addonChip4Bg" translation="[1468, 150]" width="200" height="56" color="0x1A1A1DFF" />
+                <Rectangle id="addonChip4Bg" translation="[888, 214]" width="180" height="56" color="0x1A1A1DFF" />
                 <Label
                     id="addonChip4Label"
-                    translation="[1468, 150]"
-                    width="200"
+                    translation="[888, 214]"
+                    width="180"
                     height="56"
                     text="Recargar"
                     horizAlign="center"
@@ -598,33 +627,34 @@
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
 
-                <Rectangle id="addonsListPanel" translation="[492, 228]" width="984" height="612" color="0x141416FF" />
+                <!-- List ~860 + gap 16 + detail 444 = content to safe-right 1824 -->
+                <Rectangle id="addonsListPanel" translation="[504, 290]" width="860" height="566" color="0x141416FF" />
                 <MarkupList
                     id="addonList"
-                    translation="[500, 244]"
-                    width="968"
-                    height="580"
-                    itemSize="[968, 134]"
-                    itemSpacing="[0, 8]"
-                    numRows="4"
+                    translation="[512, 302]"
+                    width="844"
+                    height="542"
+                    itemSize="[844, 156]"
+                    itemSpacing="[0, 10]"
+                    numRows="3"
                     itemComponentName="AddonCard"
                     drawFocusFeedback="false"
                     vertFocusAnimationStyle="fixedFocus" />
 
-                <Rectangle id="addonsDetailPanel" translation="[1492, 228]" width="300" height="612" color="0x141416FF" />
-                <Rectangle translation="[1492, 228]" width="6" height="612" color="0xE50914FF" />
+                <Rectangle id="addonsDetailPanel" translation="[1380, 290]" width="444" height="566" color="0x141416FF" />
+                <Rectangle translation="[1380, 290]" width="6" height="566" color="0xE50914FF" />
                 <Label
                     id="addonDetailEyebrow"
-                    translation="[1512, 258]"
-                    width="260"
+                    translation="[1412, 318]"
+                    width="380"
                     height="32"
                     text=""
                     font="font:SmallSystemFont"
                     color="0xE50914FF" />
                 <Label
                     id="addonDetailTitle"
-                    translation="[1512, 300]"
-                    width="260"
+                    translation="[1412, 358]"
+                    width="380"
                     height="92"
                     text=""
                     wrap="true"
@@ -633,43 +663,43 @@
                     color="0xFFFFFFFF" />
                 <Label
                     id="addonDetailValue"
-                    translation="[1512, 402]"
-                    width="260"
+                    translation="[1412, 460]"
+                    width="380"
                     height="42"
                     text=""
                     font="font:MediumSystemFont"
                     color="0xB3B3B3FF" />
                 <Label
                     id="addonDetailHint"
-                    translation="[1512, 462]"
-                    width="260"
-                    height="230"
+                    translation="[1412, 516]"
+                    width="380"
+                    height="180"
                     text=""
                     wrap="true"
-                    maxLines="6"
+                    maxLines="5"
                     font="font:SmallSystemFont"
                     color="0xB3B3B3FF" />
                 <!-- Host only. A configured manifest URL can carry a private
                      debrid token, so the full URL is never drawn. -->
                 <Label
                     id="addonDetailSource"
-                    translation="[1512, 704]"
-                    width="260"
+                    translation="[1412, 708]"
+                    width="380"
                     height="30"
                     text=""
                     font="font:SmallSystemFont"
                     color="0x808080FF" />
                 <Rectangle
                     id="addonDetailActionPill"
-                    translation="[1512, 752]"
-                    width="260"
+                    translation="[1412, 752]"
+                    width="380"
                     height="56"
                     color="0x3A1518FF"
                     visible="false" />
                 <Label
                     id="addonDetailAction"
-                    translation="[1512, 752]"
-                    width="260"
+                    translation="[1412, 752]"
+                    width="380"
                     height="56"
                     text=""
                     horizAlign="center"

@@ -35,7 +35,7 @@ sub onContentChanged()
         if (not isSeeAll) and content.DoesExist("progress") and content.progress > 0.0 and content.progress < 1.0
             progressBarBg.visible = true
             progressBarFill.visible = true
-            progressBarFill.width = ScaleUi(208 * content.progress)
+            progressBarFill.width = ScaleUi(184 * content.progress)
         else
             progressBarBg.visible = false
             progressBarFill.visible = false

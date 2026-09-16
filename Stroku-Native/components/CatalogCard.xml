@@ -13,8 +13,9 @@
         <Label id="seeAllLabel" translation="[6, 130]" width="208" height="60" text="Ver todo" horizAlign="center" vertAlign="center" font="font:MediumBoldSystemFont" color="0xFFFFFFFF" visible="false" />
         <!-- Corner matte ON TOP of poster / see-all: opaque #0B0B0B outside r=20, transparent inside. -->
         <Poster id="posterMatte" translation="[6,6]" width="208" height="310" uri="pkg:/images/poster_round_matte.png" loadDisplayMode="scaleToFit" />
-        <Rectangle id="progressBarBg" translation="[6,308]" width="208" height="8" color="0x333333FF" visible="false" />
-        <Rectangle id="progressBarFill" translation="[6,308]" width="0" height="8" color="0xE50914FF" visible="false" />
+        <!-- Progress inset ~12px so it clears round matte / focus ring; white fill (not accent). -->
+        <Rectangle id="progressBarBg" translation="[18,300]" width="184" height="6" color="0x333333FF" visible="false" />
+        <Rectangle id="progressBarFill" translation="[18,300]" width="0" height="6" color="0xFFFFFFFF" visible="false" />
         <!-- Focus donut ON TOP: AA stroke matching matte radius. -->
         <Poster id="focusFrame" width="220" height="322" uri="pkg:/images/poster_focus_ring_round.png" loadDisplayMode="scaleToFit" visible="false" />
         <Label id="title" translation="[0, 324]" width="220" height="24" horizAlign="center" vertAlign="top" wrap="true" maxLines="1" font="font:SmallBoldSystemFont" color="0xFFFFFFFF" visible="false" />

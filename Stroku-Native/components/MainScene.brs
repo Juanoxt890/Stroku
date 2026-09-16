@@ -506,14 +506,12 @@ sub RenderBoard(focusContent as boolean)
 end sub
 
 sub RenderDiscover(focusContent as boolean)
-    ' Layout (v24): same content column as Library/Home (X=504, CatalogCard 220x350).
-    ' Filters sit in a thin strip under the hero at Y≈400; catalogList at Y=468 so
-    ' posters do not sit under the chips. Library stays at Y=450 (no filter strip).
-    m.primaryTitle.text = "Descubrir"
-    m.primarySubtitle.text = "ARRIBA filtros    OK cambiar    * más"
+    ' Layout (v25): content X=504; 64px filter chips under hero; catalogList Y=468.
+    m.primaryTitle.text = TrText("nav.discover")
+    m.primarySubtitle.text = TrText("discover.subtitle")
     SetHeroBillboardVisible(true)
     HideHeroCtas()
-    SetHeroChrome("Descubrir", "Filtra por tipo, catálogo y género.", "")
+    SetHeroChrome(TrText("nav.discover"), TrText("discover.hero"), "")
     m.catalogRows = m.discoverRows
     m.catalogNames = m.discoverNames
     m.discoverGrid.visible = false
@@ -884,13 +882,10 @@ sub UpdateAddonChips()
             if chip.actionType = "addonFilterAll" then selected = m.addonFilter = "all"
 
             if chip.actionType = "addAddon"
-                ' Primary CTA uses accent (premium bible).
-                if focused
-                    background.color = "0xE50914FF"
-                else
-                    background.color = "0x3A1518FF"
-                end if
+                ' Primary CTA stays accent; focus still reads on the label row.
+                background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
+            else if focused
                 background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
             else if selected
@@ -1015,10 +1010,11 @@ end sub
 ' itself; a remote cannot move sideways inside a list row, so the panel advertises
 ' them and OK opens the dialog that carries them.
 function AddonDetailActionLabel(entry as object) as string
+    ' Short CTA so the pill fits the detail column ("Compartir" / "Instalar").
     if entry.actionType = "installedAddon"
-        return "OK    " + UCase(TrText("common.share")) + "  /  " + UCase(TrText("common.uninstall"))
+        return TrText("common.share")
     end if
-    return "OK    " + UCase(TrText("common.install"))
+    return TrText("common.install")
 end function
 
 sub RenderSettings(focusContent as boolean)
@@ -1230,7 +1226,7 @@ sub UpdateSettingsTabs()
         end if
     end for
 
-    m.settingsTabIndicator.translation = ScaleUiXY(492 + m.settingsTabIndex * 334, 210)
+    m.settingsTabIndicator.translation = ScaleUiXY(504 + m.settingsTabIndex * 324, 212)
 end sub
 
 sub UpdateSettingsDetail(index as integer)
@@ -1325,9 +1321,15 @@ end function
 
 sub UpdateDiscoverFilterLabels()
     if m.discoverTypeLabel = invalid then return
+    typeEyebrow = m.top.FindNode("discoverTypeEyebrow")
+    catalogEyebrow = m.top.FindNode("discoverCatalogEyebrow")
+    genreEyebrow = m.top.FindNode("discoverGenreEyebrow")
+    if typeEyebrow <> invalid then typeEyebrow.text = TrText("discover.filter.type")
+    if catalogEyebrow <> invalid then catalogEyebrow.text = TrText("discover.filter.catalog")
+    if genreEyebrow <> invalid then genreEyebrow.text = TrText("discover.filter.genre")
     m.discoverTypeLabel.text = DiscoverTypeLabel(m.discoverType)
     m.discoverCatalogLabel.text = m.discoverCatalog
-    m.discoverGenreLabel.text = m.discoverGenre
+    m.discoverGenreLabel.text = DiscoverGenreLabel(m.discoverGenre)
     UpdateDiscoverFilterFocus()
 end sub
 
@@ -1336,12 +1338,44 @@ sub UpdateDiscoverFilterFocus()
     m.discoverTypeFocus.visible = m.discoverFilterFocus = 0
     m.discoverCatalogFocus.visible = m.discoverFilterFocus = 1
     m.discoverGenreFocus.visible = m.discoverFilterFocus = 2
+    ' Brighten the inner chip when focused so the 10-ft ring reads clearly.
+    typeBg = m.top.FindNode("discoverTypeBg")
+    catalogBg = m.top.FindNode("discoverCatalogBg")
+    genreBg = m.top.FindNode("discoverGenreBg")
+    if typeBg <> invalid
+        if m.discoverFilterFocus = 0
+            typeBg.color = "0x3A1518FF"
+        else
+            typeBg.color = "0x1A1A1DFF"
+        end if
+    end if
+    if catalogBg <> invalid
+        if m.discoverFilterFocus = 1
+            catalogBg.color = "0x3A1518FF"
+        else
+            catalogBg.color = "0x1A1A1DFF"
+        end if
+    end if
+    if genreBg <> invalid
+        if m.discoverFilterFocus = 2
+            genreBg.color = "0x3A1518FF"
+        else
+            genreBg.color = "0x1A1A1DFF"
+        end if
+    end if
 end sub
 
 function DiscoverTypeLabel(value as string) as string
-    if value = "movie" then return "Movie"
-    if value = "series" then return "Series"
-    if value = "channel" then return "Channel"
+    if value = "movie" then return TrText("discover.type.movie")
+    if value = "series" then return TrText("discover.type.series")
+    if value = "channel" then return TrText("discover.type.channel")
+    return value
+end function
+
+function DiscoverGenreLabel(value as string) as string
+    if value = "None" or value = "Genre" or value = ""
+        return TrText("discover.genre.none")
+    end if
     return value
 end function
 
@@ -1535,7 +1569,7 @@ function InstalledAddonEntry(index as integer) as object
     entry.types = AddonTypesLabel(manifest)
     entry.description = ReplaceNewlines(SafeString(manifest, "description"))
     entry.logo = SafeString(manifest, "logo")
-    entry.badge = TrText("addons.filter.installed")
+    entry.badge = TrText("addons.badge.installed")
     entry.badgeKind = "installed"
     entry.source = AddonSourceLabel(SafeString(addon, "url"))
     return entry
@@ -1552,7 +1586,7 @@ function CatalogAddonEntry(addon as object, actionType as string) as object
     entry.logo = SafeString(manifest, "logo")
     entry.source = AddonSourceLabel(SafeString(addon, "url"))
     if IsAddonInstalled(SafeString(manifest, "id"))
-        entry.badge = TrText("addons.filter.installed")
+        entry.badge = TrText("addons.badge.installed")
         entry.badgeKind = "installed"
     else
         entry.badge = TrText("common.install")
@@ -4988,9 +5022,8 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 return true
             end if
         else if m.activeTab = "addons" and m.addonChipIndex >= 0
-            ' The chip row is not a focusable node: it is drawn by UpdateAddonChips
-            ' and driven from here while the scene holds focus, the same way the
-            ' Discover filter row above works.
+            ' Two chip rows: 0-1 filters, 2-4 actions. Drawn by UpdateAddonChips
+            ' and driven from here while the scene holds focus.
             if key = "left" and m.addonChipIndex > 0
                 m.addonChipIndex = m.addonChipIndex - 1
                 UpdateAddonChips()
@@ -5007,14 +5040,28 @@ function onKeyEvent(key as string, press as boolean) as boolean
             else if key = "OK"
                 ActivateAddonChip(m.addonChipIndex)
                 return true
-            else if key = "down" or key = "back"
+            else if key = "down"
+                if m.addonChipIndex <= 1
+                    ' Filters row → actions row (0→2, 1→3).
+                    m.addonChipIndex = m.addonChipIndex + 2
+                    UpdateAddonChips()
+                else
+                    FocusAddonList()
+                end if
+                return true
+            else if key = "back"
                 FocusAddonList()
                 return true
             else if key = "up"
-                ' Same ladder as every other screen: the row above the toolbar is
-                ' the top bar.
-                BlurAddonChips()
-                FocusTopBar(0)
+                if m.addonChipIndex >= 2
+                    ' Actions row → filters row (2→0, 3→1, 4→1).
+                    m.addonChipIndex = m.addonChipIndex - 2
+                    if m.addonChipIndex > 1 then m.addonChipIndex = 1
+                    UpdateAddonChips()
+                else
+                    BlurAddonChips()
+                    FocusTopBar(0)
+                end if
                 return true
             end if
         else if (key = "up" or key = "down") and m.activeTab = "settings" and m.settingsList.HasFocus()
