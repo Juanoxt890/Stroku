@@ -75,6 +75,8 @@ sub init()
     m.heroPoster = m.top.FindNode("heroPoster")
     m.heroPrimaryLabel = m.top.FindNode("heroPrimaryLabel")
     m.heroSecondaryLabel = m.top.FindNode("heroSecondaryLabel")
+    m.heroPrimaryBg = m.top.FindNode("heroPrimaryBg")
+    m.heroSecondaryBg = m.top.FindNode("heroSecondaryBg")
     m.homeGroup = m.top.FindNode("homeGroup")
     m.episodeGroup = m.top.FindNode("episodeGroup")
     m.episodeBackground = m.top.FindNode("episodeBackground")
@@ -397,7 +399,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(280, 610)
+    m.catalogList.translation = ScaleUiXY(268, 668)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -426,13 +428,14 @@ end sub
 
 sub RenderBoard(focusContent as boolean)
     m.primaryTitle.text = "Inicio"
-    m.primarySubtitle.text = "Populares, destacados y más"
+    m.primarySubtitle.text = ""
     SetHeroBillboardVisible(true)
+    FocusHeroButtons()
     SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(280, 610)
+    m.catalogList.translation = ScaleUiXY(268, 668)
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
 end sub
@@ -479,7 +482,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(280, 610)
+    m.catalogList.translation = ScaleUiXY(268, 668)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
@@ -2405,7 +2408,8 @@ sub LoadHomeCatalogs()
     m.boardRows = [[], [], [], [], [], []]
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
-    m.searchPrompt.text = TrText("dialog.search.title")
+    ' Keep top-bar chrome short — never use long dialog.search.title (FR/DE/IT/PT).
+    m.searchPrompt.text = "Buscar"
     RebuildCatalog()
     FetchBoardCatalogs()
 end sub
@@ -2470,7 +2474,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(280, 610)
+                m.catalogList.translation = ScaleUiXY(268, 668)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2657,7 +2661,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(280, 610)
+            m.catalogList.translation = ScaleUiXY(268, 668)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2894,6 +2898,9 @@ end sub
 
 sub SetHeroBillboardVisible(visible as boolean)
     if m.heroBillboard <> invalid then m.heroBillboard.visible = visible
+    ' Netflix Home: billboard owns the top of the content column — hide Board/page titles.
+    if m.primaryTitle <> invalid then m.primaryTitle.visible = not visible
+    if m.primarySubtitle <> invalid then m.primarySubtitle.visible = not visible
 end sub
 
 sub ClearHeroPoster()
@@ -3933,6 +3940,15 @@ sub ApplyStaticChromeText()
     ApplyChromeLabel("noStreamsConfigureHint", TrText("noStreams.configureHint"))
     ApplyChromeLabel("uiScaleTitle", TrText("settings.interface.uiScale"))
     ApplyChromeLabel("supportChipLabel", TrText("topbar.support"))
+    FocusHeroButtons()
+end sub
+
+' Keep hero CTA labels in sync with MainScene.xml (Spanish short; not TrText dialog titles).
+sub FocusHeroButtons()
+    if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.text = "Reproducir"
+    if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.text = "Más info"
+    if m.heroPrimaryBg <> invalid then m.heroPrimaryBg.color = "0xE50914FF"
+    if m.heroSecondaryBg <> invalid then m.heroSecondaryBg.color = "0x2A2A2EFF"
 end sub
 
 sub ApplyChromeLabel(id as string, text as string)
