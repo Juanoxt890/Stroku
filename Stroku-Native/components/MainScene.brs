@@ -461,7 +461,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(504, 482)
+    m.catalogList.translation = ScaleUiXY(504, 450)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -496,7 +496,7 @@ sub RenderBoard(focusContent as boolean)
     SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
     SyncBoardCatalogRows()
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 482)
+    m.catalogList.translation = ScaleUiXY(504, 450)
     RebuildCatalog()
     if focusContent then FocusBoardOrNav()
 end sub
@@ -543,7 +543,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 482)
+    m.catalogList.translation = ScaleUiXY(504, 450)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
@@ -2542,7 +2542,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(504, 482)
+                m.catalogList.translation = ScaleUiXY(504, 450)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2705,7 +2705,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             rowIndex: rowIndex
             seeAll: true
         }
-        items.Push(action)
+        items.Unshift(action)
         if rowIndex >= 0 and rowIndex < m.boardRows.Count()
             m.boardRows[rowIndex] = items
         end if
@@ -2735,7 +2735,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(504, 482)
+            m.catalogList.translation = ScaleUiXY(504, 450)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2775,17 +2775,8 @@ sub RebuildCatalog()
         rowNode = root.CreateChild("ContentNode")
         rowTitle = ""
         if rowIndex < m.catalogNames.Count() then rowTitle = m.catalogNames[rowIndex]
-        ' Presentation-only: append See All / Ver todo to Board feed rows (not Continue).
-        skipSeeAll = m.boardContinueActive and rowIndex = 0
-        if m.activeTab = "board" and rowTitle <> "" and not skipSeeAll
-            ' Empty-state rows keep the header but skip See All suffix.
-            if rowItems.Count() = 1 and SafeString(rowItems[0], "type") = "empty"
-                skipSeeAll = true
-            end if
-        end if
-        if m.activeTab = "board" and rowTitle <> "" and not skipSeeAll
-            rowTitle = rowTitle + "   ·  " + TrText("board.seeAll")
-        end if
+        ' Ver todo is the first tile in each board row (HandleCatalogResponse Unshift);
+        ' do not append a misleading clickable-looking suffix to the row title.
         rowNode.title = rowTitle
 
         for each item in rowItems

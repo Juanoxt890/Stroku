@@ -110,8 +110,8 @@
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
 
-            <!-- Netflix-style billboard (v22): raised into former Buscar gap; search stays in rail. -->
-            <Group id="heroBillboard" translation="[480, 32]" visible="true">
+            <!-- Netflix-style billboard (v23): flush under content-column top; rail Buscar unchanged. -->
+            <Group id="heroBillboard" translation="[480, 0]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
@@ -298,7 +298,7 @@
 
             <RowList
                 id="catalogList"
-                translation="[504, 482]"
+                translation="[504, 450]"
                 itemSize="[1392, 400]"
                 rowItemSize="[[220, 350]]"
                 rowItemSpacing="[[22, 0]]"
@@ -311,8 +311,8 @@
                 showRowLabel="[true]"
                 showRowCounter="[false]"
                 drawFocusFeedback="false"
-                rowFocusAnimationStyle="fixedFocus"
-                vertFocusAnimationStyle="fixedFocus"
+                rowFocusAnimationStyle="floatingFocus"
+                vertFocusAnimationStyle="floatingFocus"
                 visible="true" />
 
             <MarkupGrid
@@ -326,7 +326,7 @@
                 numRows="1"
                 itemComponentName="CatalogCard"
                 drawFocusFeedback="false"
-                vertFocusAnimationStyle="fixedFocus"
+                vertFocusAnimationStyle="floatingFocus"
                 visible="false" />
 
             <Group id="primaryInfoGroup" visible="false">
