@@ -2957,27 +2957,49 @@ end sub
 
 function HomeHeroMeta(item as object) as string
     parts = []
-    year = SafeString(item, "releaseInfo")
-    if year = "" then year = SafeString(item, "year")
+    year = CleanHeroYear(SafeString(item, "releaseInfo"))
+    if year = "" then year = CleanHeroYear(SafeString(item, "year"))
     if year <> "" then parts.Push(year)
     typeText = SafeString(item, "type")
     if typeText = "movie" then
         parts.Push("Película")
     else if typeText = "series" then
         parts.Push("Serie")
+    else if typeText = "channel" then
+        parts.Push("Canal")
     else if typeText <> "" then
-        parts.Push(typeText)
+        parts.Push(UCase(Left(typeText, 1)) + Mid(typeText, 2))
     end if
     rating = SafeString(item, "imdbRating")
-    if rating <> "" then parts.Push(rating)
-    runtime = SafeString(item, "runtime")
+    if rating <> "" then parts.Push("★ " + rating)
+    runtime = FormatHeroRuntime(SafeString(item, "runtime"))
     if runtime <> "" then parts.Push(runtime)
-    return JoinStrings(parts, "  ·  ")
+    return JoinStrings(parts, "   ·   ")
+end function
+
+function CleanHeroYear(raw as string) as string
+    if raw = "" then return ""
+    ' Stremio often sends "2022-" or "2022-2024" — show a clean year or range.
+    cleaned = raw.Trim()
+    while Len(cleaned) > 0 and Right(cleaned, 1) = "-"
+        cleaned = Left(cleaned, Len(cleaned) - 1).Trim()
+    end while
+    return cleaned
+end function
+
+function FormatHeroRuntime(raw as string) as string
+    if raw = "" then return ""
+    cleaned = raw.Trim()
+    ' Already human ("48 min", "1h 30min") — keep.
+    if Instr(1, LCase(cleaned), "min") > 0 or Instr(1, LCase(cleaned), "h") > 0 then return cleaned
+    ' Numeric minutes from some catalogs.
+    if Val(cleaned) > 0 then return Str(Val(cleaned)).Trim() + " min"
+    return cleaned
 end function
 
 function HomeHeroDescription(item as object) as string
     description = SafeString(item, "description")
-    if Len(description) > 180 then description = Left(description, 177) + "..."
+    if Len(description) > 220 then description = Left(description, 217) + "..."
     return description
 end function
 

@@ -126,36 +126,33 @@
                     width="1672"
                     height="580"
                     loadDisplayMode="scaleToZoom" />
-                <!-- Strong left cinematic scrim (Netflix-style readability). -->
-                <Rectangle
+                <!-- Soft PNG scrims: no hard vertical cut (Roku Rectangles can't gradient). -->
+                <Poster
                     id="heroPosterScrim"
                     translation="[0, 0]"
-                    width="1120"
-                    height="580"
-                    color="0x000000E6" />
-                <Rectangle
-                    id="heroPosterScrimEdge"
-                    translation="[0, 0]"
-                    width="420"
-                    height="580"
-                    color="0x000000CC" />
-                <Rectangle
-                    id="heroPosterFade"
-                    translation="[0, 360]"
                     width="1672"
-                    height="220"
-                    color="0x0B0B0BFF" />
+                    height="580"
+                    uri="pkg:/images/hero_scrim.png"
+                    loadDisplayMode="scaleToFit" />
+                <Poster
+                    id="heroPosterFade"
+                    translation="[0, 320]"
+                    width="1672"
+                    height="260"
+                    uri="pkg:/images/hero_fade_bottom.png"
+                    loadDisplayMode="scaleToFit" />
+                <!-- Meta line: year · type · rating · runtime — larger, brighter Netflix-style. -->
                 <Label
                     id="heroMeta"
-                    translation="[56, 268]"
-                    width="1100"
-                    height="32"
+                    translation="[56, 248]"
+                    width="1180"
+                    height="40"
                     text=""
-                    font="font:SmallBoldSystemFont"
-                    color="0xB3B3B3FF" />
+                    font="font:MediumBoldSystemFont"
+                    color="0xE5E5E5FF" />
                 <Label
                     id="heroTitle"
-                    translation="[56, 304]"
+                    translation="[56, 292]"
                     width="1240"
                     height="92"
                     text="Cargando catálogos..."
@@ -163,14 +160,14 @@
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[56, 404]"
-                    width="920"
-                    height="56"
+                    translation="[56, 392]"
+                    width="980"
+                    height="72"
                     text=""
                     wrap="true"
                     maxLines="2"
                     font="font:MediumSystemFont"
-                    color="0xE5E5E5FF" />
+                    color="0xD0D0D0FF" />
                 <Rectangle
                     id="heroPrimaryBg"
                     translation="[56, 488]"
