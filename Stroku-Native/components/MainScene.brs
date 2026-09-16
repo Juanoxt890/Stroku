@@ -461,7 +461,7 @@ sub RenderActiveTab(focusContent as boolean)
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(504, 590)
+    m.catalogList.translation = ScaleUiXY(504, 482)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -496,7 +496,7 @@ sub RenderBoard(focusContent as boolean)
     SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
     SyncBoardCatalogRows()
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 590)
+    m.catalogList.translation = ScaleUiXY(504, 482)
     RebuildCatalog()
     if focusContent then FocusBoardOrNav()
 end sub
@@ -509,7 +509,7 @@ sub RenderDiscover(focusContent as boolean)
     m.catalogRows = m.discoverRows
     m.catalogNames = m.discoverNames
     m.discoverFilterGroup.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 560)
+    m.catalogList.translation = ScaleUiXY(504, 452)
     UpdateDiscoverFilterLabels()
     m.discoverGrid.visible = true
     RebuildDiscoverGrid()
@@ -543,7 +543,7 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(504, 590)
+    m.catalogList.translation = ScaleUiXY(504, 482)
     SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
         SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
@@ -2542,7 +2542,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(504, 590)
+                m.catalogList.translation = ScaleUiXY(504, 482)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2735,7 +2735,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(504, 590)
+            m.catalogList.translation = ScaleUiXY(504, 482)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if

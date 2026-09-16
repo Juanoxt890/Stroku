@@ -110,25 +110,25 @@
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
 
-            <!-- Netflix-style billboard (v21): search lives in left rail, not over hero. -->
-            <Group id="heroBillboard" translation="[480, 110]" visible="true">
+            <!-- Netflix-style billboard (v22): raised into former Buscar gap; search stays in rail. -->
+            <Group id="heroBillboard" translation="[480, 32]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
                     width="1440"
-                    height="480"
+                    height="450"
                     loadDisplayMode="scaleToZoom" />
                 <!-- Soft PNG scrims: no hard vertical cut (Roku Rectangles can't gradient). -->
                 <Poster
                     id="heroPosterScrim"
                     translation="[0, 0]"
                     width="1440"
-                    height="480"
+                    height="450"
                     uri="pkg:/images/hero_scrim.png"
                     loadDisplayMode="scaleToFit" />
                 <Poster
                     id="heroPosterFade"
-                    translation="[0, 240]"
+                    translation="[0, 210]"
                     width="1440"
                     height="240"
                     uri="pkg:/images/hero_fade_bottom.png"
@@ -136,7 +136,7 @@
                 <!-- Meta / title / description in lower-left; CTAs removed (poster OK opens). -->
                 <Label
                     id="heroMeta"
-                    translation="[56, 220]"
+                    translation="[56, 190]"
                     width="1180"
                     height="36"
                     text=""
@@ -144,7 +144,7 @@
                     color="0xE5E5E5FF" />
                 <Label
                     id="heroTitle"
-                    translation="[56, 258]"
+                    translation="[56, 228]"
                     width="1240"
                     height="80"
                     text="Cargando catálogos..."
@@ -152,7 +152,7 @@
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[56, 344]"
+                    translation="[56, 314]"
                     width="1120"
                     height="100"
                     text=""
@@ -163,14 +163,14 @@
                 <!-- Decorative hero CTAs removed in v20 (visible=false; focus rewired to search). -->
                 <Rectangle
                     id="heroPrimaryBg"
-                    translation="[56, 420]"
+                    translation="[56, 390]"
                     width="300"
                     height="56"
                     color="0xE50914FF"
                     visible="false" />
                 <Label
                     id="heroPrimaryLabel"
-                    translation="[56, 420]"
+                    translation="[56, 390]"
                     width="300"
                     height="56"
                     text="Reproducir"
@@ -181,14 +181,14 @@
                     visible="false" />
                 <Rectangle
                     id="heroSecondaryBg"
-                    translation="[372, 420]"
+                    translation="[372, 390]"
                     width="220"
                     height="56"
                     color="0x2A2A2EFF"
                     visible="false" />
                 <Label
                     id="heroSecondaryLabel"
-                    translation="[372, 420]"
+                    translation="[372, 390]"
                     width="220"
                     height="56"
                     text="Más info"
@@ -298,7 +298,7 @@
 
             <RowList
                 id="catalogList"
-                translation="[504, 590]"
+                translation="[504, 482]"
                 itemSize="[1392, 400]"
                 rowItemSize="[[220, 350]]"
                 rowItemSpacing="[[22, 0]]"
@@ -317,7 +317,7 @@
 
             <MarkupGrid
                 id="discoverGrid"
-                translation="[504, 560]"
+                translation="[504, 452]"
                 width="1384"
                 height="480"
                 itemSize="[170, 300]"

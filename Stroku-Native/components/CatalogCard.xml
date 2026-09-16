@@ -7,13 +7,14 @@
     <script type="text/brightscript" uri="pkg:/components/UiScale.brs" />
     <script type="text/brightscript" uri="pkg:/components/CatalogCard.brs" />
     <children>
-        <!-- Thick Netflix-red focus ring; rounded via PNG overlay (Rectangle has no radius). -->
-        <Poster id="focusFrame" width="220" height="322" uri="pkg:/images/poster_focus_ring_round.png" loadDisplayMode="scaleToFit" visible="false" />
+        <!-- Poster + see-all: AA maskUri matches poster size (208x310, r=20). -->
         <Poster id="poster" translation="[6,6]" width="208" height="310" loadDisplayMode="scaleToZoom" maskUri="pkg:/images/poster_mask_round.png" />
         <Poster id="seeAllBg" translation="[6,6]" width="208" height="310" uri="pkg:/images/see_all_bg_round.png" loadDisplayMode="scaleToFit" visible="false" />
         <Label id="seeAllLabel" translation="[6, 130]" width="208" height="60" text="Ver todo" horizAlign="center" vertAlign="center" font="font:MediumBoldSystemFont" color="0xFFFFFFFF" visible="false" />
         <Rectangle id="progressBarBg" translation="[6,308]" width="208" height="8" color="0x333333FF" visible="false" />
         <Rectangle id="progressBarFill" translation="[6,308]" width="0" height="8" color="0xE50914FF" visible="false" />
+        <!-- Focus donut ON TOP: transparent center ~2px inside poster so red covers corner AA / square fringe. -->
+        <Poster id="focusFrame" width="220" height="322" uri="pkg:/images/poster_focus_ring_round.png" loadDisplayMode="scaleToFit" visible="false" />
         <Label id="title" translation="[0, 324]" width="220" height="24" horizAlign="center" vertAlign="top" wrap="true" maxLines="1" font="font:SmallBoldSystemFont" color="0xFFFFFFFF" visible="false" />
     </children>
 </component>
