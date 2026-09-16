@@ -15,20 +15,20 @@
             id="focusFrame"
             width="968"
             height="134"
-            color="0x7657FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Rectangle
             id="card"
             translation="[3, 3]"
             width="962"
             height="128"
-            color="0x1B1934FF" />
+            color="0x2A2A2AFF" />
         <Rectangle
             id="accentBar"
             translation="[3, 3]"
             width="6"
             height="128"
-            color="0x9D86FFFF"
+            color="0xE50914FF"
             visible="false" />
 
         <!-- Stremio's web app shows a puzzle-piece placeholder when a manifest has
@@ -40,7 +40,7 @@
             translation="[30, 25]"
             width="84"
             height="84"
-            color="0x272449FF" />
+            color="0x2A2A2AFF" />
         <Label
             id="logoLetter"
             translation="[30, 25]"
@@ -49,7 +49,7 @@
             horizAlign="center"
             vertAlign="center"
             font="font:LargeBoldSystemFont"
-            color="0x9D86FFFF" />
+            color="0xE50914FF" />
         <Poster
             id="logo"
             translation="[30, 25]"
@@ -73,7 +73,7 @@
             height="32"
             vertAlign="center"
             font="font:SmallSystemFont"
-            color="0x6F6A8AFF" />
+            color="0x808080FF" />
         <Label
             id="types"
             translation="[140, 58]"
@@ -81,7 +81,7 @@
             height="28"
             vertAlign="center"
             font="font:SmallSystemFont"
-            color="0x9D86FFFF" />
+            color="0xE50914FF" />
         <Label
             id="description"
             translation="[140, 88]"
@@ -90,7 +90,7 @@
             vertAlign="center"
             truncateOnDelimiter=" "
             font="font:SmallSystemFont"
-            color="0x9895AAFF" />
+            color="0xB3B3B3FF" />
 
         <!-- Stremio puts an Uninstall button and a Share action on the right of
              every card. A remote cannot move sideways inside a list row, so the
@@ -122,7 +122,7 @@
             wrap="true"
             maxLines="2"
             font="font:MediumSystemFont"
-            color="0xB4B0C1FF"
+            color="0xB3B3B3FF"
             visible="false" />
     </children>
 </component>

@@ -86,36 +86,36 @@ sub onStateChanged()
     focused = m.top.itemHasFocus
     if kind = "cta"
         if focused
-            m.ctaPill.color = "0x9D86FFFF"
+            m.ctaPill.color = "0xE50914FF"
         else
-            m.ctaPill.color = "0x7657FFFF"
+            m.ctaPill.color = "0xE50914FF"
         end if
         return
     end if
 
     m.focusFrame.visible = focused
     if focused
-        m.card.color = "0x2A2450FF"
+        m.card.color = "0x3A1518FF"
         m.titleLabel.color = "0xFFFFFFFF"
         m.metaLabel.color = "0xE7E3FFFF"
-        m.chevron.color = "0xC7BCFFFF"
+        m.chevron.color = "0xE5E5E5FF"
     else
-        m.card.color = "0x1B1934FF"
+        m.card.color = "0x2A2A2AFF"
         m.titleLabel.color = "0xEDEBF5FF"
-        m.metaLabel.color = "0xB4B0C1FF"
-        m.chevron.color = "0x6F6A8AFF"
+        m.metaLabel.color = "0xB3B3B3FF"
+        m.chevron.color = "0x808080FF"
     end if
 
     ' Today's episodes keep the accent chip whether or not they are focused; it
     ' is the one date on the screen that is worth finding without reading.
     if content.accent
-        m.dateChip.color = "0x7657FFFF"
+        m.dateChip.color = "0xE50914FF"
         m.monthLabel.color = "0xFFFFFFFF"
     else if focused
         m.dateChip.color = "0x352E63FF"
-        m.monthLabel.color = "0xC7BCFFFF"
+        m.monthLabel.color = "0xE5E5E5FF"
     else
-        m.dateChip.color = "0x241F45FF"
-        m.monthLabel.color = "0x9D86FFFF"
+        m.dateChip.color = "0x2A2A2AFF"
+        m.monthLabel.color = "0xE50914FF"
     end if
 end sub

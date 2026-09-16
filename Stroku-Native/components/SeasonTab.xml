@@ -13,7 +13,7 @@
             id="pill"
             width="220"
             height="64"
-            color="0x28253EFF" />
+            color="0x2A2A2AFF" />
         <Label
             id="label"
             width="220"
@@ -21,6 +21,6 @@
             horizAlign="center"
             vertAlign="center"
             font="font:MediumBoldSystemFont"
-            color="0xB4B0C1FF" />
+            color="0xB3B3B3FF" />
     </children>
 </component>

@@ -17,7 +17,7 @@
 ' than as a blank label, which is what makes it findable during testing.
 
 function LocaleDefaultLanguage() as string
-    return "English"
+    return "Spanish"
 end function
 
 ' Canonical language identifiers. These are also the values written to the Roku
@@ -77,7 +77,9 @@ function TrText(key as string) as string
         if value <> invalid and value <> "" then return value
     end if
 
-    fallback = table[LocaleDefaultLanguage()]
+    ' Always fall back to English for missing keys, even when this fork's
+    ' default UI language is Spanish.
+    fallback = table.English
     if fallback <> invalid and fallback.DoesExist(key)
         value = fallback[key]
         if value <> invalid and value <> "" then return value

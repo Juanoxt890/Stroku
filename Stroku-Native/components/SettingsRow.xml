@@ -15,20 +15,20 @@
             id="focusFrame"
             width="968"
             height="74"
-            color="0x7657FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Rectangle
             id="card"
             translation="[3, 3]"
             width="962"
             height="68"
-            color="0x1B1934FF" />
+            color="0x2A2A2AFF" />
         <Rectangle
             id="accentBar"
             translation="[3, 3]"
             width="6"
             height="68"
-            color="0x9D86FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Label
             id="label"
@@ -47,13 +47,13 @@
             horizAlign="right"
             vertAlign="center"
             font="font:MediumSystemFont"
-            color="0xB4B0C1FF" />
+            color="0xB3B3B3FF" />
         <Rectangle
             id="togglePill"
             translation="[802, 19]"
             width="94"
             height="36"
-            color="0x3A3660FF"
+            color="0x333333FF"
             visible="false" />
         <Label
             id="toggleLabel"
@@ -74,7 +74,7 @@
             horizAlign="center"
             vertAlign="center"
             font="font:MediumBoldSystemFont"
-            color="0x6F6A8AFF" />
+            color="0x808080FF" />
 
         <!-- Section headers reuse the same row slot: the card is hidden and the
              label is replaced by the smaller accent caption plus a rule. -->
@@ -85,14 +85,14 @@
             height="50"
             vertAlign="center"
             font="font:SmallBoldSystemFont"
-            color="0x9D86FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Rectangle
             id="headerRule"
             translation="[6, 66]"
             width="956"
             height="2"
-            color="0x27244AFF"
+            color="0x2A2A2AFF"
             visible="false" />
     </children>
 </component>

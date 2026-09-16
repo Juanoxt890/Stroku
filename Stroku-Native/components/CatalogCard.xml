@@ -13,7 +13,7 @@
             id="focusFrame"
             width="168"
             height="246"
-            color="0x7657FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Poster
             id="poster"
@@ -26,14 +26,14 @@
             translation="[5, 235]"
             width="158"
             height="6"
-            color="0x4A475BFF"
+            color="0x404040FF"
             visible="false" />
         <Rectangle
             id="progressBarFill"
             translation="[5, 235]"
             width="0"
             height="6"
-            color="0x8E73FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Label
             id="title"
@@ -45,6 +45,6 @@
             wrap="true"
             maxLines="2"
             font="font:SmallSystemFont"
-            color="0xF5F3FFFF" />
+            color="0xB3B3B3FF" />
     </children>
 </component>

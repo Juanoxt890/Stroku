@@ -54,7 +54,7 @@ sub onContentChanged()
         if content.toggleOn
             m.togglePill.color = "0x2E9E76FF"
         else
-            m.togglePill.color = "0x3A3660FF"
+            m.togglePill.color = "0x333333FF"
         end if
     else
         m.value.text = content.value
@@ -75,18 +75,18 @@ sub onStateChanged()
     m.focusFrame.visible = focused
     m.accentBar.visible = focused
     if focused
-        m.card.color = "0x2A2450FF"
+        m.card.color = "0x3A1518FF"
         m.label.color = "0xFFFFFFFF"
         m.value.color = "0xE7E3FFFF"
-        m.chevron.color = "0xC7BCFFFF"
+        m.chevron.color = "0xE5E5E5FF"
     else
-        m.card.color = "0x1B1934FF"
+        m.card.color = "0x2A2A2AFF"
         if content.selectable
             m.label.color = "0xEDEBF5FF"
         else
-            m.label.color = "0xB4B0C1FF"
+            m.label.color = "0xB3B3B3FF"
         end if
-        m.value.color = "0xB4B0C1FF"
-        m.chevron.color = "0x6F6A8AFF"
+        m.value.color = "0xB3B3B3FF"
+        m.chevron.color = "0x808080FF"
     end if
 end sub

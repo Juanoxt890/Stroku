@@ -161,7 +161,7 @@
                     translation="[100, 960]"
                     width="1720"
                     height="6"
-                    color="0x4A475BFF" />
+                    color="0x404040FF" />
                 <Rectangle
                     id="progressFill"
                     translation="[100, 960]"
@@ -175,7 +175,7 @@
                     height="36"
                     horizAlign="right"
                     font="font:MediumSystemFont"
-                    color="0xC9C6D7FF" />
+                    color="0xE5E5E5FF" />
             </Group>
 
             <Group id="controlButtonsGroup">
@@ -258,7 +258,7 @@
         <Group id="speedMenu" visible="false">
             <Rectangle width="1920" height="1080" color="0x00000099" />
             <Rectangle translation="[510, 160]" width="900" height="760" color="0x191733FA" />
-            <Rectangle translation="[510, 160]" width="10" height="760" color="0x7657FFFF" />
+            <Rectangle translation="[510, 160]" width="10" height="760" color="0xE50914FF" />
             <Label
                 id="speedMenuTitle"
                 translation="[580, 210]"
@@ -274,15 +274,15 @@
                 height="470"
                 itemSize="[760, 70]"
                 numRows="6"
-                color="0xC9C6D7FF"
+                color="0xE5E5E5FF"
                 focusedColor="0xFFFFFFFF"
-                focusBitmapBlendColor="0x7657FFFF" />
+                focusBitmapBlendColor="0xE50914FF" />
         </Group>
 
         <Group id="audioMenu" visible="false">
             <Rectangle width="1920" height="1080" color="0x00000099" />
             <Rectangle translation="[510, 160]" width="900" height="760" color="0x191733FA" />
-            <Rectangle translation="[510, 160]" width="10" height="760" color="0x7657FFFF" />
+            <Rectangle translation="[510, 160]" width="10" height="760" color="0xE50914FF" />
             <Label
                 id="audioMenuTitle"
                 translation="[580, 210]"
@@ -298,15 +298,15 @@
                 height="470"
                 itemSize="[760, 70]"
                 numRows="6"
-                color="0xC9C6D7FF"
+                color="0xE5E5E5FF"
                 focusedColor="0xFFFFFFFF"
-                focusBitmapBlendColor="0x7657FFFF" />
+                focusBitmapBlendColor="0xE50914FF" />
         </Group>
 
         <Group id="subtitleMenu" visible="false">
             <Rectangle width="1920" height="1080" color="0x00000099" />
             <Rectangle translation="[510, 160]" width="900" height="760" color="0x191733FA" />
-            <Rectangle translation="[510, 160]" width="10" height="760" color="0x7657FFFF" />
+            <Rectangle translation="[510, 160]" width="10" height="760" color="0xE50914FF" />
             <Label
                 id="subtitleMenuTitle"
                 translation="[580, 210]"
@@ -331,9 +331,9 @@
                 height="430"
                 itemSize="[760, 70]"
                 numRows="6"
-                color="0xC9C6D7FF"
+                color="0xE5E5E5FF"
                 focusedColor="0xFFFFFFFF"
-                focusBitmapBlendColor="0x7657FFFF" />
+                focusBitmapBlendColor="0xE50914FF" />
         </Group>
         </Group>
     </children>

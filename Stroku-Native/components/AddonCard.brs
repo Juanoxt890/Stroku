@@ -99,24 +99,24 @@ sub onStateChanged()
     ' so it never gets one even while focus is resting on it.
     m.accentBar.visible = focused and content.selectable
     if focused
-        m.card.color = "0x2A2450FF"
+        m.card.color = "0x3A1518FF"
         m.name.color = "0xFFFFFFFF"
         m.description.color = "0xD6D2E4FF"
         m.messageLabel.color = "0xFFFFFFFF"
     else
-        m.card.color = "0x1B1934FF"
+        m.card.color = "0x2A2A2AFF"
         if content.selectable
             m.name.color = "0xEDEBF5FF"
         else
-            m.name.color = "0xB4B0C1FF"
+            m.name.color = "0xB3B3B3FF"
         end if
-        m.description.color = "0x9895AAFF"
+        m.description.color = "0xB3B3B3FF"
         ' An actionable empty state ("Load the collection", "Add addon") is drawn
         ' in the accent colour so it does not read as inert copy.
         if content.selectable
-            m.messageLabel.color = "0xC7BCFFFF"
+            m.messageLabel.color = "0xE5E5E5FF"
         else
-            m.messageLabel.color = "0xB4B0C1FF"
+            m.messageLabel.color = "0xB3B3B3FF"
         end if
     end if
 end sub

@@ -14,6 +14,7 @@ sub onContentChanged()
 
     m.poster.uri = content.HDPosterUrl
     m.title.text = content.title
+    onFocusChanged()
 
     progressBarBg = m.top.FindNode("progressBarBg")
     progressBarFill = m.top.FindNode("progressBarFill")
@@ -33,8 +34,12 @@ sub onFocusChanged()
     hasFocus = m.top.itemHasFocus
     m.focusFrame.visible = hasFocus
     if hasFocus
-        m.title.color = "0xA993FFFF"
+        m.title.color = "0xFFFFFFFF"
+        m.focusFrame.color = "0xE50914FF"
+        ' Mild Netflix-style pop without clipping neighboring cards hard.
+        m.top.scale = [1.06, 1.06]
     else
-        m.title.color = "0xF5F3FFFF"
+        m.title.color = "0xB3B3B3FF"
+        m.top.scale = [1.0, 1.0]
     end if
 end sub

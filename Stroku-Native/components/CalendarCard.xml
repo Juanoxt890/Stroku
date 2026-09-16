@@ -15,14 +15,14 @@
             id="focusFrame"
             width="968"
             height="118"
-            color="0x7657FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Rectangle
             id="card"
             translation="[3, 3]"
             width="962"
             height="112"
-            color="0x1B1934FF" />
+            color="0x2A2A2AFF" />
 
         <!-- The date chip is the calendar's identity: a tall block on the leading
              edge carrying the day number over a short month. -->
@@ -31,7 +31,7 @@
             translation="[3, 3]"
             width="112"
             height="112"
-            color="0x241F45FF" />
+            color="0x2A2A2AFF" />
         <Label
             id="dayLabel"
             translation="[3, 16]"
@@ -49,7 +49,7 @@
             horizAlign="center"
             vertAlign="center"
             font="font:SmallBoldSystemFont"
-            color="0x9D86FFFF" />
+            color="0xE50914FF" />
 
         <Poster
             id="thumbnail"
@@ -65,7 +65,7 @@
             height="32"
             vertAlign="center"
             font="font:SmallBoldSystemFont"
-            color="0x9D86FFFF" />
+            color="0xE50914FF" />
         <Label
             id="titleLabel"
             translation="[318, 44]"
@@ -82,7 +82,7 @@
             height="28"
             vertAlign="center"
             font="font:SmallSystemFont"
-            color="0xB4B0C1FF" />
+            color="0xB3B3B3FF" />
         <Label
             id="chevron"
             translation="[900, 0]"
@@ -92,7 +92,7 @@
             horizAlign="center"
             vertAlign="center"
             font="font:MediumBoldSystemFont"
-            color="0x6F6A8AFF" />
+            color="0x808080FF" />
 
         <!-- Section captions share the row slot: the card is hidden and the
              caption sits on the rule that separates it from the rows below. -->
@@ -103,14 +103,14 @@
             height="48"
             vertAlign="center"
             font="font:SmallBoldSystemFont"
-            color="0x9D86FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Rectangle
             id="headerRule"
             translation="[6, 108]"
             width="956"
             height="2"
-            color="0x27244AFF"
+            color="0x2A2A2AFF"
             visible="false" />
 
         <!-- Inert copy: empty states and the signed-out explanation. -->
@@ -123,7 +123,7 @@
             wrap="true"
             maxLines="2"
             font="font:MediumSystemFont"
-            color="0xC9C6D7FF"
+            color="0xE5E5E5FF"
             visible="false" />
 
         <!-- The one focusable row of the signed-out screen, drawn as a button. -->
@@ -132,7 +132,7 @@
             translation="[30, 24]"
             width="320"
             height="70"
-            color="0x7657FFFF"
+            color="0xE50914FF"
             visible="false" />
         <Label
             id="ctaLabel"

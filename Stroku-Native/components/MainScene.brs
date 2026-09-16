@@ -70,6 +70,8 @@ sub init()
     end for
     m.heroTitle = m.top.FindNode("heroTitle")
     m.heroDescription = m.top.FindNode("heroDescription")
+    m.heroBillboard = m.top.FindNode("heroBillboard")
+    m.heroPoster = m.top.FindNode("heroPoster")
     m.homeGroup = m.top.FindNode("homeGroup")
     m.episodeGroup = m.top.FindNode("episodeGroup")
     m.episodeBackground = m.top.FindNode("episodeBackground")
@@ -187,7 +189,7 @@ sub init()
     m.addons = []
     m.addonManifestUrls = []
     m.pendingAddonUrl = ""
-    m.interfaceLanguage = "English"
+    m.interfaceLanguage = "Spanish"
     m.blurUnwatchedEpisodes = true
     m.uiScalePercent = UiScaleDefaultPercent()
     m.uiScalePendingPercent = m.uiScalePercent
@@ -316,19 +318,19 @@ end function
 
 sub UpdateTopBar()
     if m.topBarFocus = 0
-        m.searchBar.color = "0x7657FFFF"
+        m.searchBar.color = "0xE50914FF"
         m.searchPrompt.color = "0xFFFFFFFF"
     else
-        m.searchBar.color = "0x211F3AFF"
-        m.searchPrompt.color = "0x918EA5FF"
+        m.searchBar.color = "0x2A2A2AFF"
+        m.searchPrompt.color = "0x808080FF"
     end if
 
     if m.topBarFocus = 1
-        m.supportChipBg.color = "0x7657FFFF"
+        m.supportChipBg.color = "0xE50914FF"
         m.supportChipLabel.color = "0xFFFFFFFF"
     else
-        m.supportChipBg.color = "0x1B1934FF"
-        m.supportChipLabel.color = "0xA9A6B8FF"
+        m.supportChipBg.color = "0x2A2A2AFF"
+        m.supportChipLabel.color = "0xB3B3B3FF"
     end if
 end sub
 
@@ -389,8 +391,10 @@ sub RenderActiveTab(focusContent as boolean)
     m.coffeeGroup.visible = false
     m.topBarFocus = -1
     UpdateTopBar()
+    SetHeroBillboardVisible(false)
+    ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(260, 164)
+    m.catalogList.translation = ScaleUiXY(260, 510)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -420,11 +424,12 @@ end sub
 sub RenderBoard(focusContent as boolean)
     m.primaryTitle.text = "Board"
     m.primarySubtitle.text = "Popular, featured, YouTube, and public-domain catalogs"
-    m.heroTitle.text = "Board"
-    m.heroDescription.text = "Browse Stremio catalogs from the default web app layout."
+    SetHeroBillboardVisible(true)
+    SetHeroChrome("Board", "Browse Stremio catalogs from the default web app layout.", "")
     m.catalogRows = m.boardRows
     m.catalogNames = m.boardNames
     m.catalogList.visible = true
+    m.catalogList.translation = ScaleUiXY(260, 510)
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
 end sub
@@ -432,12 +437,12 @@ end sub
 sub RenderDiscover(focusContent as boolean)
     m.primaryTitle.text = "Discover"
     m.primarySubtitle.text = "UP  FILTERS    OK  CHANGE    *  MORE"
-    m.heroTitle.text = "Discover"
-    m.heroDescription.text = "Browse by type, catalog, and genre."
+    SetHeroBillboardVisible(true)
+    SetHeroChrome("Discover", "Browse by type, catalog, and genre.", "")
     m.catalogRows = m.discoverRows
     m.catalogNames = m.discoverNames
     m.discoverFilterGroup.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 230)
+    m.catalogList.translation = ScaleUiXY(260, 580)
     UpdateDiscoverFilterLabels()
     m.discoverGrid.visible = true
     RebuildDiscoverGrid()
@@ -454,8 +459,8 @@ sub RenderLibrary(focusContent as boolean)
             InfoAction("Recommendations tailored to your viewing history", "none", invalid)
             InfoAction("Log in", "login", invalid)
         ], focusContent)
-        m.heroTitle.text = "Library"
-        m.heroDescription.text = "Sign in to sync your Stremio library on Roku."
+        SetHeroBillboardVisible(false)
+        SetHeroChrome("Library", "Sign in to sync your Stremio library on Roku.", "")
         return
     end if
 
@@ -471,11 +476,12 @@ sub RenderLibrary(focusContent as boolean)
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.heroTitle.text = "Library"
+    m.catalogList.translation = ScaleUiXY(260, 510)
+    SetHeroBillboardVisible(true)
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
-        m.heroDescription.text = "Your Stremio library and watch history are empty."
+        SetHeroChrome("Library", "Your Stremio library and watch history are empty.", "")
     else
-        m.heroDescription.text = m.libraryItems.Count().ToStr() + " saved item(s)    " + m.watchedItems.Count().ToStr() + " watched item(s)"
+        SetHeroChrome("Library", m.libraryItems.Count().ToStr() + " saved item(s)    " + m.watchedItems.Count().ToStr() + " watched item(s)", "")
     end if
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
@@ -491,6 +497,7 @@ sub RenderCalendar(focusContent as boolean)
     m.primaryInfoGroup.visible = false
     m.settingsGroup.visible = false
     m.calendarGroup.visible = true
+    SetHeroBillboardVisible(false)
 
     m.heroTitle.text = TrText("calendar.title")
     if m.stremioAuthKey = ""
@@ -749,6 +756,7 @@ sub RenderAddons(focusContent as boolean)
     m.addonList.JumpToItem = targetIndex
     UpdateAddonDetail(targetIndex)
 
+    SetHeroBillboardVisible(false)
     m.heroTitle.text = TrText("addons.title")
     if m.addonSearchQuery <> ""
         m.heroDescription.text = TrFormat("addons.searchResult", m.addonSearchQuery)
@@ -804,14 +812,14 @@ sub UpdateAddonChips()
                 end if
                 label.color = "0xFFFFFFFF"
             else if focused
-                background.color = "0x7657FFFF"
+                background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
             else if selected
-                background.color = "0x2A2450FF"
-                label.color = "0xC7BCFFFF"
+                background.color = "0x3A1518FF"
+                label.color = "0xE5E5E5FF"
             else
-                background.color = "0x1B1934FF"
-                label.color = "0xA9A6B8FF"
+                background.color = "0x2A2A2AFF"
+                label.color = "0xB3B3B3FF"
             end if
         end if
     end for
@@ -987,6 +995,7 @@ sub RenderSettings(focusContent as boolean)
     m.settingsList.JumpToItem = targetIndex
     UpdateSettingsDetail(targetIndex)
 
+    SetHeroBillboardVisible(false)
     m.heroTitle.text = "Settings"
     m.heroDescription.text = SettingsTabDescription(m.settingsTabIndex)
     if focusContent then m.settingsList.SetFocus(true)
@@ -1129,11 +1138,11 @@ sub UpdateSettingsTabs()
         if background <> invalid and label <> invalid
             label.text = TrText("settings.tab." + LCase(m.settingsTabs[index]))
             if index = m.settingsTabIndex
-                background.color = "0x7657FFFF"
+                background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
             else
-                background.color = "0x1B1934FF"
-                label.color = "0xA9A6B8FF"
+                background.color = "0x2A2A2AFF"
+                label.color = "0xB3B3B3FF"
             end if
         end if
     end for
@@ -2057,7 +2066,7 @@ sub ApplyUiScaleSettings()
     ' Paint the letterbox margins left by a reduced manual scale in the app colour
     ' instead of the Roku default background image.
     m.top.backgroundURI = ""
-    m.top.backgroundColor = "0x0C0B19FF"
+    m.top.backgroundColor = "0x141414FF"
 
     m.uiRoot.translation = [scale.offsetX, scale.offsetY]
     EnsureUiScale(m.uiRoot)
@@ -2456,7 +2465,7 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(260, 164)
+                m.catalogList.translation = ScaleUiXY(260, 510)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
@@ -2643,7 +2652,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(260, 164)
+            m.catalogList.translation = ScaleUiXY(260, 510)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2759,8 +2768,7 @@ sub onDiscoverGridFocused(event as object)
     if m.discoverFilterFocus >= 0 then return
     item = GetDiscoverGridItem(event.GetData())
     if item = invalid then return
-    m.heroTitle.text = SafeString(item, "name")
-    m.heroDescription.text = HomeHeroDescription(item)
+    UpdateHeroFromItem(item)
     meta = SafeString(item, "type")
     year = SafeString(item, "releaseInfo")
     if year = "" then year = SafeString(item, "year")
@@ -2784,8 +2792,7 @@ sub onCatalogFocused(event as object)
     item = GetCatalogItem(position)
     if item = invalid then return
 
-    m.heroTitle.text = SafeString(item, "name")
-    m.heroDescription.text = HomeHeroDescription(item)
+    UpdateHeroFromItem(item)
     if m.activeTab = "discover" and SafeString(item, "type") <> "action"
         meta = SafeString(item, "type")
         year = SafeString(item, "releaseInfo")
@@ -2871,6 +2878,36 @@ sub OpenSeriesEpisodes(item as object)
     m.top.SetFocus(true)
 
     StartRequest(CinemetaMetaUrl("series", SafeString(item, "id")), "meta|series")
+end sub
+
+
+sub SetHeroBillboardVisible(visible as boolean)
+    if m.heroBillboard <> invalid then m.heroBillboard.visible = visible
+end sub
+
+sub ClearHeroPoster()
+    if m.heroPoster <> invalid then m.heroPoster.uri = ""
+end sub
+
+sub SetHeroChrome(title as string, description as string, posterUrl as string)
+    if m.heroTitle <> invalid then m.heroTitle.text = title
+    if m.heroDescription <> invalid then m.heroDescription.text = description
+    if m.heroPoster <> invalid
+        if posterUrl <> ""
+            m.heroPoster.uri = posterUrl
+        else
+            m.heroPoster.uri = ""
+        end if
+    end if
+end sub
+
+sub UpdateHeroFromItem(item as object)
+    if item = invalid then return
+    title = SafeString(item, "name")
+    description = HomeHeroDescription(item)
+    posterUrl = SafeString(item, "background")
+    if posterUrl = "" then posterUrl = SafeString(item, "poster")
+    SetHeroChrome(title, description, posterUrl)
 end sub
 
 function HomeHeroDescription(item as object) as string
@@ -4868,20 +4905,234 @@ function BuildStreamContent() as object
             quality: "",
             seeds: "",
             sizeText: "",
-            tracker: ""
+            tracker: "",
+            line1: "",
+            line2: "",
+            line3: ""
         })
         child.title = StreamCardTitle(stream)
         child.sourceBadge = StreamSourceBadge(stream)
         addonNameText = StreamAddonName(stream)
         child.addonName = addonNameText
-        child.quality = StreamQuality(stream)
-        
+        qualityText = StreamQuality(stream)
+        child.quality = qualityText
+
         metadataText = StreamMetadataText(stream)
-        child.seeds = ExtractSeeders(metadataText)
-        child.sizeText = ExtractSize(metadataText)
-        child.tracker = ExtractTracker(metadataText, addonNameText)
+        seedsText = ExtractSeeders(metadataText)
+        sizeText = ExtractSize(metadataText)
+        trackerText = ExtractTracker(metadataText, addonNameText)
+        child.seeds = seedsText
+        child.sizeText = sizeText
+        child.tracker = trackerText
+
+        ' Multi-line Netflix-style card copy derived only from real stream fields.
+        child.line1 = StreamCardLine1(stream, qualityText, sizeText)
+        child.line2 = StreamCardLine2(stream)
+        child.line3 = StreamCardLine3(stream, addonNameText, trackerText, seedsText)
     end for
     return content
+end function
+
+
+' Line 1: quality / resolution / size (bold primary).
+function StreamCardLine1(stream as object, qualityText as string, sizeText as string) as string
+    parts = []
+    if qualityText <> "" and qualityText <> "Direct" then parts.Push(qualityText)
+    if sizeText <> "" then parts.Push(sizeText)
+    if parts.Count() = 0
+        fallback = LastNonEmptyLine(SafeString(stream, "name"))
+        if fallback = "" then fallback = "Direct stream"
+        return fallback
+    end if
+    return JoinStrings(parts, "  ·  ")
+end function
+
+' Line 2: languages / audio / subtitle hints parsed from name/title/description/filename.
+function StreamCardLine2(stream as object) as string
+    haystack = StreamParseHaystack(stream)
+    languages = ExtractStreamLanguages(haystack)
+    audio = ExtractStreamAudio(haystack)
+    parts = []
+    if languages <> "" then parts.Push(languages)
+    if audio <> "" then parts.Push(audio)
+    if parts.Count() = 0
+        ' Fall back to a cleaned release first-line without crushing everything together.
+        release = StreamCardTitle(stream)
+        if release <> "" then return release
+        return ""
+    end if
+    return JoinStrings(parts, "  ·  ")
+end function
+
+' Line 3: codec / container / source / addon / seeders.
+function StreamCardLine3(stream as object, addonNameText as string, trackerText as string, seedsText as string) as string
+    haystack = StreamParseHaystack(stream)
+    parts = []
+    container = ExtractStreamContainer(haystack)
+    codec = ExtractStreamCodec(haystack)
+    if container <> "" then parts.Push(container)
+    if codec <> "" then parts.Push(codec)
+    if trackerText <> "" and trackerText <> addonNameText then parts.Push(trackerText)
+    if addonNameText <> "" then parts.Push(addonNameText)
+    if seedsText <> "" then parts.Push("Seeds " + seedsText)
+    if stream.DoesExist("infoHash") and SafeString(stream, "url") = ""
+        parts.Push("Torrent")
+    end if
+    return JoinStrings(parts, "  ·  ")
+end function
+
+function StreamParseHaystack(stream as object) as string
+    chunks = []
+    chunks.Push(SafeString(stream, "name"))
+    chunks.Push(SafeString(stream, "title"))
+    chunks.Push(SafeString(stream, "description"))
+    if stream.DoesExist("behaviorHints") and stream.behaviorHints <> invalid
+        hints = stream.behaviorHints
+        chunks.Push(SafeString(hints, "bingeGroup").Replace("|", " "))
+        chunks.Push(SafeString(hints, "filename"))
+    end if
+    return JoinStrings(chunks, " ")
+end function
+
+function ExtractStreamLanguages(haystack as string) as string
+    if haystack = "" then return ""
+    upper = UCase(haystack)
+    found = []
+    ' Longer / more specific tokens first so LATINO wins over LAT, MULTI before MUL.
+    tokens = [
+        ["LATINO", "Latino"],
+        ["CASTELLANO", "Castellano"],
+        ["SPANISH", "Spanish"],
+        ["ENGLISH", "English"],
+        ["FRENCH", "French"],
+        ["GERMAN", "German"],
+        ["ITALIAN", "Italian"],
+        ["PORTUGUESE", "Portuguese"],
+        ["MULTI", "Multi"],
+        ["DUAL", "Dual"],
+        ["TRUEFRENCH", "TrueFrench"],
+        ["VFF", "VFF"],
+        ["VFQ", "VFQ"],
+        ["VOSTFR", "VOSTFR"],
+        ["SUBFORCED", "Subs"],
+        ["SUBS", "Subs"],
+        ["VOS", "VOS"],
+        ["SPA", "Spanish"],
+        ["ESP", "Spanish"],
+        ["ENG", "English"],
+        ["FRE", "French"],
+        ["FRA", "French"],
+        ["GER", "German"],
+        ["DEU", "German"],
+        ["ITA", "Italian"],
+        ["POR", "Portuguese"],
+        ["JPN", "Japanese"],
+        ["KOR", "Korean"],
+        ["CHI", "Chinese"],
+        ["RUS", "Russian"]
+    ]
+    for each pair in tokens
+        needle = pair[0]
+        label = pair[1]
+        if Instr(1, upper, needle) > 0
+            already = false
+            for each existing in found
+                if existing = label then already = true
+            end for
+            if not already then found.Push(label)
+        end if
+        if found.Count() >= 4 then exit for
+    end for
+    return JoinStrings(found, ", ")
+end function
+
+function ExtractStreamAudio(haystack as string) as string
+    if haystack = "" then return ""
+    upper = UCase(haystack)
+    found = []
+    tokens = [
+        ["TRUEHD", "TrueHD"],
+        ["ATMOS", "Atmos"],
+        ["DTS-HD", "DTS-HD"],
+        ["DTS:X", "DTS:X"],
+        ["EAC3", "EAC3"],
+        ["E-AC3", "EAC3"],
+        ["AC3", "AC3"],
+        ["DD+", "DD+"],
+        ["DDP", "DD+"],
+        ["DTS", "DTS"],
+        ["AAC", "AAC"],
+        ["OPUS", "Opus"],
+        ["FLAC", "FLAC"],
+        ["MP3", "MP3"]
+    ]
+    for each pair in tokens
+        if Instr(1, upper, pair[0]) > 0
+            already = false
+            for each existing in found
+                if existing = pair[1] then already = true
+            end for
+            if not already then found.Push(pair[1])
+        end if
+        if found.Count() >= 3 then exit for
+    end for
+    return JoinStrings(found, ", ")
+end function
+
+function ExtractStreamCodec(haystack as string) as string
+    if haystack = "" then return ""
+    upper = UCase(haystack)
+    tokens = [
+        ["AV1", "AV1"],
+        ["X265", "x265"],
+        ["H.265", "H.265"],
+        ["H265", "H.265"],
+        ["HEVC", "HEVC"],
+        ["X264", "x264"],
+        ["H.264", "H.264"],
+        ["H264", "H.264"],
+        ["AVC", "AVC"],
+        ["VP9", "VP9"],
+        ["XVID", "Xvid"]
+    ]
+    for each pair in tokens
+        if Instr(1, upper, pair[0]) > 0 then return pair[1]
+    end for
+    return ""
+end function
+
+function ExtractStreamContainer(haystack as string) as string
+    if haystack = "" then return ""
+    upper = UCase(haystack)
+    tokens = [
+        ["BLURAY", "BluRay"],
+        ["BLUE-RAY", "BluRay"],
+        ["REMUX", "REMUX"],
+        ["WEB-DL", "WEB-DL"],
+        ["WEBDL", "WEB-DL"],
+        ["WEBRIP", "WEBRip"],
+        ["WEB-RIP", "WEBRip"],
+        ["HDTV", "HDTV"],
+        ["DVDRIP", "DVDRip"],
+        ["HDR", "HDR"],
+        ["DV ", "Dolby Vision"],
+        [".MKV", "MKV"],
+        [".MP4", "MP4"],
+        [" MKV", "MKV"],
+        [" MP4", "MP4"]
+    ]
+    found = []
+    for each pair in tokens
+        if Instr(1, upper, pair[0]) > 0
+            already = false
+            for each existing in found
+                if existing = pair[1] then already = true
+            end for
+            if not already then found.Push(pair[1])
+        end if
+        if found.Count() >= 2 then exit for
+    end for
+    return JoinStrings(found, " · ")
 end function
 
 function StreamMetadataText(stream as object) as string
