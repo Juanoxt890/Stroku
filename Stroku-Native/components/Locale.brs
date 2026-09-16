@@ -133,6 +133,7 @@ end function
 function LocaleStringsEnglish() as object
     return {
         "common.on": "On"
+        "common.ok": "OK",
         "common.off": "Off"
         "common.done": "Done"
         "common.cancel": "Cancel"
@@ -181,6 +182,10 @@ function LocaleStringsEnglish() as object
         "settings.general.appVersion.hint": "The Stroku version declared by the installed channel's manifest."
         "settings.general.channelBuild": "Channel build"
         "settings.general.channelBuild.hint": "The channel ID this Roku launched, and whether it is a sideloaded development build."
+        "settings.general.setupUrl": "Setup URL",
+        "settings.general.setupUrl.hint": "Open this address on your phone (same Wi‑Fi) to paste Stremio add-on manifests. Home hides it; it lives here.",
+        "settings.general.setupUrl.dialog": "On your phone, open this URL while on the same Wi‑Fi network:",
+        "settings.general.setupUrl.unavailable": "Not available",
         "settings.general.development": "Development"
         "settings.general.support": "Contact support"
         "settings.general.support.hint": "Where to report a problem with Stroku."
@@ -495,6 +500,7 @@ end function
 function LocaleStringsSpanish() as object
     return {
         "common.on": "Activado"
+        "common.ok": "OK",
         "common.off": "Desactivado"
         "common.done": "Listo"
         "common.cancel": "Cancelar"
@@ -543,6 +549,10 @@ function LocaleStringsSpanish() as object
         "settings.general.appVersion.hint": "La version de Stroku declarada en el manifiesto del canal instalado."
         "settings.general.channelBuild": "Compilacion del canal"
         "settings.general.channelBuild.hint": "El ID del canal que ha iniciado este Roku, y si es una compilacion de desarrollo cargada manualmente."
+        "settings.general.setupUrl": "URL de setup",
+        "settings.general.setupUrl.hint": "Abre esta direccion en el telefono (misma Wi‑Fi) para pegar manifiestos de complementos. En Inicio esta oculta; vive aqui.",
+        "settings.general.setupUrl.dialog": "En el telefono, abre esta URL estando en la misma red Wi‑Fi:",
+        "settings.general.setupUrl.unavailable": "No disponible",
         "settings.general.development": "Desarrollo"
         "settings.general.support": "Contactar con soporte"
         "settings.general.support.hint": "Donde informar de un problema con Stroku."
@@ -905,6 +915,10 @@ function LocaleStringsFrench() as object
         "settings.general.appVersion.hint": "La version de Stroku declaree par le manifeste de la chaine installee."
         "settings.general.channelBuild": "Version de la chaine"
         "settings.general.channelBuild.hint": "L'identifiant de la chaine lancee par ce Roku, et s'il s'agit d'une version de developpement installee manuellement."
+        "settings.general.setupUrl": "URL de configuration",
+        "settings.general.setupUrl.hint": "Ouvrez cette adresse sur votre telephone (meme Wi‑Fi) pour coller des manifestes d'add-ons.",
+        "settings.general.setupUrl.dialog": "Sur votre telephone, ouvrez cette URL sur le meme Wi‑Fi :",
+        "settings.general.setupUrl.unavailable": "Indisponible",
         "settings.general.development": "Developpement"
         "settings.general.support": "Contacter l'assistance"
         "settings.general.support.hint": "Ou signaler un probleme avec Stroku."
@@ -1267,6 +1281,10 @@ function LocaleStringsGerman() as object
         "settings.general.appVersion.hint": "Die Stroku-Version aus dem Manifest des installierten Kanals."
         "settings.general.channelBuild": "Kanal-Build"
         "settings.general.channelBuild.hint": "Die Kanal-ID, die dieser Roku gestartet hat, und ob es ein manuell geladener Entwicklungs-Build ist."
+        "settings.general.setupUrl": "Setup-URL",
+        "settings.general.setupUrl.hint": "Oeffne diese Adresse am Telefon (gleichzes WLAN), um Add-on-Manifeste einzufuegen.",
+        "settings.general.setupUrl.dialog": "Oeffne diese URL am Telefon im gleichen WLAN:",
+        "settings.general.setupUrl.unavailable": "Nicht verfuegbar",
         "settings.general.development": "Entwicklung"
         "settings.general.support": "Support kontaktieren"
         "settings.general.support.hint": "Wo du ein Problem mit Stroku melden kannst."
@@ -1629,6 +1647,10 @@ function LocaleStringsItalian() as object
         "settings.general.appVersion.hint": "La versione di Stroku dichiarata dal manifest del canale installato."
         "settings.general.channelBuild": "Build del canale"
         "settings.general.channelBuild.hint": "L'ID del canale avviato da questo Roku e se si tratta di una build di sviluppo caricata manualmente."
+        "settings.general.setupUrl": "URL di setup",
+        "settings.general.setupUrl.hint": "Apri questo indirizzo sul telefono (stesso Wi‑Fi) per incollare i manifest degli add-on.",
+        "settings.general.setupUrl.dialog": "Sul telefono, apri questo URL sulla stessa Wi‑Fi:",
+        "settings.general.setupUrl.unavailable": "Non disponibile",
         "settings.general.development": "Sviluppo"
         "settings.general.support": "Contatta l'assistenza"
         "settings.general.support.hint": "Dove segnalare un problema con Stroku."
@@ -1991,6 +2013,10 @@ function LocaleStringsPortuguese() as object
         "settings.general.appVersion.hint": "A versao do Stroku declarada no manifesto do canal instalado."
         "settings.general.channelBuild": "Compilacao do canal"
         "settings.general.channelBuild.hint": "O ID do canal que este Roku iniciou, e se e uma compilacao de desenvolvimento carregada manualmente."
+        "settings.general.setupUrl": "URL de setup",
+        "settings.general.setupUrl.hint": "Abre este endereco no telemovel (mesmo Wi‑Fi) para colar manifests de extras. No Inicio fica oculta; vive aqui.",
+        "settings.general.setupUrl.dialog": "No telemovel, abre este URL na mesma rede Wi‑Fi:",
+        "settings.general.setupUrl.unavailable": "Indisponivel",
         "settings.general.development": "Desenvolvimento"
         "settings.general.support": "Contactar o apoio"
         "settings.general.support.hint": "Onde comunicar um problema com o Stroku."

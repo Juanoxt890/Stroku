@@ -103,6 +103,7 @@ sub init()
     m.statusLabel = m.top.FindNode("statusLabel")
     m.statusBackdrop = m.top.FindNode("statusBackdrop")
     m.setupAddress = m.top.FindNode("setupAddress")
+    m.setupUrl = ""
     m.video = m.top.FindNode("video")
 
     ' Tab identity is separate from the tab label: the label is translated, the id
@@ -1103,6 +1104,9 @@ function BuildGeneralSettingsRows() as object
     rows.Push(SettingHeader(TrText("settings.general.header.about")))
     rows.Push(SettingRow(TrText("settings.general.appVersion"), AppVersionValue(), "none", invalid, "info", TrText("settings.general.appVersion.hint")))
     rows.Push(SettingRow(TrText("settings.general.channelBuild"), AppBuildValue(), "none", invalid, "info", TrText("settings.general.channelBuild.hint")))
+    setupValue = TrText("settings.general.setupUrl.unavailable")
+    if m.setupUrl <> invalid and m.setupUrl <> "" then setupValue = m.setupUrl
+    rows.Push(SettingRow(TrText("settings.general.setupUrl"), setupValue, "showSetupUrl", invalid, "action", TrText("settings.general.setupUrl.hint")))
 
     rows.Push(SettingHeader(TrText("settings.general.header.help")))
     rows.Push(SettingRow(TrText("settings.general.support"), "", "settingsLink", "support", "action", TrText("settings.general.support.hint")))
@@ -1336,6 +1340,8 @@ end sub
 sub ActivateAction(actionType as string, payload as dynamic)
     if actionType = "login"
         BeginStremioLink()
+    else if actionType = "showSetupUrl"
+        ShowSetupUrlDialog()
     else if actionType = "refreshLibrary"
         ShowStatus(TrText("status.refreshingLibrary"), true)
         FetchLibrary()
@@ -4522,15 +4528,33 @@ sub OpenAddonConfiguration()
 end sub
 
 sub ShowSetupAddress(args as object)
-    ' Keep IP available in node text for Options/debug, but hide on Home —
-    ' Netflix-clean chrome (user still uses :8324 from phone docs / Options).
-    if m.setupAddress = invalid then return
-    if args = invalid or not args.DoesExist("url") or args.url = ""
-        m.setupAddress.text = ""
-    else
-        m.setupAddress.text = args.url
+    ' Home stays Netflix-clean; URL lives in Settings → General (and m.setupUrl).
+    url = ""
+    if args <> invalid and args.DoesExist("url") and args.url <> ""
+        url = args.url
     end if
-    m.setupAddress.visible = false
+    m.setupUrl = url
+    if m.setupAddress <> invalid
+        m.setupAddress.text = url
+        m.setupAddress.visible = false
+    end if
+end sub
+
+sub ShowSetupUrlDialog()
+    dialog = CreateObject("roSGNode", "Dialog")
+    dialog.title = TrText("settings.general.setupUrl")
+    if m.setupUrl = invalid or m.setupUrl = ""
+        dialog.message = TrText("settings.general.setupUrl.unavailable")
+    else
+        dialog.message = TrText("settings.general.setupUrl.dialog") + Chr(10) + Chr(10) + m.setupUrl
+    end if
+    dialog.buttons = ["OK"]
+    dialog.ObserveField("buttonSelected", "onSetupUrlDialogButton")
+    m.top.dialog = dialog
+end sub
+
+sub onSetupUrlDialogButton(event as object)
+    if m.top.dialog <> invalid then m.top.dialog.close = true
 end sub
 
 sub onConfigurationUrlChanged(event as object)
