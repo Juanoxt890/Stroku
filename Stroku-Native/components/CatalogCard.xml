@@ -4,47 +4,20 @@
         <field id="itemContent" type="node" onChange="onContentChanged" />
         <field id="itemHasFocus" type="boolean" onChange="onFocusChanged" />
     </interface>
-
     <script type="text/brightscript" uri="pkg:/components/UiScale.brs" />
     <script type="text/brightscript" uri="pkg:/components/CatalogCard.brs" />
-
     <children>
-        <Rectangle
-            id="focusFrame"
-            width="168"
-            height="246"
-            color="0xE50914FF"
-            visible="false" />
-        <Poster
-            id="poster"
-            translation="[5, 5]"
-            width="158"
-            height="236"
-            loadDisplayMode="scaleToZoom" />
-        <Rectangle
-            id="progressBarBg"
-            translation="[5, 235]"
-            width="158"
-            height="6"
-            color="0x404040FF"
-            visible="false" />
-        <Rectangle
-            id="progressBarFill"
-            translation="[5, 235]"
-            width="0"
-            height="6"
-            color="0xE50914FF"
-            visible="false" />
-        <Label
-            id="title"
-            translation="[0, 252]"
-            width="168"
-            height="48"
-            horizAlign="center"
-            vertAlign="top"
-            wrap="true"
-            maxLines="2"
-            font="font:SmallSystemFont"
-            color="0xB3B3B3FF" />
+        <!-- Sharp poster; corner COVER matte (not maskUri) hides square corners on Home bg. -->
+        <Poster id="poster" translation="[6,6]" width="208" height="310" loadDisplayMode="scaleToZoom" />
+        <Poster id="seeAllBg" translation="[6,6]" width="208" height="310" uri="pkg:/images/see_all_bg_round.png" loadDisplayMode="scaleToFit" visible="false" />
+        <Label id="seeAllLabel" translation="[6, 130]" width="208" height="60" text="Ver todo" horizAlign="center" vertAlign="center" font="font:MediumBoldSystemFont" color="0xFFFFFFFF" visible="false" />
+        <!-- Corner matte ON TOP of poster / see-all: opaque #0B0B0B outside r=20, transparent inside. -->
+        <Poster id="posterMatte" translation="[6,6]" width="208" height="310" uri="pkg:/images/poster_round_matte.png" loadDisplayMode="scaleToFit" />
+        <!-- Progress inset ~12px so it clears round matte / focus ring; white fill (not accent). -->
+        <Rectangle id="progressBarBg" translation="[18,300]" width="184" height="6" color="0x333333FF" visible="false" />
+        <Rectangle id="progressBarFill" translation="[18,300]" width="0" height="6" color="0xFFFFFFFF" visible="false" />
+        <!-- Focus donut ON TOP: AA stroke matching matte radius. -->
+        <Poster id="focusFrame" width="220" height="322" uri="pkg:/images/poster_focus_ring_round.png" loadDisplayMode="scaleToFit" visible="false" />
+        <Label id="title" translation="[0, 324]" width="220" height="24" horizAlign="center" vertAlign="top" wrap="true" maxLines="1" font="font:SmallBoldSystemFont" color="0xFFFFFFFF" visible="false" />
     </children>
 </component>

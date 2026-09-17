@@ -71,9 +71,10 @@ sub onContentChanged()
         m.logoLetter.text = AddonInitial(content.title)
     end if
 
-    m.badgeLabel.text = UCase(content.badge)
+    ' Short pill words ("Instalar" / "Instalado") stay title-case so they fit.
+    m.badgeLabel.text = content.badge
     if content.badgeKind = "installed"
-        m.badgePill.color = "0x2E9E76FF"
+        m.badgePill.color = "0xE50914FF"
     else
         m.badgePill.color = "0x4C3FA0FF"
     end if
@@ -104,7 +105,7 @@ sub onStateChanged()
         m.description.color = "0xD6D2E4FF"
         m.messageLabel.color = "0xFFFFFFFF"
     else
-        m.card.color = "0x2A2A2AFF"
+        m.card.color = "0x1A1A1DFF"
         if content.selectable
             m.name.color = "0xEDEBF5FF"
         else

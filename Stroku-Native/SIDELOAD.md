@@ -1,4 +1,4 @@
-# Stroku ES — sideload guide
+# Stroku890 — sideload guide
 
 This fork (`Juanoxt890/Stroku`) ships a Netflix-style dark UI and **Spanish as the default UI language** on first launch. All original languages remain available under **Ajustes → Interfaz → Idioma**.
 
@@ -17,7 +17,9 @@ rm -f dist/stroku-native.zip
 zip -r dist/stroku-native.zip manifest source components images -x "*.DS_Store"
 ```
 
-Sideload zip path: `Stroku-Native/dist/stroku-native.zip`
+Sideload zip path: `Stroku-Native/dist/stroku890-v25.zip` (also `stroku-native.zip` via npm package script).
+
+Versioned builds: `dist/stroku890-vN.zip` must match `manifest` `build_version=N`.
 
 ## Sideload onto a Roku
 
@@ -25,7 +27,7 @@ Sideload zip path: `Stroku-Native/dist/stroku-native.zip`
 2. Note the Roku IP and set a developer password.
 3. Open `http://<ROKU_IP>` in a browser, sign in with the developer password.
 4. Upload `dist/stroku-native.zip` and install.
-5. The channel appears as **Stroku ES** (manifest `title` + bumped `build_version`) so it can sit beside a store Stroku install without confusion.
+5. The channel appears as **Stroku890** (manifest `title` + bumped `build_version`) so it can sit beside a store Stroku install without confusion.
 
 ## Language
 

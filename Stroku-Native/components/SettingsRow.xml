@@ -22,7 +22,7 @@
             translation="[3, 3]"
             width="962"
             height="68"
-            color="0x2A2A2AFF" />
+            color="0x1A1A1DFF" />
         <Rectangle
             id="accentBar"
             translation="[3, 3]"
@@ -53,7 +53,7 @@
             translation="[802, 19]"
             width="94"
             height="36"
-            color="0x333333FF"
+            color="0x1A1A1DFF"
             visible="false" />
         <Label
             id="toggleLabel"
@@ -92,7 +92,7 @@
             translation="[6, 66]"
             width="956"
             height="2"
-            color="0x2A2A2AFF"
+            color="0x1A1A1DFF"
             visible="false" />
     </children>
 </component>

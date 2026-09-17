@@ -14,10 +14,18 @@ sub init()
     m.coffeeReturnedFromTopBar = false
     m.supportChipBg = m.top.FindNode("supportChipBg")
     m.supportChipLabel = m.top.FindNode("supportChipLabel")
+    if m.supportChipBg <> invalid then m.supportChipBg.visible = false
+    if m.supportChipLabel <> invalid then m.supportChipLabel.visible = false
     m.topBarFocus = -1
     m.catalogList = m.top.FindNode("catalogList")
     m.discoverGrid = m.top.FindNode("discoverGrid")
     m.navList = m.top.FindNode("navList")
+    m.navItems = []
+    for navItemIndex = 0 to 5
+        m.navItems.Push(m.top.FindNode("navItem" + navItemIndex.ToStr()))
+    end for
+    m.navRailFocused = false
+    m.navContentNodes = []
     m.searchBar = m.top.FindNode("searchBar")
     m.searchPrompt = m.top.FindNode("searchPrompt")
     m.primaryTitle = m.top.FindNode("primaryTitle")
@@ -70,8 +78,19 @@ sub init()
     end for
     m.heroTitle = m.top.FindNode("heroTitle")
     m.heroDescription = m.top.FindNode("heroDescription")
+    m.heroMeta = m.top.FindNode("heroMeta")
     m.heroBillboard = m.top.FindNode("heroBillboard")
     m.heroPoster = m.top.FindNode("heroPoster")
+    m.heroPrimaryLabel = m.top.FindNode("heroPrimaryLabel")
+    m.heroSecondaryLabel = m.top.FindNode("heroSecondaryLabel")
+    m.heroPrimaryBg = m.top.FindNode("heroPrimaryBg")
+    m.heroSecondaryBg = m.top.FindNode("heroSecondaryBg")
+    m.heroDebounceTimer = m.top.FindNode("heroDebounceTimer")
+    m.heroCtaFocus = -1
+    HideHeroCtas()
+    m.focusedCatalogItem = invalid
+    m.pendingHeroItem = invalid
+    m.boardContinueActive = false
     m.homeGroup = m.top.FindNode("homeGroup")
     m.episodeGroup = m.top.FindNode("episodeGroup")
     m.episodeBackground = m.top.FindNode("episodeBackground")
@@ -93,6 +112,7 @@ sub init()
     m.statusLabel = m.top.FindNode("statusLabel")
     m.statusBackdrop = m.top.FindNode("statusBackdrop")
     m.setupAddress = m.top.FindNode("setupAddress")
+    m.setupUrl = ""
     m.video = m.top.FindNode("video")
 
     ' Tab identity is separate from the tab label: the label is translated, the id
@@ -136,7 +156,7 @@ sub init()
     m.calendarSuppressIndex = -1
     m.primaryActions = []
     m.boardRows = [[], [], [], [], [], []]
-    m.boardNames = ["Popular - Movie", "Popular - Series", "Featured - Movie", "Featured - Series", "YouTube - Channel", "Public Domain Movies - Movie"]
+    m.boardNames = ["Populares - Películas", "Populares - Series", "Destacadas - Películas", "Destacadas - Series", "YouTube - Canales", "Dominio público - Películas"]
     m.discoverRows = [[]]
     m.discoverNames = ["Movie - Popular"]
     m.libraryRows = [[]]
@@ -207,8 +227,7 @@ sub init()
     m.exitVideoDialog = invalid
     m.exitAppDialog = invalid
 
-    m.navList.ObserveField("itemSelected", "onNavSelected")
-    m.navList.ObserveField("itemFocused", "onNavFocused")
+    ' Fixed Group of 6 nav rows (v21): manual focus — no MarkupList scroll.
     m.primaryInfoList.ObserveField("itemSelected", "onPrimaryInfoSelected")
     m.settingsList.ObserveField("itemSelected", "onSettingsRowSelected")
     m.settingsList.ObserveField("itemFocused", "onSettingsRowFocused")
@@ -236,6 +255,9 @@ sub init()
     m.video.ObserveField("duration", "onVideoDurationChanged")
     m.top.ObserveField("configurationUrl", "onConfigurationUrlChanged")
     m.linkPollTimer.ObserveField("fire", "onLinkPollTimer")
+    if m.heroDebounceTimer <> invalid
+        m.heroDebounceTimer.ObserveField("fire", "onHeroDebounceFire")
+    end if
 
     LoadAddonConfiguration()
     LoadSubtitlePreferences()
@@ -253,8 +275,10 @@ sub init()
     LoadStremioAccount()
     InitializePrimaryShell()
     FetchBoardCatalogs()
+    ShowStatus("Cargando catálogos...", true)
 
-    m.catalogList.SetFocus(true)
+    ' Never focus an empty RowList — it can swallow the remote on some builds.
+    FocusNavRail(0)
 end sub
 
 sub InitializePrimaryShell()
@@ -265,32 +289,68 @@ sub InitializePrimaryShell()
 end sub
 
 ' Rebuilt on every language change, so the labels follow the active language.
+' Fixed Group of 6 NavItems: title, iconUri, selected (active tab accent when unfocused).
 sub UpdateNavContent()
-    content = CreateObject("roSGNode", "ContentNode")
-    for each id in m.navIds
-        child = content.CreateChild("ContentNode")
+    m.navContentNodes = []
+    for index = 0 to m.navIds.Count() - 1
+        id = m.navIds[index]
+        child = CreateObject("roSGNode", "NavItemContent")
         child.title = TrText("nav." + id)
+        child.navId = id
+        child.iconUri = "pkg:/images/nav/nav_" + id + ".png"
+        child.selected = id = m.activeTab
+        m.navContentNodes.Push(child)
+        if index < m.navItems.Count() and m.navItems[index] <> invalid
+            m.navItems[index].itemContent = child
+        end if
     end for
-    m.navList.content = content
-    m.navList.JumpToItem = m.navIndex
+    SyncNavItemFocus()
 end sub
 
-sub onNavFocused(event as object)
-    index = event.GetData()
-    if index >= 0 and index < m.navIds.Count()
-        m.navIndex = index
-    end if
+sub SyncNavItemFocus()
+    if m.navItems = invalid then return
+    for index = 0 to m.navItems.Count() - 1
+        item = m.navItems[index]
+        if item <> invalid
+            item.itemHasFocus = m.navRailFocused and index = m.navIndex
+        end if
+    end for
 end sub
 
-sub onNavSelected(event as object)
-    index = event.GetData()
+function IsNavRailFocused() as boolean
+    return m.navRailFocused = true
+end function
+
+sub FocusNavRail(index as integer)
+    if index < 0 then index = 0
+    if index >= m.navIds.Count() then index = m.navIds.Count() - 1
+    m.navIndex = index
+    m.navRailFocused = true
+    BlurTopBar()
+    m.catalogList.SetFocus(false)
+    m.discoverGrid.SetFocus(false)
+    m.settingsList.SetFocus(false)
+    m.calendarList.SetFocus(false)
+    m.addonList.SetFocus(false)
+    m.primaryInfoList.SetFocus(false)
+    m.top.SetFocus(true)
+    SyncNavItemFocus()
+end sub
+
+sub BlurNavRail()
+    m.navRailFocused = false
+    SyncNavItemFocus()
+end sub
+
+sub ActivateNavItem(index as integer)
     if index < 0 or index >= m.navIds.Count() then return
     tabName = m.navIds[index]
     if tabName = m.activeTab
+        BlurNavRail()
         FocusActiveContent()
     else
         SetActiveTab(tabName, false)
-        m.navList.SetFocus(true)
+        FocusNavRail(index)
     end if
 end sub
 
@@ -302,43 +362,51 @@ sub SetActiveTab(tabName as string, focusContent as boolean)
             exit for
         end if
     end for
-    m.navList.JumpToItem = m.navIndex
+    ' Keep rail selected accent in sync even when focus is on content.
+    if m.navContentNodes <> invalid
+        for index = 0 to m.navContentNodes.Count() - 1
+            child = m.navContentNodes[index]
+            if child <> invalid and child.hasField("selected")
+                child.selected = m.navIds[index] = tabName
+            end if
+        end for
+    end if
+    ' No JumpToItem — fixed rows never scroll away.
+    SyncNavItemFocus()
     RenderActiveTab(focusContent)
     if tabName = "discover" and IsCatalogRowsEmpty(m.discoverRows) and not m.discoverRequestActive
         FetchDiscoverCatalog()
     end if
 end sub
 
-' The top bar is the row above every screen's content: the search field and the
-' support entry. Like the Discover filter row and the Addons chips, it is not a
-' focusable node -- it is drawn from here and driven while the scene holds focus.
+' Rail Buscar (v21): search control lives in the left rail above Inicio.
+' Like Discover filters / Addons chips, it is not a focusable node — drawn here
+' and driven while the scene holds focus (m.topBarFocus).
 function TopBarItemCount() as integer
-    return 2
+    ' Search only — Apoyar removed from Home top bar (still in Settings → General).
+    return 1
 end function
 
 sub UpdateTopBar()
+    if m.searchBar = invalid then return
     if m.topBarFocus = 0
-        m.searchBar.color = "0xE50914FF"
-        m.searchPrompt.color = "0xFFFFFFFF"
+        m.searchBar.uri = "pkg:/images/search_bar_focus.png"
+        if m.searchPrompt <> invalid then m.searchPrompt.color = "0xFFFFFFFF"
     else
-        m.searchBar.color = "0x2A2A2AFF"
-        m.searchPrompt.color = "0x808080FF"
+        m.searchBar.uri = "pkg:/images/search_bar_bg.png"
+        if m.searchPrompt <> invalid then m.searchPrompt.color = "0x808080FF"
     end if
-
-    if m.topBarFocus = 1
-        m.supportChipBg.color = "0xE50914FF"
-        m.supportChipLabel.color = "0xFFFFFFFF"
-    else
-        m.supportChipBg.color = "0x2A2A2AFF"
-        m.supportChipLabel.color = "0xB3B3B3FF"
-    end if
+    ' Keep support chip nodes hidden if present (legacy XML ids).
+    if m.supportChipBg <> invalid then m.supportChipBg.visible = false
+    if m.supportChipLabel <> invalid then m.supportChipLabel.visible = false
 end sub
 
 sub FocusTopBar(index as integer)
     m.topBarFocus = index
     UpdateTopBar()
-    ' Every content list has to be blurred or it swallows OK and the arrows
-    ' before onKeyEvent ever sees them.
+    ' Rail search owns top-bar focus; blur nav rows + content lists so the scene
+    ' receives OK / arrows (same pattern as Discover filters / Addons chips).
+    BlurNavRail()
     m.catalogList.SetFocus(false)
     m.discoverGrid.SetFocus(false)
     m.settingsList.SetFocus(false)
@@ -357,14 +425,11 @@ sub ActivateTopBarItem(index as integer)
     if index = 0
         BlurTopBar()
         OpenSearch()
-    else if index = 1
-        m.coffeeReturnedFromTopBar = true
-        BlurTopBar()
-        OpenCoffeeSupport(false)
     end if
 end sub
 
 sub FocusActiveContent()
+    BlurNavRail()
     if m.settingsGroup.visible
         m.settingsList.SetFocus(true)
     else if m.calendarGroup.visible
@@ -374,9 +439,13 @@ sub FocusActiveContent()
     else if m.primaryInfoGroup.visible
         m.primaryInfoList.SetFocus(true)
     else if m.activeTab = "discover"
-        m.discoverGrid.SetFocus(true)
+        if m.catalogList.visible
+            m.catalogList.SetFocus(true)
+        else
+            FocusDiscoverFilters()
+        end if
     else
-        m.catalogList.SetFocus(true)
+        FocusBoardOrNav()
     end if
 end sub
 
@@ -391,10 +460,12 @@ sub RenderActiveTab(focusContent as boolean)
     m.coffeeGroup.visible = false
     m.topBarFocus = -1
     UpdateTopBar()
+    BlurNavRail()
+    BlurHeroCtas()
     SetHeroBillboardVisible(false)
     ClearHeroPoster()
     m.catalogList.visible = false
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(504, 450)
     m.discoverGrid.visible = false
     m.discoverFilterGroup.visible = false
     m.discoverFilterFocus = -1
@@ -422,45 +493,48 @@ sub RenderActiveTab(focusContent as boolean)
 end sub
 
 sub RenderBoard(focusContent as boolean)
-    m.primaryTitle.text = "Board"
-    m.primarySubtitle.text = "Popular, featured, YouTube, and public-domain catalogs"
+    m.primaryTitle.text = "Inicio"
+    m.primarySubtitle.text = ""
     SetHeroBillboardVisible(true)
-    SetHeroChrome("Board", "Browse Stremio catalogs from the default web app layout.", "")
-    m.catalogRows = m.boardRows
-    m.catalogNames = m.boardNames
+    HideHeroCtas()
+    SetHeroChromeEx("Inicio", "Explora catálogos de Stremio en tu tele.", "", "")
+    SyncBoardCatalogRows()
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(504, 450)
+    RebuildCatalog()
+    if focusContent then FocusBoardOrNav()
+end sub
+
+sub RenderDiscover(focusContent as boolean)
+    ' Layout (v25): content X=504; 64px filter chips under hero; catalogList Y=468.
+    m.primaryTitle.text = TrText("nav.discover")
+    m.primarySubtitle.text = TrText("discover.subtitle")
+    SetHeroBillboardVisible(true)
+    HideHeroCtas()
+    SetHeroChrome(TrText("nav.discover"), TrText("discover.hero"), "")
+    m.catalogRows = m.discoverRows
+    m.catalogNames = m.discoverNames
+    m.discoverGrid.visible = false
+    m.discoverFilterGroup.visible = true
+    m.catalogList.visible = true
+    m.catalogList.translation = ScaleUiXY(504, 468)
+    UpdateDiscoverFilterLabels()
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
 end sub
 
-sub RenderDiscover(focusContent as boolean)
-    m.primaryTitle.text = "Discover"
-    m.primarySubtitle.text = "UP  FILTERS    OK  CHANGE    *  MORE"
-    SetHeroBillboardVisible(true)
-    SetHeroChrome("Discover", "Browse by type, catalog, and genre.", "")
-    m.catalogRows = m.discoverRows
-    m.catalogNames = m.discoverNames
-    m.discoverFilterGroup.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 580)
-    UpdateDiscoverFilterLabels()
-    m.discoverGrid.visible = true
-    RebuildDiscoverGrid()
-    if focusContent then m.discoverGrid.SetFocus(true)
-end sub
-
 sub RenderLibrary(focusContent as boolean)
-    m.primaryTitle.text = "Library"
-    m.primarySubtitle.text = "Saved titles and watch history"
+    m.primaryTitle.text = TrText("nav.library")
+    m.primarySubtitle.text = TrText("library.subtitle")
     if m.stremioAuthKey = ""
         RenderInfoList([
-            InfoAction("Library is only available for logged in users", "none", invalid)
-            InfoAction("Access your favorite movies and TV shows anytime, anywhere", "none", invalid)
-            InfoAction("Recommendations tailored to your viewing history", "none", invalid)
-            InfoAction("Log in", "login", invalid)
+            InfoAction(TrText("library.signedOut.title"), "none", invalid)
+            InfoAction(TrText("library.signedOut.benefit1"), "none", invalid)
+            InfoAction(TrText("library.signedOut.benefit2"), "none", invalid)
+            InfoAction(TrText("library.signedOut.login"), "login", invalid)
         ], focusContent)
         SetHeroBillboardVisible(false)
-        SetHeroChrome("Library", "Sign in to sync your Stremio library on Roku.", "")
+        SetHeroChrome(TrText("nav.library"), TrText("library.hero.signedOut"), "")
         return
     end if
 
@@ -468,20 +542,24 @@ sub RenderLibrary(focusContent as boolean)
     m.catalogNames = []
     if m.libraryItems.Count() > 0
         m.libraryRows.Push(m.libraryItems)
-        m.catalogNames.Push("Library - Last Watched")
+        m.catalogNames.Push(TrText("library.row.saved"))
     end if
     if m.watchedItems.Count() > 0
         m.libraryRows.Push(m.watchedItems)
-        m.catalogNames.Push("Previously Watched - Last Watched")
+        m.catalogNames.Push(TrText("library.row.watched"))
     end if
     m.catalogRows = m.libraryRows
     m.catalogList.visible = true
-    m.catalogList.translation = ScaleUiXY(260, 510)
+    m.catalogList.translation = ScaleUiXY(504, 450)
     SetHeroBillboardVisible(true)
+    HideHeroCtas()
     if m.libraryItems.Count() = 0 and m.watchedItems.Count() = 0
-        SetHeroChrome("Library", "Your Stremio library and watch history are empty.", "")
+        SetHeroChrome(TrText("nav.library"), TrText("library.hero.empty"), "")
     else
-        SetHeroChrome("Library", m.libraryItems.Count().ToStr() + " saved item(s)    " + m.watchedItems.Count().ToStr() + " watched item(s)", "")
+        counts = TrText("library.hero.counts")
+        counts = LocaleReplace(counts, "{saved}", m.libraryItems.Count().ToStr())
+        counts = LocaleReplace(counts, "{watched}", m.watchedItems.Count().ToStr())
+        SetHeroChrome(TrText("nav.library"), counts, "")
     end if
     RebuildCatalog()
     if focusContent then m.catalogList.SetFocus(true)
@@ -804,12 +882,8 @@ sub UpdateAddonChips()
             if chip.actionType = "addonFilterAll" then selected = m.addonFilter = "all"
 
             if chip.actionType = "addAddon"
-                ' Stremio reserves one green primary action for adding an add-on.
-                if focused
-                    background.color = "0x3FCB96FF"
-                else
-                    background.color = "0x2E9E76FF"
-                end if
+                ' Primary CTA stays accent; focus still reads on the label row.
+                background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
             else if focused
                 background.color = "0xE50914FF"
@@ -818,7 +892,7 @@ sub UpdateAddonChips()
                 background.color = "0x3A1518FF"
                 label.color = "0xE5E5E5FF"
             else
-                background.color = "0x2A2A2AFF"
+                background.color = "0x1A1A1DFF"
                 label.color = "0xB3B3B3FF"
             end if
         end if
@@ -829,6 +903,7 @@ end sub
 ' the scene takes focus or it keeps swallowing OK and the arrows.
 sub FocusAddonChips()
     if m.activeTab <> "addons" then return
+    BlurNavRail()
     if m.addonChipIndex < 0 then m.addonChipIndex = 0
     UpdateAddonChips()
     m.addonList.SetFocus(false)
@@ -935,10 +1010,11 @@ end sub
 ' itself; a remote cannot move sideways inside a list row, so the panel advertises
 ' them and OK opens the dialog that carries them.
 function AddonDetailActionLabel(entry as object) as string
+    ' Short CTA so the pill fits the detail column ("Compartir" / "Instalar").
     if entry.actionType = "installedAddon"
-        return "OK    " + UCase(TrText("common.share")) + "  /  " + UCase(TrText("common.uninstall"))
+        return TrText("common.share")
     end if
-    return "OK    " + UCase(TrText("common.install"))
+    return TrText("common.install")
 end function
 
 sub RenderSettings(focusContent as boolean)
@@ -1085,6 +1161,9 @@ function BuildGeneralSettingsRows() as object
     rows.Push(SettingHeader(TrText("settings.general.header.about")))
     rows.Push(SettingRow(TrText("settings.general.appVersion"), AppVersionValue(), "none", invalid, "info", TrText("settings.general.appVersion.hint")))
     rows.Push(SettingRow(TrText("settings.general.channelBuild"), AppBuildValue(), "none", invalid, "info", TrText("settings.general.channelBuild.hint")))
+    setupValue = TrText("settings.general.setupUrl.unavailable")
+    if m.setupUrl <> invalid and m.setupUrl <> "" then setupValue = m.setupUrl
+    rows.Push(SettingRow(TrText("settings.general.setupUrl"), setupValue, "showSetupUrl", invalid, "action", TrText("settings.general.setupUrl.hint")))
 
     rows.Push(SettingHeader(TrText("settings.general.header.help")))
     rows.Push(SettingRow(TrText("settings.general.support"), "", "settingsLink", "support", "action", TrText("settings.general.support.hint")))
@@ -1141,13 +1220,13 @@ sub UpdateSettingsTabs()
                 background.color = "0xE50914FF"
                 label.color = "0xFFFFFFFF"
             else
-                background.color = "0x2A2A2AFF"
+                background.color = "0x1A1A1DFF"
                 label.color = "0xB3B3B3FF"
             end if
         end if
     end for
 
-    m.settingsTabIndicator.translation = ScaleUiXY(260 + m.settingsTabIndex * 334, 210)
+    m.settingsTabIndicator.translation = ScaleUiXY(504 + m.settingsTabIndex * 324, 212)
 end sub
 
 sub UpdateSettingsDetail(index as integer)
@@ -1242,9 +1321,15 @@ end function
 
 sub UpdateDiscoverFilterLabels()
     if m.discoverTypeLabel = invalid then return
+    typeEyebrow = m.top.FindNode("discoverTypeEyebrow")
+    catalogEyebrow = m.top.FindNode("discoverCatalogEyebrow")
+    genreEyebrow = m.top.FindNode("discoverGenreEyebrow")
+    if typeEyebrow <> invalid then typeEyebrow.text = TrText("discover.filter.type")
+    if catalogEyebrow <> invalid then catalogEyebrow.text = TrText("discover.filter.catalog")
+    if genreEyebrow <> invalid then genreEyebrow.text = TrText("discover.filter.genre")
     m.discoverTypeLabel.text = DiscoverTypeLabel(m.discoverType)
     m.discoverCatalogLabel.text = m.discoverCatalog
-    m.discoverGenreLabel.text = m.discoverGenre
+    m.discoverGenreLabel.text = DiscoverGenreLabel(m.discoverGenre)
     UpdateDiscoverFilterFocus()
 end sub
 
@@ -1253,20 +1338,54 @@ sub UpdateDiscoverFilterFocus()
     m.discoverTypeFocus.visible = m.discoverFilterFocus = 0
     m.discoverCatalogFocus.visible = m.discoverFilterFocus = 1
     m.discoverGenreFocus.visible = m.discoverFilterFocus = 2
+    ' Brighten the inner chip when focused so the 10-ft ring reads clearly.
+    typeBg = m.top.FindNode("discoverTypeBg")
+    catalogBg = m.top.FindNode("discoverCatalogBg")
+    genreBg = m.top.FindNode("discoverGenreBg")
+    if typeBg <> invalid
+        if m.discoverFilterFocus = 0
+            typeBg.color = "0x3A1518FF"
+        else
+            typeBg.color = "0x1A1A1DFF"
+        end if
+    end if
+    if catalogBg <> invalid
+        if m.discoverFilterFocus = 1
+            catalogBg.color = "0x3A1518FF"
+        else
+            catalogBg.color = "0x1A1A1DFF"
+        end if
+    end if
+    if genreBg <> invalid
+        if m.discoverFilterFocus = 2
+            genreBg.color = "0x3A1518FF"
+        else
+            genreBg.color = "0x1A1A1DFF"
+        end if
+    end if
 end sub
 
 function DiscoverTypeLabel(value as string) as string
-    if value = "movie" then return "Movie"
-    if value = "series" then return "Series"
-    if value = "channel" then return "Channel"
+    if value = "movie" then return TrText("discover.type.movie")
+    if value = "series" then return TrText("discover.type.series")
+    if value = "channel" then return TrText("discover.type.channel")
+    return value
+end function
+
+function DiscoverGenreLabel(value as string) as string
+    if value = "None" or value = "Genre" or value = ""
+        return TrText("discover.genre.none")
+    end if
     return value
 end function
 
 sub FocusDiscoverFilters()
     if m.activeTab <> "discover" then return
+    BlurNavRail()
     if m.discoverFilterFocus < 0 then m.discoverFilterFocus = 0
     UpdateDiscoverFilterFocus()
     m.discoverGrid.SetFocus(false)
+    m.catalogList.SetFocus(false)
     m.top.SetFocus(true)
 end sub
 
@@ -1318,6 +1437,8 @@ end sub
 sub ActivateAction(actionType as string, payload as dynamic)
     if actionType = "login"
         BeginStremioLink()
+    else if actionType = "showSetupUrl"
+        ShowSetupUrlDialog()
     else if actionType = "refreshLibrary"
         ShowStatus(TrText("status.refreshingLibrary"), true)
         FetchLibrary()
@@ -1448,7 +1569,7 @@ function InstalledAddonEntry(index as integer) as object
     entry.types = AddonTypesLabel(manifest)
     entry.description = ReplaceNewlines(SafeString(manifest, "description"))
     entry.logo = SafeString(manifest, "logo")
-    entry.badge = TrText("addons.filter.installed")
+    entry.badge = TrText("addons.badge.installed")
     entry.badgeKind = "installed"
     entry.source = AddonSourceLabel(SafeString(addon, "url"))
     return entry
@@ -1465,7 +1586,7 @@ function CatalogAddonEntry(addon as object, actionType as string) as object
     entry.logo = SafeString(manifest, "logo")
     entry.source = AddonSourceLabel(SafeString(addon, "url"))
     if IsAddonInstalled(SafeString(manifest, "id"))
-        entry.badge = TrText("addons.filter.installed")
+        entry.badge = TrText("addons.badge.installed")
         entry.badgeKind = "installed"
     else
         entry.badge = TrText("common.install")
@@ -2066,7 +2187,7 @@ sub ApplyUiScaleSettings()
     ' Paint the letterbox margins left by a reduced manual scale in the app colour
     ' instead of the Roku default background image.
     m.top.backgroundURI = ""
-    m.top.backgroundColor = "0x141414FF"
+    m.top.backgroundColor = "0x0B0B0DFF"
 
     m.uiRoot.translation = [scale.offsetX, scale.offsetY]
     EnsureUiScale(m.uiRoot)
@@ -2171,7 +2292,7 @@ sub CloseCoffeeSupport()
     returnToTopBar = m.coffeeReturnedFromTopBar
     m.coffeeReturnedFromTopBar = false
     SetActiveTab(m.coffeeReturnMode, not returnToTopBar)
-    if returnToTopBar then FocusTopBar(1)
+    if returnToTopBar then FocusTopBar(0)
 end sub
 
 sub UpdateUiScaleSlider()
@@ -2325,8 +2446,12 @@ sub FetchDiscoverCatalog()
     if m.activeTab = "discover"
         m.catalogRows = m.discoverRows
         m.catalogNames = m.discoverNames
+        m.discoverGrid.visible = false
+        m.discoverFilterGroup.visible = true
+        m.catalogList.visible = true
+        m.catalogList.translation = ScaleUiXY(504, 468)
         UpdateDiscoverFilterLabels()
-        RebuildDiscoverGrid()
+        RebuildCatalog()
     end if
     StartRequest(DiscoverCatalogUrl(), "discoverCatalog|0")
 end sub
@@ -2377,7 +2502,7 @@ sub SearchCatalogs(query as string)
         m.discoverRows = [[], []]
         m.discoverNames = ["IMDb ID - Movie", "IMDb ID - Series"]
         m.discoverRequestActive = true
-        m.searchPrompt.text = "Results for " + Chr(34) + query + Chr(34)
+        m.searchPrompt.text = TrFormat("search.resultsFor", Chr(34) + query + Chr(34))
         SetActiveTab("discover", true)
         ShowStatus(TrText("status.search.resolvingImdb"), true)
         StartRequest(CinemetaMetaUrl("movie", lowerQuery), "searchMeta|0")
@@ -2388,7 +2513,7 @@ sub SearchCatalogs(query as string)
     m.discoverRows = [[], [], []]
     m.discoverNames = ["Search Suggestions - Movie", "Search Suggestions - Series", "Search Suggestions - Channel"]
     m.discoverRequestActive = true
-    m.searchPrompt.text = "Results for " + Chr(34) + query + Chr(34)
+    m.searchPrompt.text = TrFormat("search.resultsFor", Chr(34) + query + Chr(34))
     SetActiveTab("discover", true)
     ShowStatus(TrText("status.search.searchingCatalogs"), true)
     StartRequest("https://v3-cinemeta.strem.io/catalog/movie/top/search=" + encodedQuery + ".json", "search|0")
@@ -2398,9 +2523,10 @@ end sub
 
 sub LoadHomeCatalogs()
     m.boardRows = [[], [], [], [], [], []]
-    m.catalogRows = m.boardRows
-    m.catalogNames = m.boardNames
-    m.searchPrompt.text = TrText("dialog.search.title")
+    m.boardContinueActive = false
+    SyncBoardCatalogRows()
+    ' Keep top-bar chrome short — never use long dialog.search.title (FR/DE/IT/PT).
+    m.searchPrompt.text = "Buscar"
     RebuildCatalog()
     FetchBoardCatalogs()
 end sub
@@ -2465,11 +2591,14 @@ sub onHttpResponse(event as object)
                 m.discoverGrid.visible = false
                 m.discoverFilterGroup.visible = false
                 m.catalogList.visible = true
-                m.catalogList.translation = ScaleUiXY(260, 510)
+                m.catalogList.translation = ScaleUiXY(504, 450)
                 RebuildCatalog()
             end if
         else if requestType = "catalog" or requestType = "boardCatalog" or requestType = "discoverCatalog"
             if requestType = "discoverCatalog" then m.discoverRequestActive = false
+            if requestType = "boardCatalog" and parts.Count() > 1
+                MarkBoardRowEmpty(Val(parts[1]))
+            end if
             ShowStatus(response.error, false)
         else if requestType = "config"
             m.pendingAddonUrl = ""
@@ -2573,10 +2702,10 @@ sub HandleStreamRequestError(message as string)
             FindSubtitles(m.streams[streamIndex])
             return
         end if
-        ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+        ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
     else
         RecoverFromNextEpisodeFailure()
-        ShowNoStreamsScreen("No add-on returned a direct playable stream. " + message)
+        ShowNoStreamsScreen(TrFormat("noStreams.noDirectStream", message))
     end if
 end sub
 
@@ -2618,19 +2747,22 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
     if target = "board"
         action = {
             id: "seeall:" + rowIndex.ToStr()
-            name: "See All"
+            name: TrText("board.seeAll")
             type: "action"
-            poster: ""
-            description: "Open this catalog in Discover"
+            poster: "pkg:/images/see_all_poster.png"
+            description: TrText("board.seeAll.description")
             rowIndex: rowIndex
+            seeAll: true
         }
-        items.Push(action)
+        items.Unshift(action)
         if rowIndex >= 0 and rowIndex < m.boardRows.Count()
             m.boardRows[rowIndex] = items
         end if
         if m.activeTab = "board"
-            m.catalogRows = m.boardRows
+            SyncBoardCatalogRows()
             RebuildCatalog()
+            HideStatus()
+            FocusBoardOrNav()
         end if
     else if target = "discover"
         m.discoverRequestActive = false
@@ -2639,7 +2771,12 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
         end if
         if m.activeTab = "discover"
             m.catalogRows = m.discoverRows
-            RebuildDiscoverGrid()
+            m.catalogNames = m.discoverNames
+            m.discoverGrid.visible = false
+            m.discoverFilterGroup.visible = true
+            m.catalogList.visible = true
+            m.catalogList.translation = ScaleUiXY(504, 468)
+            RebuildCatalog()
         end if
     else if target = "search"
         m.discoverRequestActive = false
@@ -2652,7 +2789,7 @@ sub HandleCatalogResponse(data as object, rowIndex as integer, target as string)
             m.discoverGrid.visible = false
             m.discoverFilterGroup.visible = false
             m.catalogList.visible = true
-            m.catalogList.translation = ScaleUiXY(260, 510)
+            m.catalogList.translation = ScaleUiXY(504, 450)
             RebuildCatalog()
             m.catalogList.SetFocus(true)
         end if
@@ -2666,7 +2803,13 @@ sub HandleSearchMetaResponse(data as object, rowIndex as integer)
     m.discoverRequestActive = false
     if m.activeTab = "discover"
         m.catalogRows = m.discoverRows
-        RebuildDiscoverGrid()
+        m.catalogNames = m.discoverNames
+        m.discoverGrid.visible = false
+        m.discoverFilterGroup.visible = false
+        m.catalogList.visible = true
+        m.catalogList.translation = ScaleUiXY(504, 450)
+        RebuildCatalog()
+        m.catalogList.SetFocus(true)
     end if
 end sub
 
@@ -2684,14 +2827,30 @@ sub RebuildCatalog()
     root = CreateObject("roSGNode", "ContentNode")
 
     for rowIndex = 0 to m.catalogRows.Count() - 1
-        rowNode = root.CreateChild("ContentNode")
-        rowNode.title = m.catalogNames[rowIndex]
+        rowItems = m.catalogRows[rowIndex]
+        if rowItems = invalid then rowItems = []
+        ' Omit still-loading empty rows so RowList never focuses a blank row.
+        if rowItems.Count() > 0
 
-        for each item in m.catalogRows[rowIndex]
+        rowNode = root.CreateChild("ContentNode")
+        rowTitle = ""
+        if rowIndex < m.catalogNames.Count() then rowTitle = m.catalogNames[rowIndex]
+        ' Ver todo is the first tile in each board row (HandleCatalogResponse Unshift);
+        ' do not append a misleading clickable-looking suffix to the row title.
+        rowNode.title = rowTitle
+
+        for each item in rowItems
             itemNode = rowNode.CreateChild("ContentNode")
             itemNode.title = SafeString(item, "name")
-            itemNode.HDPosterUrl = SafeString(item, "poster")
-            itemNode.SDPosterUrl = SafeString(item, "poster")
+            posterUri = SafeString(item, "poster")
+            if IsSeeAllItem(item) and posterUri = ""
+                posterUri = "pkg:/images/see_all_poster.png"
+            end if
+            itemNode.HDPosterUrl = posterUri
+            itemNode.SDPosterUrl = posterUri
+            if IsSeeAllItem(item)
+                itemNode.AddFields({ seeAll: true })
+            end if
 
             ' Check if we have progress for this item
             id = SafeString(item, "id")
@@ -2713,14 +2872,17 @@ sub RebuildCatalog()
                 itemNode.AddFields({ progress: progress })
             end if
         end for
+        end if
     end for
 
     m.catalogList.content = root
-    if m.screenMode = "home" and m.catalogList.visible and not m.navList.HasFocus() and not m.primaryInfoList.HasFocus() and not m.settingsList.HasFocus() and m.discoverFilterFocus < 0
-        m.catalogList.SetFocus(true)
+    if m.heroCtaFocus < 0 and m.topBarFocus < 0
+        FocusBoardOrNav()
     end if
 end sub
 
+' v24: Discover uses catalogList + RebuildCatalog (same as Library/Home).
+' Kept for reference; not called from active UI paths.
 sub RebuildDiscoverGrid()
     content = CreateObject("roSGNode", "ContentNode")
     if m.discoverRows <> invalid and m.discoverRows.Count() > 0
@@ -2768,7 +2930,8 @@ sub onDiscoverGridFocused(event as object)
     if m.discoverFilterFocus >= 0 then return
     item = GetDiscoverGridItem(event.GetData())
     if item = invalid then return
-    UpdateHeroFromItem(item)
+    m.focusedCatalogItem = item
+    ScheduleHeroUpdate(item)
     meta = SafeString(item, "type")
     year = SafeString(item, "releaseInfo")
     if year = "" then year = SafeString(item, "year")
@@ -2792,8 +2955,11 @@ sub onCatalogFocused(event as object)
     item = GetCatalogItem(position)
     if item = invalid then return
 
-    UpdateHeroFromItem(item)
-    if m.activeTab = "discover" and SafeString(item, "type") <> "action"
+    if SafeString(item, "type") <> "empty"
+        m.focusedCatalogItem = item
+    end if
+    ScheduleHeroUpdate(item)
+    if m.activeTab = "discover" and SafeString(item, "type") <> "action" and SafeString(item, "type") <> "empty"
         meta = SafeString(item, "type")
         year = SafeString(item, "releaseInfo")
         if year = "" then year = SafeString(item, "year")
@@ -2804,18 +2970,9 @@ end sub
 
 sub onCatalogSelected(event as object)
     item = GetCatalogItem(event.GetData())
-    if item = invalid then return
-
-    if SafeString(item, "type") = "action"
-        OpenBoardSeeAll(item)
-        return
-    end if
-
-    if SafeString(item, "type") = "series"
-        OpenSeriesEpisodes(item)
-    else
-        OpenMovieStreams(item)
-    end if
+    ' Fallback: empty-poster / index edge cases still keep focusedCatalogItem.
+    if item = invalid then item = m.focusedCatalogItem
+    ActivateCatalogItem(item)
 end sub
 
 sub OpenMovieStreams(item as object)
@@ -2861,11 +3018,11 @@ sub OpenSeriesEpisodes(item as object)
     m.choiceReturnMode = "home"
     m.choiceMode = "loading"
     m.episodeRequestActive = true
-    m.choiceTitle.text = "Loading episodes for " + SafeString(item, "name")
+    m.choiceTitle.text = TrFormat("episodes.loadingFor", SafeString(item, "name"))
 
     content = CreateObject("roSGNode", "ContentNode")
     child = content.CreateChild("ContentNode")
-    child.title = "Loading episodes..."
+    child.title = TrText("episodes.loading")
     m.streamList.visible = false
     m.choiceList.visible = true
     m.choiceList.content = content
@@ -2883,15 +3040,24 @@ end sub
 
 sub SetHeroBillboardVisible(visible as boolean)
     if m.heroBillboard <> invalid then m.heroBillboard.visible = visible
+    ' Netflix Home: billboard owns the top of the content column — hide Board/page titles.
+    if m.primaryTitle <> invalid then m.primaryTitle.visible = not visible
+    if m.primarySubtitle <> invalid then m.primarySubtitle.visible = not visible
 end sub
 
 sub ClearHeroPoster()
     if m.heroPoster <> invalid then m.heroPoster.uri = ""
+    if m.heroMeta <> invalid then m.heroMeta.text = ""
 end sub
 
 sub SetHeroChrome(title as string, description as string, posterUrl as string)
+    SetHeroChromeEx(title, description, posterUrl, "")
+end sub
+
+sub SetHeroChromeEx(title as string, description as string, posterUrl as string, meta as string)
     if m.heroTitle <> invalid then m.heroTitle.text = title
     if m.heroDescription <> invalid then m.heroDescription.text = description
+    if m.heroMeta <> invalid then m.heroMeta.text = meta
     if m.heroPoster <> invalid
         if posterUrl <> ""
             m.heroPoster.uri = posterUrl
@@ -2907,27 +3073,252 @@ sub UpdateHeroFromItem(item as object)
     description = HomeHeroDescription(item)
     posterUrl = SafeString(item, "background")
     if posterUrl = "" then posterUrl = SafeString(item, "poster")
-    SetHeroChrome(title, description, posterUrl)
+    SetHeroChromeEx(title, description, posterUrl, HomeHeroMeta(item))
 end sub
+
+function HomeHeroMeta(item as object) as string
+    parts = []
+    year = CleanHeroYear(SafeString(item, "releaseInfo"))
+    if year = "" then year = CleanHeroYear(SafeString(item, "year"))
+    if year <> "" then parts.Push(year)
+    typeText = SafeString(item, "type")
+    if typeText = "movie" then
+        parts.Push("Película")
+    else if typeText = "series" then
+        parts.Push("Serie")
+    else if typeText = "channel" then
+        parts.Push("Canal")
+    else if typeText <> "" then
+        parts.Push(UCase(Left(typeText, 1)) + Mid(typeText, 2))
+    end if
+    rating = SafeString(item, "imdbRating")
+    if rating <> "" then parts.Push("★ " + rating)
+    runtime = FormatHeroRuntime(SafeString(item, "runtime"))
+    if runtime <> "" then parts.Push(runtime)
+    return JoinStrings(parts, "   ·   ")
+end function
+
+function CleanHeroYear(raw as string) as string
+    if raw = "" then return ""
+    ' Stremio often sends "2022-" / "2022–" / "2022-2024" — strip dangling dashes.
+    cleaned = raw.Trim()
+    while Len(cleaned) > 0
+        ch = Right(cleaned, 1)
+        code = Asc(ch)
+        ' ASCII hyphen/space, or UTF-8 bytes used by en/em dashes (U+2013/U+2014).
+        if ch = "-" or ch = " " or ch = "–" or ch = "—" or code = 45 or code = 226 or code = 128 or code = 147 or code = 148 or code = 150 or code = 151
+            cleaned = Left(cleaned, Len(cleaned) - 1).Trim()
+        else
+            exit while
+        end if
+    end while
+    return cleaned
+end function
+
+function FormatHeroRuntime(raw as string) as string
+    if raw = "" then return ""
+    cleaned = raw.Trim()
+    ' Already human ("48 min", "1h 30min") — keep.
+    if Instr(1, LCase(cleaned), "min") > 0 or Instr(1, LCase(cleaned), "h") > 0 then return cleaned
+    ' Numeric minutes from some catalogs.
+    if Val(cleaned) > 0 then return Str(Val(cleaned)).Trim() + " min"
+    return cleaned
+end function
 
 function HomeHeroDescription(item as object) as string
     description = SafeString(item, "description")
-    if SafeString(item, "type") = "movie"
-        hint = "Streams load automatically"
-        if description <> "" then return description + "    " + hint
-        return hint
-    end if
+    ' ~360 chars fits ~3 MediumSystemFont lines in the ~1120x100 heroDescription box.
+    if Len(description) > 360 then description = Left(description, 357) + "..."
     return description
 end function
 
 function GetCatalogItem(position as object) as dynamic
     if position = invalid or position.Count() < 2 then return invalid
-    rowIndex = position[0]
+    visibleRow = position[0]
     itemIndex = position[1]
-    if rowIndex < 0 or rowIndex >= m.catalogRows.Count() then return invalid
-    if itemIndex < 0 or itemIndex >= m.catalogRows[rowIndex].Count() then return invalid
-    return m.catalogRows[rowIndex][itemIndex]
+    if visibleRow < 0 or itemIndex < 0 then return invalid
+    ' RebuildCatalog skips empty rows, so RowList indices are compacted.
+    seen = -1
+    for rowIndex = 0 to m.catalogRows.Count() - 1
+        rowItems = m.catalogRows[rowIndex]
+        if rowItems <> invalid and rowItems.Count() > 0
+            seen = seen + 1
+            if seen = visibleRow
+                if itemIndex >= rowItems.Count() then return invalid
+                return rowItems[itemIndex]
+            end if
+        end if
+    end for
+    return invalid
 end function
+
+sub ActivateCatalogItem(item as object)
+    if item = invalid then return
+    if IsSeeAllItem(item)
+        OpenBoardSeeAll(item)
+        return
+    end if
+    itemType = SafeString(item, "type")
+    if itemType = "empty" then return
+    m.focusedCatalogItem = item
+    if itemType = "series"
+        OpenSeriesEpisodes(item)
+    else
+        OpenMovieStreams(item)
+    end if
+end sub
+
+function IsSeeAllItem(item as object) as boolean
+    if item = invalid then return false
+    if item.DoesExist("seeAll") and item.seeAll = true then return true
+    id = SafeString(item, "id")
+    if Left(id, 7) = "seeall:" then return true
+    itemType = SafeString(item, "type")
+    if itemType = "action" then return true
+    return false
+end function
+
+' Board Home rows = optional Continue (library progress) + live m.boardRows feeds.
+sub MarkBoardRowEmpty(rowIndex as integer)
+    if rowIndex < 0 or rowIndex >= m.boardRows.Count() then return
+    m.boardRows[rowIndex] = [{
+        id: "empty:" + rowIndex.ToStr()
+        name: "Sin títulos"
+        type: "empty"
+        poster: ""
+        description: "Este catálogo no tiene títulos todavía."
+    }]
+    if m.activeTab = "board"
+        SyncBoardCatalogRows()
+        RebuildCatalog()
+        FocusBoardOrNav()
+    end if
+end sub
+
+sub SyncBoardCatalogRows()
+    continueItems = BuildContinueWatchingItems()
+    if continueItems.Count() > 0
+        rows = [continueItems]
+        names = ["Continuar viendo"]
+        for index = 0 to m.boardRows.Count() - 1
+            rows.Push(m.boardRows[index])
+            names.Push(m.boardNames[index])
+        end for
+        m.catalogRows = rows
+        m.catalogNames = names
+        m.boardContinueActive = true
+    else
+        m.catalogRows = m.boardRows
+        m.catalogNames = m.boardNames
+        m.boardContinueActive = false
+    end if
+end sub
+
+function BuildContinueWatchingItems() as object
+    items = []
+    if m.libraryById = invalid then return items
+    for each id in m.libraryById
+        libraryItem = m.libraryById[id]
+        if libraryItem <> invalid
+            removed = false
+            if libraryItem.DoesExist("removed") then removed = libraryItem.removed
+            if not removed
+                progress = LibraryItemProgress(libraryItem)
+                if progress > 0.0 and progress < 0.9
+                    items.Push(LibraryCatalogItem(libraryItem))
+                end if
+            end if
+        end if
+    end for
+    SortLibraryCatalogItemsByLastWatched(items)
+    return items
+end function
+
+function LibraryItemProgress(libraryItem as object) as dynamic
+    if libraryItem = invalid then return 0.0
+    if not libraryItem.DoesExist("state") or libraryItem.state = invalid then return 0.0
+    state = libraryItem.state
+    if not state.DoesExist("timeOffset") or not state.DoesExist("duration") then return 0.0
+    offset = state.timeOffset
+    dur = state.duration
+    if offset > 0 and dur > 0 then return offset / dur
+    return 0.0
+end function
+
+function CatalogHasItems() as boolean
+    if m.catalogRows = invalid then return false
+    for each row in m.catalogRows
+        ' Include empty-state placeholders so failed catalogs remain reachable.
+        if row <> invalid and row.Count() > 0 then return true
+    end for
+    return false
+end function
+
+sub FocusBoardOrNav()
+    if m.screenMode <> "home" then return
+    if m.activeTab <> "board" and m.activeTab <> "library" and m.activeTab <> "discover" then return
+    if not m.catalogList.visible then return
+    if m.heroCtaFocus >= 0 then return
+    if m.topBarFocus >= 0 then return
+    if m.primaryInfoList.HasFocus() or m.settingsList.HasFocus() then return
+    if m.discoverFilterFocus >= 0 then return
+    if CatalogHasItems()
+        m.catalogList.SetFocus(true)
+    else
+        FocusNavRail(m.navIndex)
+    end if
+end sub
+
+sub ScheduleHeroUpdate(item as object)
+    m.pendingHeroItem = item
+    if m.heroDebounceTimer = invalid
+        UpdateHeroFromItem(item)
+        return
+    end if
+    m.heroDebounceTimer.control = "stop"
+    m.heroDebounceTimer.control = "start"
+end sub
+
+sub onHeroDebounceFire()
+    if m.pendingHeroItem <> invalid
+        UpdateHeroFromItem(m.pendingHeroItem)
+    end if
+end sub
+
+' v20: decorative hero CTAs removed. Keep stubs so leftover call sites stay safe.
+sub HideHeroCtas()
+    m.heroCtaFocus = -1
+    if m.heroPrimaryBg <> invalid then m.heroPrimaryBg.visible = false
+    if m.heroSecondaryBg <> invalid then m.heroSecondaryBg.visible = false
+    if m.heroPrimaryLabel <> invalid then m.heroPrimaryLabel.visible = false
+    if m.heroSecondaryLabel <> invalid then m.heroSecondaryLabel.visible = false
+end sub
+
+sub SyncHeroCtaChrome()
+    HideHeroCtas()
+end sub
+
+sub FocusHeroCtas(index as integer)
+    ' No-op: CTAs removed; callers should FocusTopBar / FocusActiveContent instead.
+    m.heroCtaFocus = -1
+    HideHeroCtas()
+end sub
+
+sub BlurHeroCtas()
+    m.heroCtaFocus = -1
+    HideHeroCtas()
+end sub
+
+sub UpdateHeroCtaFocus()
+    HideHeroCtas()
+end sub
+
+sub ActivateHeroCta(index as integer)
+    ' Fallback only — primary path is poster OK / ActivateCatalogItem.
+    item = m.focusedCatalogItem
+    if item = invalid then item = m.pendingHeroItem
+    ActivateCatalogItem(item)
+end sub
 
 function CinemetaMetaUrl(contentType as string, id as string) as string
     return "https://v3-cinemeta.strem.io/meta/" + contentType + "/" + id + ".json"
@@ -3004,9 +3395,9 @@ sub RebuildSeasonGrid()
         child = content.CreateChild("ContentNode")
         season = m.seasons[index]
         if season = 0
-            child.title = "Specials"
+            child.title = TrText("episodes.specials")
         else
-            child.title = "Season " + season.ToStr()
+            child.title = TrFormat("episodes.season", season.ToStr())
         end if
         if index = m.selectedSeasonIndex
             child.shortDescriptionLine1 = "selected"
@@ -3156,7 +3547,7 @@ sub FindStreams(contentType as string, id as string, title as string, returnMode
     end for
 
     if matchingAddons.Count() = 0
-        ShowNoStreamsScreen("No installed add-on can provide a playable stream for this title. Press * to add or configure a stream add-on, then try again.")
+        ShowNoStreamsScreen(TrText("noStreams.noStreamAddon"))
         return
     end if
 
@@ -3229,7 +3620,7 @@ sub HandleStreamsResponse(data as object, addonIndex as integer)
         return
     end if
 
-    ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+    ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
 end sub
 
 function DirectStreamUrl(stream as dynamic) as string
@@ -3273,9 +3664,9 @@ sub ShowNoStreamsScreen(message as string)
     HideStatus()
     m.noStreamsPoster.uri = SafeString(m.selectedItem, "poster")
     m.noStreamsMessage.text = message
-    m.noStreamsHint.text = "BACK: Catalog                              *: CONFIGURE ADD-ONS"
+    m.noStreamsHint.text = TrText("noStreams.hint.catalog")
     if m.streamReturnMode = "episodes"
-        m.noStreamsHint.text = "BACK: Episodes                              *: CONFIGURE ADD-ONS"
+        m.noStreamsHint.text = TrText("noStreams.hint.episodes")
     end if
 
     m.homeGroup.visible = false
@@ -3515,7 +3906,7 @@ end sub
 sub PlayExternal(args as object)
     if args = invalid or not args.DoesExist("url") then return
     stream = { url: args.url }
-    title = "External stream"
+    title = TrText("streams.externalTitle")
     if args.DoesExist("title") then title = args.title
     m.playbackReturnMode = "home"
     PlayStream(stream, title, [])
@@ -3710,7 +4101,7 @@ end sub
 
 sub ReturnFromVideo()
     if m.playbackReturnMode = "streams" and m.streams.Count() > 0
-        ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+        ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
         if m.selectedStreamIndex >= 0 and m.selectedStreamIndex < m.streams.Count()
             m.streamList.JumpToItem = m.selectedStreamIndex
         end if
@@ -3895,11 +4286,17 @@ end sub
 ' are authored in English so the layout stays readable in the XML; this is what
 ' makes them follow UI Language, at startup and on every change.
 sub ApplyStaticChromeText()
-    ApplyChromeLabel("searchPrompt", TrText("dialog.search.title"))
+    ApplyChromeLabel("searchPrompt", "Buscar")
     ApplyChromeLabel("noStreamsTitle", TrText("noStreams.title"))
     ApplyChromeLabel("noStreamsConfigureHint", TrText("noStreams.configureHint"))
     ApplyChromeLabel("uiScaleTitle", TrText("settings.interface.uiScale"))
     ApplyChromeLabel("supportChipLabel", TrText("topbar.support"))
+    HideHeroCtas()
+end sub
+
+' Legacy name kept; v20 hides CTAs instead of labeling them.
+sub FocusHeroButtons()
+    HideHeroCtas()
 end sub
 
 sub ApplyChromeLabel(id as string, text as string)
@@ -4053,6 +4450,9 @@ sub HandleLibraryResponse(data as object)
     RebuildLibraryCatalogItemsFromMap()
     if m.activeTab = "library"
         RenderLibrary(false)
+    else if m.activeTab = "board"
+        SyncBoardCatalogRows()
+        RebuildCatalog()
     else
         RebuildCatalog()
     end if
@@ -4237,12 +4637,33 @@ sub OpenAddonConfiguration()
 end sub
 
 sub ShowSetupAddress(args as object)
-    if args = invalid or not args.DoesExist("url") or args.url = ""
-        m.setupAddress.text = "Phone setup unavailable. Press * to configure."
-        return
+    ' Home stays Netflix-clean; URL lives in Settings → General (and m.setupUrl).
+    url = ""
+    if args <> invalid and args.DoesExist("url") and args.url <> ""
+        url = args.url
     end if
+    m.setupUrl = url
+    if m.setupAddress <> invalid
+        m.setupAddress.text = url
+        m.setupAddress.visible = false
+    end if
+end sub
 
-    m.setupAddress.text = "Phone setup: " + args.url
+sub ShowSetupUrlDialog()
+    dialog = CreateObject("roSGNode", "Dialog")
+    dialog.title = TrText("settings.general.setupUrl")
+    if m.setupUrl = invalid or m.setupUrl = ""
+        dialog.message = TrText("settings.general.setupUrl.unavailable")
+    else
+        dialog.message = TrText("settings.general.setupUrl.dialog") + Chr(10) + Chr(10) + m.setupUrl
+    end if
+    dialog.buttons = ["OK"]
+    dialog.ObserveField("buttonSelected", "onSetupUrlDialogButton")
+    m.top.dialog = dialog
+end sub
+
+sub onSetupUrlDialogButton(event as object)
+    if m.top.dialog <> invalid then m.top.dialog.close = true
 end sub
 
 sub onConfigurationUrlChanged(event as object)
@@ -4518,21 +4939,60 @@ function onKeyEvent(key as string, press as boolean) as boolean
 
     if m.screenMode = "home"
         if m.topBarFocus >= 0
-            if key = "left" and m.topBarFocus > 0
-                m.topBarFocus = m.topBarFocus - 1
-                UpdateTopBar()
-            else if key = "left"
-                ' Leftmost item: fall out of the top bar to the nav rail, the
-                ' same way the Addons chip row does.
-                BlurTopBar()
-                m.navList.SetFocus(true)
-            else if key = "right" and m.topBarFocus < TopBarItemCount() - 1
-                m.topBarFocus = m.topBarFocus + 1
-                UpdateTopBar()
-            else if key = "OK"
+            ' Rail Buscar (above Inicio): OK opens search; DOWN → Inicio.
+            if key = "OK"
                 ActivateTopBarItem(m.topBarFocus)
             else if key = "down" or key = "back"
                 BlurTopBar()
+                FocusNavRail(0)
+            else if key = "right"
+                ' Search sits in the rail — right enters content for the active tab.
+                BlurTopBar()
+                FocusActiveContent()
+            end if
+            return true
+        else if IsNavRailFocused()
+            if key = "up"
+                if m.navIndex <= 0
+                    FocusTopBar(0)
+                else
+                    m.navIndex = m.navIndex - 1
+                    SyncNavItemFocus()
+                end if
+                return true
+            else if key = "down"
+                if m.navIndex < m.navIds.Count() - 1
+                    m.navIndex = m.navIndex + 1
+                    SyncNavItemFocus()
+                end if
+                return true
+            else if key = "OK"
+                ActivateNavItem(m.navIndex)
+                return true
+            else if key = "right"
+                BlurNavRail()
+                if m.settingsGroup.visible
+                    m.settingsList.SetFocus(true)
+                else if m.calendarGroup.visible
+                    m.calendarList.SetFocus(true)
+                else if m.addonsGroup.visible
+                    FocusAddonList()
+                else if m.primaryInfoGroup.visible
+                    m.primaryInfoList.SetFocus(true)
+                else
+                    m.catalogList.SetFocus(true)
+                end if
+                return true
+            else if key = "back"
+                ' Stay on rail; mirror prior MarkupList back behavior (no exit).
+                return true
+            end if
+        else if m.heroCtaFocus >= 0
+            ' Defensive: CTA focus path disabled; escape to search or content.
+            BlurHeroCtas()
+            if key = "up"
+                FocusTopBar(0)
+            else
                 FocusActiveContent()
             end if
             return true
@@ -4550,11 +5010,11 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 return true
             else if key = "down"
                 BlurDiscoverFilters()
-                m.discoverGrid.SetFocus(true)
+                m.catalogList.SetFocus(true)
                 return true
             else if key = "back"
                 BlurDiscoverFilters()
-                m.discoverGrid.SetFocus(true)
+                m.catalogList.SetFocus(true)
                 return true
             else if key = "up"
                 BlurDiscoverFilters()
@@ -4562,9 +5022,8 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 return true
             end if
         else if m.activeTab = "addons" and m.addonChipIndex >= 0
-            ' The chip row is not a focusable node: it is drawn by UpdateAddonChips
-            ' and driven from here while the scene holds focus, the same way the
-            ' Discover filter row above works.
+            ' Two chip rows: 0-1 filters, 2-4 actions. Drawn by UpdateAddonChips
+            ' and driven from here while the scene holds focus.
             if key = "left" and m.addonChipIndex > 0
                 m.addonChipIndex = m.addonChipIndex - 1
                 UpdateAddonChips()
@@ -4572,7 +5031,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
             else if key = "left"
                 ' Leftmost chip: fall out of the toolbar to the nav rail.
                 BlurAddonChips()
-                m.navList.SetFocus(true)
+                FocusNavRail(m.navIndex)
                 return true
             else if key = "right" and m.addonChipIndex < AddonChips().Count() - 1
                 m.addonChipIndex = m.addonChipIndex + 1
@@ -4581,14 +5040,28 @@ function onKeyEvent(key as string, press as boolean) as boolean
             else if key = "OK"
                 ActivateAddonChip(m.addonChipIndex)
                 return true
-            else if key = "down" or key = "back"
+            else if key = "down"
+                if m.addonChipIndex <= 1
+                    ' Filters row → actions row (0→2, 1→3).
+                    m.addonChipIndex = m.addonChipIndex + 2
+                    UpdateAddonChips()
+                else
+                    FocusAddonList()
+                end if
+                return true
+            else if key = "back"
                 FocusAddonList()
                 return true
             else if key = "up"
-                ' Same ladder as every other screen: the row above the toolbar is
-                ' the top bar.
-                BlurAddonChips()
-                FocusTopBar(0)
+                if m.addonChipIndex >= 2
+                    ' Actions row → filters row (2→0, 3→1, 4→1).
+                    m.addonChipIndex = m.addonChipIndex - 2
+                    if m.addonChipIndex > 1 then m.addonChipIndex = 1
+                    UpdateAddonChips()
+                else
+                    BlurAddonChips()
+                    FocusTopBar(0)
+                end if
                 return true
             end if
         else if (key = "up" or key = "down") and m.activeTab = "settings" and m.settingsList.HasFocus()
@@ -4608,28 +5081,14 @@ function onKeyEvent(key as string, press as boolean) as boolean
             m.settingsTabIndex = m.settingsTabIndex + 1
             RenderSettings(true)
             return true
-        else if key = "left" and not m.navList.HasFocus()
-            m.navList.SetFocus(true)
+        else if key = "OK" and m.catalogList.visible and m.catalogList.HasFocus() and IsSeeAllItem(m.focusedCatalogItem)
+            ActivateCatalogItem(m.focusedCatalogItem)
             return true
-        else if key = "right" and m.navList.HasFocus()
-            if m.settingsGroup.visible
-                m.settingsList.SetFocus(true)
-            else if m.calendarGroup.visible
-                m.calendarList.SetFocus(true)
-            else if m.addonsGroup.visible
-                ' Without this the Addons screen handed focus to the hidden
-                ' catalog list and the remote stopped responding.
-                FocusAddonList()
-            else if m.primaryInfoGroup.visible
-                m.primaryInfoList.SetFocus(true)
-            else if m.activeTab = "discover"
-                m.discoverGrid.SetFocus(true)
-            else
-                m.catalogList.SetFocus(true)
-            end if
+        else if key = "left" and not IsNavRailFocused()
+            FocusNavRail(m.navIndex)
             return true
-        else if key = "up" and not m.navList.HasFocus()
-            if m.activeTab = "discover"
+        else if key = "up" and not IsNavRailFocused() and m.topBarFocus < 0
+            if m.activeTab = "discover" and m.discoverFilterGroup.visible
                 FocusDiscoverFilters()
                 return true
             end if
@@ -4637,6 +5096,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
                 FocusAddonChips()
                 return true
             end if
+            ' v21: UP from Board/Library catalog → rail Buscar (or nav via left).
             FocusTopBar(0)
             return true
         end if
@@ -4702,7 +5162,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
         if m.subtitleRequestActive
             ClearActiveSubtitleRequest()
             HideStatus()
-            ShowChoices("Choose a stream (" + m.streams.Count().ToStr() + ")", BuildStreamContent(), "streams", m.streamReturnMode)
+            ShowChoices(TrFormat("streams.chooseTitle", m.streams.Count().ToStr()), BuildStreamContent(), "streams", m.streamReturnMode)
             m.streamList.JumpToItem = m.selectedStreamIndex
             return true
         end if

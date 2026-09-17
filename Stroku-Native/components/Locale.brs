@@ -133,6 +133,7 @@ end function
 function LocaleStringsEnglish() as object
     return {
         "common.on": "On"
+        "common.ok": "OK",
         "common.off": "Off"
         "common.done": "Done"
         "common.cancel": "Cancel"
@@ -181,6 +182,10 @@ function LocaleStringsEnglish() as object
         "settings.general.appVersion.hint": "The Stroku version declared by the installed channel's manifest."
         "settings.general.channelBuild": "Channel build"
         "settings.general.channelBuild.hint": "The channel ID this Roku launched, and whether it is a sideloaded development build."
+        "settings.general.setupUrl": "Setup URL",
+        "settings.general.setupUrl.hint": "Open this address on your phone (same Wi‑Fi) to paste Stremio add-on manifests. Home hides it; it lives here.",
+        "settings.general.setupUrl.dialog": "On your phone, open this URL while on the same Wi‑Fi network:",
+        "settings.general.setupUrl.unavailable": "Not available",
         "settings.general.development": "Development"
         "settings.general.support": "Contact support"
         "settings.general.support.hint": "Where to report a problem with Stroku."
@@ -323,7 +328,7 @@ function LocaleStringsEnglish() as object
         "dialog.connect.code": "Code: {0}"
         "dialog.connect.waiting": "Waiting for approval..."
 
-        "dialog.search.title": "Search or paste link"
+        "dialog.search.title": "Search"
         "dialog.search.message": "Search movies, series, and channels. You can also paste IMDb IDs, direct HTTP media links, or Stremio add-on manifests."
         "dialog.search.empty": "Enter a title to search for."
 
@@ -387,15 +392,16 @@ function LocaleStringsEnglish() as object
         "addons.title": "Addons"
         "addons.filter.installed": "Installed"
         "addons.filter.all": "All"
-        "addons.add": "+ Add addon"
-        "addons.reload": "Reload addons"
-        "addons.search": "Search addons"
+        "addons.badge.installed": "Installed"
+        "addons.add": "Add"
+        "addons.reload": "Reload"
+        "addons.search": "Search"
         "addons.empty": "No installed add-ons yet. Use + Add addon to install a manifest URL."
         "addons.loadingCollection": "Loading Stremio add-on collection..."
         "addons.loadCollection": "Load Stremio add-on collection"
-        "addons.hero.all": "Browse the Stremio add-on collection and install manifests directly."
-        "addons.hero.installed": "Manage installed metadata, stream, subtitle, and catalog addons."
-        "addons.footer": "OK  SELECT                         *  ADD ADDON"
+        "addons.hero.all": "Browse and install Stremio manifests."
+        "addons.hero.installed": "Manage installed stream and catalog addons."
+        "addons.footer": "OK  SELECT    *  ADD"
         "addons.searchResult": "Search addons    {0}"
 
         "noStreams.title": "No streams found"
@@ -413,13 +419,19 @@ function LocaleStringsEnglish() as object
         "board.seeAll.description": "Open this catalog in Discover"
         "board.streamsAutomatic": "Streams load automatically"
 
-        "discover.subtitle": "UP  FILTERS    OK  CHANGE    *  MORE"
+        "discover.subtitle": "UP filters  ·  OK change"
         "discover.hero": "Browse by type, catalog, and genre."
+        "discover.filter.type": "Type"
+        "discover.filter.catalog": "Catalog"
+        "discover.filter.genre": "Genre"
+        "discover.genre.none": "All"
         "discover.type.movie": "Movie"
         "discover.type.series": "Series"
         "discover.type.channel": "Channel"
 
         "library.subtitle": "Saved titles and watch history"
+        "library.row.saved": "Library - Last Watched"
+        "library.row.watched": "Previously Watched - Last Watched"
         "library.hero.signedOut": "Sign in to sync your Stremio library on Roku."
         "library.hero.empty": "Your Stremio library and watch history are empty."
         "library.hero.counts": "{saved} saved item(s)    {watched} watched item(s)"
@@ -493,6 +505,7 @@ end function
 function LocaleStringsSpanish() as object
     return {
         "common.on": "Activado"
+        "common.ok": "OK",
         "common.off": "Desactivado"
         "common.done": "Listo"
         "common.cancel": "Cancelar"
@@ -541,6 +554,10 @@ function LocaleStringsSpanish() as object
         "settings.general.appVersion.hint": "La version de Stroku declarada en el manifiesto del canal instalado."
         "settings.general.channelBuild": "Compilacion del canal"
         "settings.general.channelBuild.hint": "El ID del canal que ha iniciado este Roku, y si es una compilacion de desarrollo cargada manualmente."
+        "settings.general.setupUrl": "URL de setup",
+        "settings.general.setupUrl.hint": "Abre esta direccion en el telefono (misma Wi‑Fi) para pegar manifiestos de complementos. En Inicio esta oculta; vive aqui.",
+        "settings.general.setupUrl.dialog": "En el telefono, abre esta URL estando en la misma red Wi‑Fi:",
+        "settings.general.setupUrl.unavailable": "No disponible",
         "settings.general.development": "Desarrollo"
         "settings.general.support": "Contactar con soporte"
         "settings.general.support.hint": "Donde informar de un problema con Stroku."
@@ -678,12 +695,12 @@ function LocaleStringsSpanish() as object
         "dialog.addon.resources": "Recursos:"
         "dialog.addon.manifest": "Manifiesto:"
 
-        "dialog.connect.title": "Conectar Stremio"
-        "dialog.connect.openUrl": "En tu telefono, abre:{0}"
-        "dialog.connect.code": "Codigo: {0}"
-        "dialog.connect.waiting": "Esperando la aprobacion..."
+        "dialog.connect.title": "Vincular Stremio"
+        "dialog.connect.openUrl": "En el movil:{0}"
+        "dialog.connect.code": "Codigo {0}"
+        "dialog.connect.waiting": "Esperando..."
 
-        "dialog.search.title": "Buscar o pegar un enlace"
+        "dialog.search.title": "Buscar"
         "dialog.search.message": "Busca peliculas, series y canales. Tambien puedes pegar IDs de IMDb, enlaces HTTP directos o manifiestos de complementos de Stremio."
         "dialog.search.empty": "Escribe un titulo para buscar."
 
@@ -747,15 +764,16 @@ function LocaleStringsSpanish() as object
         "addons.title": "Complementos"
         "addons.filter.installed": "Instalados"
         "addons.filter.all": "Todos"
-        "addons.add": "+ Anadir complemento"
-        "addons.reload": "Recargar complementos"
-        "addons.search": "Buscar complementos"
+        "addons.badge.installed": "Instalado"
+        "addons.add": "Anadir"
+        "addons.reload": "Recargar"
+        "addons.search": "Buscar"
         "addons.empty": "Aun no hay complementos instalados. Usa + Anadir complemento para instalar una URL de manifiesto."
         "addons.loadingCollection": "Cargando la coleccion de complementos de Stremio..."
         "addons.loadCollection": "Cargar la coleccion de complementos de Stremio"
-        "addons.hero.all": "Explora la coleccion de complementos de Stremio e instala manifiestos directamente."
-        "addons.hero.installed": "Gestiona los complementos instalados de metadatos, streams, subtitulos y catalogos."
-        "addons.footer": "OK  SELECCIONAR                    *  ANADIR COMPLEMENTO"
+        "addons.hero.all": "Explora e instala manifiestos Stremio."
+        "addons.hero.installed": "Gestiona streams, subtitulos y catalogos."
+        "addons.footer": "OK  SELECCIONAR    *  ANADIR"
         "addons.searchResult": "Buscar complementos    {0}"
 
         "noStreams.title": "No se ha encontrado ningun stream"
@@ -773,13 +791,19 @@ function LocaleStringsSpanish() as object
         "board.seeAll.description": "Abre este catalogo en Descubrir"
         "board.streamsAutomatic": "Los streams se cargan automaticamente"
 
-        "discover.subtitle": "ARRIBA  FILTROS    OK  CAMBIAR    *  MAS"
+        "discover.subtitle": "ARRIBA filtros  ·  OK cambiar"
         "discover.hero": "Explora por tipo, catalogo y genero."
+        "discover.filter.type": "Tipo"
+        "discover.filter.catalog": "Catalogo"
+        "discover.filter.genre": "Genero"
+        "discover.genre.none": "Todos"
         "discover.type.movie": "Pelicula"
         "discover.type.series": "Serie"
         "discover.type.channel": "Canal"
 
         "library.subtitle": "Titulos guardados e historial de visionado"
+        "library.row.saved": "Biblioteca - Recientes"
+        "library.row.watched": "Vistos antes - Recientes"
         "library.hero.signedOut": "Inicia sesion para sincronizar tu biblioteca de Stremio en Roku."
         "library.hero.empty": "Tu biblioteca de Stremio y tu historial estan vacios."
         "library.hero.counts": "{saved} elemento(s) guardado(s)    {watched} elemento(s) visto(s)"
@@ -854,6 +878,7 @@ function LocaleStringsFrench() as object
     return {
         "common.on": "Active"
         "common.off": "Desactive"
+        "common.ok": "OK"
         "common.done": "Terminer"
         "common.cancel": "Annuler"
         "common.search": "Rechercher"
@@ -901,6 +926,10 @@ function LocaleStringsFrench() as object
         "settings.general.appVersion.hint": "La version de Stroku declaree par le manifeste de la chaine installee."
         "settings.general.channelBuild": "Version de la chaine"
         "settings.general.channelBuild.hint": "L'identifiant de la chaine lancee par ce Roku, et s'il s'agit d'une version de developpement installee manuellement."
+        "settings.general.setupUrl": "URL de configuration",
+        "settings.general.setupUrl.hint": "Ouvrez cette adresse sur votre telephone (meme Wi‑Fi) pour coller des manifestes d'add-ons.",
+        "settings.general.setupUrl.dialog": "Sur votre telephone, ouvrez cette URL sur le meme Wi‑Fi :",
+        "settings.general.setupUrl.unavailable": "Indisponible",
         "settings.general.development": "Developpement"
         "settings.general.support": "Contacter l'assistance"
         "settings.general.support.hint": "Ou signaler un probleme avec Stroku."
@@ -1107,15 +1136,16 @@ function LocaleStringsFrench() as object
         "addons.title": "Modules"
         "addons.filter.installed": "Installes"
         "addons.filter.all": "Tous"
-        "addons.add": "+ Ajouter un module"
-        "addons.reload": "Recharger les modules"
-        "addons.search": "Rechercher des modules"
+        "addons.badge.installed": "Installe"
+        "addons.add": "Ajouter"
+        "addons.reload": "Recharger"
+        "addons.search": "Rechercher"
         "addons.empty": "Aucun module installe pour l'instant. Utilisez + Ajouter un module pour installer une URL de manifeste."
         "addons.loadingCollection": "Chargement de la collection de modules Stremio..."
         "addons.loadCollection": "Charger la collection de modules Stremio"
-        "addons.hero.all": "Parcourez la collection de modules Stremio et installez des manifestes directement."
-        "addons.hero.installed": "Gerez les modules installes de metadonnees, de flux, de sous-titres et de catalogues."
-        "addons.footer": "OK  SELECTIONNER                   *  AJOUTER UN MODULE"
+        "addons.hero.all": "Parcourez et installez des manifestes Stremio."
+        "addons.hero.installed": "Gerez flux, sous-titres et catalogues."
+        "addons.footer": "OK  SELECTIONNER    *  AJOUTER"
         "addons.searchResult": "Rechercher des modules    {0}"
 
         "noStreams.title": "Aucun flux trouve"
@@ -1133,13 +1163,19 @@ function LocaleStringsFrench() as object
         "board.seeAll.description": "Ouvrir ce catalogue dans Decouvrir"
         "board.streamsAutomatic": "Les flux se chargent automatiquement"
 
-        "discover.subtitle": "HAUT  FILTRES    OK  CHANGER    *  PLUS"
+        "discover.subtitle": "HAUT filtres  ·  OK changer"
         "discover.hero": "Parcourez par type, catalogue et genre."
+        "discover.filter.type": "Type"
+        "discover.filter.catalog": "Catalogue"
+        "discover.filter.genre": "Genre"
+        "discover.genre.none": "Tous"
         "discover.type.movie": "Film"
         "discover.type.series": "Serie"
         "discover.type.channel": "Chaine"
 
         "library.subtitle": "Titres enregistres et historique de visionnage"
+        "library.row.saved": "Bibliotheque - Recents"
+        "library.row.watched": "Deja vus - Recents"
         "library.hero.signedOut": "Connectez-vous pour synchroniser votre bibliotheque Stremio sur le Roku."
         "library.hero.empty": "Votre bibliotheque Stremio et votre historique sont vides."
         "library.hero.counts": "{saved} element(s) enregistre(s)    {watched} element(s) visionne(s)"
@@ -1214,6 +1250,7 @@ function LocaleStringsGerman() as object
     return {
         "common.on": "Ein"
         "common.off": "Aus"
+        "common.ok": "OK"
         "common.done": "Fertig"
         "common.cancel": "Abbrechen"
         "common.search": "Suchen"
@@ -1261,6 +1298,10 @@ function LocaleStringsGerman() as object
         "settings.general.appVersion.hint": "Die Stroku-Version aus dem Manifest des installierten Kanals."
         "settings.general.channelBuild": "Kanal-Build"
         "settings.general.channelBuild.hint": "Die Kanal-ID, die dieser Roku gestartet hat, und ob es ein manuell geladener Entwicklungs-Build ist."
+        "settings.general.setupUrl": "Setup-URL",
+        "settings.general.setupUrl.hint": "Oeffne diese Adresse am Telefon (gleichzes WLAN), um Add-on-Manifeste einzufuegen.",
+        "settings.general.setupUrl.dialog": "Oeffne diese URL am Telefon im gleichen WLAN:",
+        "settings.general.setupUrl.unavailable": "Nicht verfuegbar",
         "settings.general.development": "Entwicklung"
         "settings.general.support": "Support kontaktieren"
         "settings.general.support.hint": "Wo du ein Problem mit Stroku melden kannst."
@@ -1467,15 +1508,16 @@ function LocaleStringsGerman() as object
         "addons.title": "Add-ons"
         "addons.filter.installed": "Installiert"
         "addons.filter.all": "Alle"
-        "addons.add": "+ Add-on hinzufugen"
-        "addons.reload": "Add-ons neu laden"
-        "addons.search": "Add-ons suchen"
+        "addons.badge.installed": "Installiert"
+        "addons.add": "Hinzufugen"
+        "addons.reload": "Neu laden"
+        "addons.search": "Suchen"
         "addons.empty": "Noch keine Add-ons installiert. Nutze + Add-on hinzufugen, um eine Manifest-URL zu installieren."
         "addons.loadingCollection": "Stremio-Add-on-Sammlung wird geladen..."
         "addons.loadCollection": "Stremio-Add-on-Sammlung laden"
-        "addons.hero.all": "Durchsuche die Stremio-Add-on-Sammlung und installiere Manifeste direkt."
-        "addons.hero.installed": "Verwalte installierte Add-ons fur Metadaten, Streams, Untertitel und Kataloge."
-        "addons.footer": "OK  AUSWAHLEN                      *  ADD-ON HINZUFUGEN"
+        "addons.hero.all": "Stremio-Manifeste durchsuchen und installieren."
+        "addons.hero.installed": "Streams, Untertitel und Kataloge verwalten."
+        "addons.footer": "OK  AUSWAHLEN    *  HINZUFUGEN"
         "addons.searchResult": "Add-ons suchen    {0}"
 
         "noStreams.title": "Keine Streams gefunden"
@@ -1493,13 +1535,19 @@ function LocaleStringsGerman() as object
         "board.seeAll.description": "Diesen Katalog in Entdecken offnen"
         "board.streamsAutomatic": "Streams werden automatisch geladen"
 
-        "discover.subtitle": "OBEN  FILTER    OK  ANDERN    *  MEHR"
+        "discover.subtitle": "OBEN Filter  ·  OK andern"
         "discover.hero": "Nach Typ, Katalog und Genre durchsuchen."
+        "discover.filter.type": "Typ"
+        "discover.filter.catalog": "Katalog"
+        "discover.filter.genre": "Genre"
+        "discover.genre.none": "Alle"
         "discover.type.movie": "Film"
         "discover.type.series": "Serie"
         "discover.type.channel": "Kanal"
 
         "library.subtitle": "Gespeicherte Titel und Wiedergabeverlauf"
+        "library.row.saved": "Bibliothek - Zuletzt"
+        "library.row.watched": "Bereits gesehen - Zuletzt"
         "library.hero.signedOut": "Melde dich an, um deine Stremio-Bibliothek auf dem Roku zu synchronisieren."
         "library.hero.empty": "Deine Stremio-Bibliothek und dein Wiedergabeverlauf sind leer."
         "library.hero.counts": "{saved} gespeicherte(r) Eintrag(e)    {watched} gesehene(r) Eintrag(e)"
@@ -1574,6 +1622,7 @@ function LocaleStringsItalian() as object
     return {
         "common.on": "Attivo"
         "common.off": "Disattivo"
+        "common.ok": "OK"
         "common.done": "Fine"
         "common.cancel": "Annulla"
         "common.search": "Cerca"
@@ -1621,6 +1670,10 @@ function LocaleStringsItalian() as object
         "settings.general.appVersion.hint": "La versione di Stroku dichiarata dal manifest del canale installato."
         "settings.general.channelBuild": "Build del canale"
         "settings.general.channelBuild.hint": "L'ID del canale avviato da questo Roku e se si tratta di una build di sviluppo caricata manualmente."
+        "settings.general.setupUrl": "URL di setup",
+        "settings.general.setupUrl.hint": "Apri questo indirizzo sul telefono (stesso Wi‑Fi) per incollare i manifest degli add-on.",
+        "settings.general.setupUrl.dialog": "Sul telefono, apri questo URL sulla stessa Wi‑Fi:",
+        "settings.general.setupUrl.unavailable": "Non disponibile",
         "settings.general.development": "Sviluppo"
         "settings.general.support": "Contatta l'assistenza"
         "settings.general.support.hint": "Dove segnalare un problema con Stroku."
@@ -1827,15 +1880,16 @@ function LocaleStringsItalian() as object
         "addons.title": "Add-on"
         "addons.filter.installed": "Installati"
         "addons.filter.all": "Tutti"
-        "addons.add": "+ Aggiungi add-on"
-        "addons.reload": "Ricarica add-on"
-        "addons.search": "Cerca add-on"
+        "addons.badge.installed": "Installato"
+        "addons.add": "Aggiungi"
+        "addons.reload": "Ricarica"
+        "addons.search": "Cerca"
         "addons.empty": "Nessun add-on installato. Usa + Aggiungi add-on per installare un URL di manifest."
         "addons.loadingCollection": "Caricamento della raccolta di add-on Stremio..."
         "addons.loadCollection": "Carica la raccolta di add-on Stremio"
-        "addons.hero.all": "Sfoglia la raccolta di add-on Stremio e installa i manifest direttamente."
-        "addons.hero.installed": "Gestisci gli add-on installati di metadati, stream, sottotitoli e cataloghi."
-        "addons.footer": "OK  SELEZIONA                      *  AGGIUNGI ADD-ON"
+        "addons.hero.all": "Sfoglia e installa manifest Stremio."
+        "addons.hero.installed": "Gestisci stream, sottotitoli e cataloghi."
+        "addons.footer": "OK  SELEZIONA    *  AGGIUNGI"
         "addons.searchResult": "Cerca add-on    {0}"
 
         "noStreams.title": "Nessuno stream trovato"
@@ -1853,13 +1907,19 @@ function LocaleStringsItalian() as object
         "board.seeAll.description": "Apri questo catalogo in Scopri"
         "board.streamsAutomatic": "Gli stream si caricano automaticamente"
 
-        "discover.subtitle": "SU  FILTRI    OK  CAMBIA    *  ALTRO"
+        "discover.subtitle": "SU filtri  ·  OK cambia"
         "discover.hero": "Sfoglia per tipo, catalogo e genere."
+        "discover.filter.type": "Tipo"
+        "discover.filter.catalog": "Catalogo"
+        "discover.filter.genre": "Genere"
+        "discover.genre.none": "Tutti"
         "discover.type.movie": "Film"
         "discover.type.series": "Serie"
         "discover.type.channel": "Canale"
 
         "library.subtitle": "Titoli salvati e cronologia di visione"
+        "library.row.saved": "Libreria - Recenti"
+        "library.row.watched": "Gia visti - Recenti"
         "library.hero.signedOut": "Accedi per sincronizzare la tua libreria Stremio sul Roku."
         "library.hero.empty": "La tua libreria Stremio e la cronologia sono vuote."
         "library.hero.counts": "{saved} elemento/i salvato/i    {watched} elemento/i visto/i"
@@ -1934,6 +1994,7 @@ function LocaleStringsPortuguese() as object
     return {
         "common.on": "Ligado"
         "common.off": "Desligado"
+        "common.ok": "OK"
         "common.done": "Concluir"
         "common.cancel": "Cancelar"
         "common.search": "Pesquisar"
@@ -1981,6 +2042,10 @@ function LocaleStringsPortuguese() as object
         "settings.general.appVersion.hint": "A versao do Stroku declarada no manifesto do canal instalado."
         "settings.general.channelBuild": "Compilacao do canal"
         "settings.general.channelBuild.hint": "O ID do canal que este Roku iniciou, e se e uma compilacao de desenvolvimento carregada manualmente."
+        "settings.general.setupUrl": "URL de setup",
+        "settings.general.setupUrl.hint": "Abre este endereco no telemovel (mesmo Wi‑Fi) para colar manifests de extras. No Inicio fica oculta; vive aqui.",
+        "settings.general.setupUrl.dialog": "No telemovel, abre este URL na mesma rede Wi‑Fi:",
+        "settings.general.setupUrl.unavailable": "Indisponivel",
         "settings.general.development": "Desenvolvimento"
         "settings.general.support": "Contactar o apoio"
         "settings.general.support.hint": "Onde comunicar um problema com o Stroku."
@@ -2187,15 +2252,16 @@ function LocaleStringsPortuguese() as object
         "addons.title": "Extensoes"
         "addons.filter.installed": "Instaladas"
         "addons.filter.all": "Todas"
-        "addons.add": "+ Adicionar extensao"
-        "addons.reload": "Recarregar extensoes"
-        "addons.search": "Pesquisar extensoes"
+        "addons.badge.installed": "Instalada"
+        "addons.add": "Adicionar"
+        "addons.reload": "Recarregar"
+        "addons.search": "Pesquisar"
         "addons.empty": "Ainda nao ha extensoes instaladas. Usa + Adicionar extensao para instalar um URL de manifesto."
         "addons.loadingCollection": "A carregar a colecao de extensoes do Stremio..."
         "addons.loadCollection": "Carregar a colecao de extensoes do Stremio"
-        "addons.hero.all": "Explora a colecao de extensoes do Stremio e instala manifestos diretamente."
-        "addons.hero.installed": "Gere as extensoes instaladas de metadados, streams, legendas e catalogos."
-        "addons.footer": "OK  SELECIONAR                     *  ADICIONAR EXTENSAO"
+        "addons.hero.all": "Explora e instala manifestos Stremio."
+        "addons.hero.installed": "Gere streams, legendas e catalogos."
+        "addons.footer": "OK  SELECIONAR    *  ADICIONAR"
         "addons.searchResult": "Pesquisar extensoes    {0}"
 
         "noStreams.title": "Nao foram encontrados streams"
@@ -2213,13 +2279,19 @@ function LocaleStringsPortuguese() as object
         "board.seeAll.description": "Abrir este catalogo em Descobrir"
         "board.streamsAutomatic": "Os streams carregam automaticamente"
 
-        "discover.subtitle": "CIMA  FILTROS    OK  MUDAR    *  MAIS"
+        "discover.subtitle": "CIMA filtros  ·  OK mudar"
         "discover.hero": "Explora por tipo, catalogo e genero."
+        "discover.filter.type": "Tipo"
+        "discover.filter.catalog": "Catalogo"
+        "discover.filter.genre": "Genero"
+        "discover.genre.none": "Todos"
         "discover.type.movie": "Filme"
         "discover.type.series": "Serie"
         "discover.type.channel": "Canal"
 
         "library.subtitle": "Titulos guardados e historico de visualizacao"
+        "library.row.saved": "Biblioteca - Recentes"
+        "library.row.watched": "Vistos antes - Recentes"
         "library.hero.signedOut": "Inicia sessao para sincronizar a tua biblioteca do Stremio no Roku."
         "library.hero.empty": "A tua biblioteca do Stremio e o historico estao vazios."
         "library.hero.counts": "{saved} item(ns) guardado(s)    {watched} item(ns) visto(s)"

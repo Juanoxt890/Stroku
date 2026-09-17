@@ -13,7 +13,7 @@
             id="pill"
             width="220"
             height="64"
-            color="0x2A2A2AFF" />
+            color="0x1A1A1DFF" />
         <Label
             id="label"
             width="220"

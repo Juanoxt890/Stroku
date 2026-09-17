@@ -15,87 +15,75 @@
         <!-- Everything inside uiRoot is authored in 1920x1080 design space and is
              mapped onto the device design resolution by UiScale.brs. -->
         <Group id="uiRoot">
-        <Rectangle id="background" width="1920" height="1080" color="0x141414FF" />
+        <Rectangle id="background" width="1920" height="1080" color="0x0B0B0BFF" />
         <Rectangle translation="[0, 0]" width="1920" height="2" color="0xE50914FF" />
 
         <Group id="homeGroup">
-            <Rectangle translation="[0, 0]" width="228" height="1080" color="0x0B0B0BFF" />
-            <Label
-                translation="[34, 36]"
-                width="170"
-                height="46"
-                text="Stroku ES"
-                font="font:MediumBoldSystemFont"
-                color="0xFFFFFFFF" />
-            <Label
-                translation="[34, 78]"
-                width="170"
-                height="28"
-                text=""
-                font="font:SmallSystemFont"
-                color="0xE50914FF" />
-            <LabelList
-                id="navList"
-                translation="[24, 150]"
-                width="180"
-                height="430"
-                itemSize="[180, 58]"
-                numRows="6"
-                color="0xB3B3B3FF"
-                focusedColor="0xFFFFFFFF"
-                focusBitmapBlendColor="0xE50914FF" />
-            <Rectangle
+            <!-- Left rail 25% FHD (480px): logo → Buscar → 6 fixed nav rows (no MarkupList scroll). -->
+            <Rectangle id="leftRailBg" translation="[0, 0]" width="480" height="1080" color="0x0B0B0BFF" />
+            <Rectangle translation="[480, 0]" width="2" height="1080" color="0x1A1A1DFF" />
+            <Poster
+                id="brandLogo"
+                translation="[20, 16]"
+                width="440"
+                height="100"
+                uri="pkg:/images/brand_lockup.png"
+                loadDisplayMode="scaleToFit" />
+            <!-- Buscar in rail above Inicio (v21); not over hero content. -->
+            <Poster
                 id="searchBar"
-                translation="[260, 22]"
-                width="560"
-                height="54"
-                color="0x2A2A2AFF" />
+                translation="[20, 128]"
+                width="440"
+                height="52"
+                uri="pkg:/images/search_bar_bg.png"
+                loadDisplayMode="scaleToFit" />
             <Label
                 id="searchPrompt"
-                translation="[296, 31]"
-                width="460"
+                translation="[44, 136]"
+                width="392"
                 height="36"
-                text="Search or paste link"
+                text="Buscar"
                 vertAlign="center"
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
-            <Label
-                translation="[772, 30]"
-                width="32"
-                height="36"
-                text="O"
-                horizAlign="center"
-                vertAlign="center"
-                font="font:SmallSystemFont"
-                color="0x808080FF" />
+            <!-- Fixed Group of 6: item 68 + spacing 8; all rows always visible. -->
+            <Group id="navList" translation="[20, 200]">
+                <NavItem id="navItem0" translation="[0, 0]" />
+                <NavItem id="navItem1" translation="[0, 76]" />
+                <NavItem id="navItem2" translation="[0, 152]" />
+                <NavItem id="navItem3" translation="[0, 228]" />
+                <NavItem id="navItem4" translation="[0, 304]" />
+                <NavItem id="navItem5" translation="[0, 380]" />
+            </Group>
 
-            <!-- Top bar support entry. It sits in homeGroup so it shows on every
-                 tab's chrome and hides with it, and it is reached by moving up
-                 out of the content into the top bar. -->
+            <!-- Apoyar removed from Home top bar (v19); coffee/support stay in Settings. -->
             <Rectangle
                 id="supportChipBg"
-                translation="[1600, 22]"
-                width="220"
-                height="54"
-                color="0x2A2A2AFF" />
+                translation="[1640, 22]"
+                width="200"
+                height="52"
+                color="0x1A1A1DFF"
+                visible="false" />
             <Label
                 id="supportChipLabel"
-                translation="[1600, 22]"
-                width="220"
-                height="54"
-                text="Support"
+                translation="[1640, 22]"
+                width="200"
+                height="52"
+                text="Apoyar"
                 horizAlign="center"
                 vertAlign="center"
                 font="font:SmallSystemFont"
-                color="0xB3B3B3FF" />
+                color="0xB3B3B3FF"
+                visible="false" />
 
             <Label
                 id="setupAddress"
-                translation="[900, 22]"
-                width="560"
-                height="52"
-                horizAlign="right"
-                vertAlign="center"
+                visible="false"
+                translation="[20, 112]"
+                width="440"
+                height="36"
+                horizAlign="center"
+                vertAlign="top"
                 wrap="true"
                 maxLines="2"
                 text=""
@@ -104,15 +92,17 @@
 
             <Label
                 id="primaryTitle"
-                translation="[260, 90]"
+                visible="false"
+                translation="[512, 88]"
                 width="880"
                 height="40"
-                text="Board"
+                text="Inicio"
                 font="font:MediumBoldSystemFont"
                 color="0xFFFFFFFF" />
             <Label
                 id="primarySubtitle"
-                translation="[1160, 96]"
+                visible="false"
+                translation="[1064, 94]"
                 width="690"
                 height="32"
                 text=""
@@ -120,73 +110,136 @@
                 font="font:SmallSystemFont"
                 color="0x808080FF" />
 
-            <!-- Netflix-style billboard: backdrop + title + short description.
-                 Updated from focus handlers; hidden on Settings/Calendar/Addons. -->
-            <Group id="heroBillboard" translation="[228, 132]" visible="true">
+            <!-- Netflix-style billboard (v23): flush under content-column top; rail Buscar unchanged. -->
+            <Group id="heroBillboard" translation="[480, 0]" visible="true">
                 <Poster
                     id="heroPoster"
                     translation="[0, 0]"
-                    width="1692"
-                    height="360"
+                    width="1440"
+                    height="450"
                     loadDisplayMode="scaleToZoom" />
-                <Rectangle
+                <!-- Soft PNG scrims: no hard vertical cut (Roku Rectangles can't gradient). -->
+                <Poster
                     id="heroPosterScrim"
                     translation="[0, 0]"
-                    width="1692"
-                    height="360"
-                    color="0x00000088" />
-                <Rectangle
+                    width="1440"
+                    height="450"
+                    uri="pkg:/images/hero_scrim.png"
+                    loadDisplayMode="scaleToFit" />
+                <Poster
                     id="heroPosterFade"
-                    translation="[0, 180]"
-                    width="1692"
-                    height="180"
-                    color="0x141414EE" />
+                    translation="[0, 210]"
+                    width="1440"
+                    height="240"
+                    uri="pkg:/images/hero_fade_bottom.png"
+                    loadDisplayMode="scaleToFit" />
+                <!-- Meta / title / description in lower-left; CTAs removed (poster OK opens). -->
+                <Label
+                    id="heroMeta"
+                    translation="[56, 190]"
+                    width="1180"
+                    height="36"
+                    text=""
+                    font="font:MediumBoldSystemFont"
+                    color="0xE5E5E5FF" />
                 <Label
                     id="heroTitle"
-                    translation="[32, 220]"
-                    width="1200"
-                    height="60"
-                    text="Loading catalogs..."
+                    translation="[56, 228]"
+                    width="1240"
+                    height="80"
+                    text="Cargando catálogos..."
                     font="font:LargeBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
                     id="heroDescription"
-                    translation="[32, 288]"
-                    width="1400"
-                    height="56"
+                    translation="[56, 314]"
+                    width="1120"
+                    height="100"
                     text=""
                     wrap="true"
-                    maxLines="2"
+                    maxLines="3"
                     font="font:MediumSystemFont"
-                    color="0xB3B3B3FF" />
+                    color="0xD0D0D0FF" />
+                <!-- Decorative hero CTAs removed in v20 (visible=false; focus rewired to search). -->
+                <Rectangle
+                    id="heroPrimaryBg"
+                    translation="[56, 390]"
+                    width="300"
+                    height="56"
+                    color="0xE50914FF"
+                    visible="false" />
+                <Label
+                    id="heroPrimaryLabel"
+                    translation="[56, 390]"
+                    width="300"
+                    height="56"
+                    text="Reproducir"
+                    horizAlign="center"
+                    vertAlign="center"
+                    font="font:MediumBoldSystemFont"
+                    color="0xFFFFFFFF"
+                    visible="false" />
+                <Rectangle
+                    id="heroSecondaryBg"
+                    translation="[372, 390]"
+                    width="220"
+                    height="56"
+                    color="0x2A2A2EFF"
+                    visible="false" />
+                <Label
+                    id="heroSecondaryLabel"
+                    translation="[372, 390]"
+                    width="220"
+                    height="56"
+                    text="Más info"
+                    horizAlign="center"
+                    vertAlign="center"
+                    font="font:MediumBoldSystemFont"
+                    color="0xFFFFFFFF"
+                    visible="false" />
             </Group>
 
+            <!-- Content-area search removed in v21; Buscar lives in the left rail. -->
+
+            <!-- Discover filter strip (v25): X=504 under hero, 64px chips, gap 28;
+                 catalogList at Y=468 — UP/DOWN between filters and posters. -->
             <Group id="discoverFilterGroup" visible="false">
                 <Rectangle
                     id="discoverTypeFocus"
-                    translation="[260, 510]"
-                    width="260"
-                    height="58"
+                    translation="[504, 392]"
+                    width="300"
+                    height="64"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[266, 516]"
-                    width="248"
-                    height="46"
-                    color="0x2A2A2AFF" />
+                    id="discoverTypeBg"
+                    translation="[510, 398]"
+                    width="288"
+                    height="52"
+                    color="0x1A1A1DFF" />
+                <Label
+                    id="discoverTypeEyebrow"
+                    translation="[528, 400]"
+                    width="252"
+                    height="20"
+                    text="Tipo"
+                    vertAlign="center"
+                    font="font:SmallestSystemFont"
+                    color="0x808080FF" />
                 <Label
                     id="discoverTypeLabel"
-                    translation="[292, 522]"
-                    width="180"
-                    height="34"
-                    text="Movie"
+                    translation="[528, 418]"
+                    width="220"
+                    height="30"
+                    text="Pelicula"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[476, 522]"
+                    id="discoverTypeChevron"
+                    translation="[756, 418]"
                     width="28"
-                    height="34"
+                    height="30"
                     text="v"
                     horizAlign="center"
                     vertAlign="center"
@@ -195,29 +248,40 @@
 
                 <Rectangle
                     id="discoverCatalogFocus"
-                    translation="[548, 510]"
-                    width="260"
-                    height="58"
+                    translation="[832, 392]"
+                    width="300"
+                    height="64"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[554, 516]"
-                    width="248"
-                    height="46"
-                    color="0x2A2A2AFF" />
+                    id="discoverCatalogBg"
+                    translation="[838, 398]"
+                    width="288"
+                    height="52"
+                    color="0x1A1A1DFF" />
+                <Label
+                    id="discoverCatalogEyebrow"
+                    translation="[856, 400]"
+                    width="252"
+                    height="20"
+                    text="Catalogo"
+                    vertAlign="center"
+                    font="font:SmallestSystemFont"
+                    color="0x808080FF" />
                 <Label
                     id="discoverCatalogLabel"
-                    translation="[580, 522]"
-                    width="170"
-                    height="34"
+                    translation="[856, 418]"
+                    width="220"
+                    height="30"
                     text="Popular"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[764, 522]"
+                    id="discoverCatalogChevron"
+                    translation="[1084, 418]"
                     width="28"
-                    height="34"
+                    height="30"
                     text="v"
                     horizAlign="center"
                     vertAlign="center"
@@ -226,29 +290,40 @@
 
                 <Rectangle
                     id="discoverGenreFocus"
-                    translation="[836, 510]"
-                    width="260"
-                    height="58"
+                    translation="[1160, 392]"
+                    width="300"
+                    height="64"
                     color="0xE50914FF"
                     visible="false" />
                 <Rectangle
-                    translation="[842, 516]"
-                    width="248"
-                    height="46"
-                    color="0x2A2A2AFF" />
+                    id="discoverGenreBg"
+                    translation="[1166, 398]"
+                    width="288"
+                    height="52"
+                    color="0x1A1A1DFF" />
+                <Label
+                    id="discoverGenreEyebrow"
+                    translation="[1184, 400]"
+                    width="252"
+                    height="20"
+                    text="Genero"
+                    vertAlign="center"
+                    font="font:SmallestSystemFont"
+                    color="0x808080FF" />
                 <Label
                     id="discoverGenreLabel"
-                    translation="[868, 522]"
-                    width="170"
-                    height="34"
-                    text="Genre"
+                    translation="[1184, 418]"
+                    width="220"
+                    height="30"
+                    text="Todos"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
                 <Label
-                    translation="[1052, 522]"
+                    id="discoverGenreChevron"
+                    translation="[1412, 418]"
                     width="28"
-                    height="34"
+                    height="30"
                     text="v"
                     horizAlign="center"
                     vertAlign="center"
@@ -258,46 +333,48 @@
 
             <RowList
                 id="catalogList"
-                translation="[260, 510]"
-                itemSize="[1600, 340]"
-                rowItemSize="[[176, 310]]"
+                translation="[504, 450]"
+                itemSize="[1392, 400]"
+                rowItemSize="[[220, 350]]"
                 rowItemSpacing="[[22, 0]]"
-                rowSpacings="[10]"
-                rowLabelOffset="[[0, 0]]"
+                rowSpacings="[48]"
+                rowLabelOffset="[[8, 12]]"
                 rowLabelFont="font:MediumBoldSystemFont"
                 rowLabelColor="0xE5E5E5FF"
                 itemComponentName="CatalogCard"
-                numRows="4"
+                numRows="2"
                 showRowLabel="[true]"
                 showRowCounter="[false]"
                 drawFocusFeedback="false"
-                rowFocusAnimationStyle="fixedFocus"
-                vertFocusAnimationStyle="fixedFocus"
+                rowFocusAnimationStyle="floatingFocus"
+                vertFocusAnimationStyle="floatingFocus"
                 visible="true" />
 
+            <!-- v24: Discover uses catalogList (same RowList as Library/Home).
+                 discoverGrid kept hidden as unused leftover for FindNode safety. -->
             <MarkupGrid
                 id="discoverGrid"
-                translation="[260, 580]"
-                width="1580"
-                height="460"
-                itemSize="[190, 320]"
-                itemSpacing="[30, 22]"
-                numColumns="7"
+                translation="[504, 468]"
+                width="1384"
+                height="480"
+                itemSize="[220, 350]"
+                itemSpacing="[22, 22]"
+                numColumns="5"
                 numRows="1"
                 itemComponentName="CatalogCard"
                 drawFocusFeedback="false"
-                vertFocusAnimationStyle="fixedFocus"
+                vertFocusAnimationStyle="floatingFocus"
                 visible="false" />
 
             <Group id="primaryInfoGroup" visible="false">
-                <Rectangle translation="[260, 164]" width="1600" height="760" color="0x1F1F1FFF" />
-                <Rectangle translation="[260, 164]" width="8" height="760" color="0xE50914FF" />
+                <Rectangle translation="[492, 164]" width="1288" height="760" color="0x141416FF" />
+                <Rectangle translation="[492, 164]" width="8" height="760" color="0xE50914FF" />
                 <LabelList
                     id="primaryInfoList"
-                    translation="[316, 208]"
-                    width="1480"
+                    translation="[548, 208]"
+                    width="1160"
                     height="660"
-                    itemSize="[1480, 64]"
+                    itemSize="[1160, 64]"
                     numRows="10"
                     color="0xE5E5E5FF"
                     focusedColor="0xFFFFFFFF"
@@ -310,10 +387,10 @@
                  Stremio's web calendar is a month grid of poster thumbnails,
                  which needs a mouse and a lot of small artwork. -->
             <Group id="calendarGroup" visible="false">
-                <Rectangle id="calendarListPanel" translation="[260, 150]" width="1000" height="690" color="0x181818FF" />
+                <Rectangle id="calendarListPanel" translation="[492, 150]" width="984" height="690" color="0x141416FF" />
                 <MarkupList
                     id="calendarList"
-                    translation="[276, 166]"
+                    translation="[500, 166]"
                     width="968"
                     height="658"
                     itemSize="[968, 118]"
@@ -323,26 +400,26 @@
                     drawFocusFeedback="false"
                     vertFocusAnimationStyle="fixedFocus" />
 
-                <Rectangle id="calendarDetailPanel" translation="[1300, 150]" width="520" height="690" color="0x1F1F1FFF" />
-                <Rectangle translation="[1300, 150]" width="6" height="690" color="0xE50914FF" />
+                <Rectangle id="calendarDetailPanel" translation="[1492, 150]" width="300" height="690" color="0x141416FF" />
+                <Rectangle translation="[1492, 150]" width="6" height="690" color="0xE50914FF" />
                 <Poster
                     id="calendarDetailPoster"
-                    translation="[1336, 182]"
-                    width="448"
-                    height="252"
+                    translation="[1512, 182]"
+                    width="260"
+                    height="146"
                     loadDisplayMode="scaleToZoom" />
                 <Label
                     id="calendarDetailEyebrow"
-                    translation="[1336, 452]"
-                    width="448"
+                    translation="[1512, 348]"
+                    width="260"
                     height="32"
                     text=""
                     font="font:SmallSystemFont"
                     color="0xE50914FF" />
                 <Label
                     id="calendarDetailTitle"
-                    translation="[1336, 490]"
-                    width="448"
+                    translation="[1512, 388]"
+                    width="260"
                     height="92"
                     text=""
                     wrap="true"
@@ -351,20 +428,20 @@
                     color="0xFFFFFFFF" />
                 <Label
                     id="calendarDetailMeta"
-                    translation="[1336, 590]"
-                    width="448"
+                    translation="[1512, 488]"
+                    width="260"
                     height="38"
                     text=""
                     font="font:MediumSystemFont"
                     color="0xB3B3B3FF" />
                 <Label
                     id="calendarDetailDescription"
-                    translation="[1336, 640]"
-                    width="448"
-                    height="132"
+                    translation="[1512, 536]"
+                    width="260"
+                    height="160"
                     text=""
                     wrap="true"
-                    maxLines="4"
+                    maxLines="5"
                     font="font:SmallSystemFont"
                     color="0xB3B3B3FF" />
                 <!-- Same footer affordance as the Addons detail panel: what OK
@@ -372,15 +449,15 @@
                      action rather than another line of copy. -->
                 <Rectangle
                     id="calendarDetailActionPill"
-                    translation="[1336, 780]"
-                    width="448"
+                    translation="[1512, 780]"
+                    width="260"
                     height="56"
                     color="0x3A1518FF"
                     visible="false" />
                 <Label
                     id="calendarDetailAction"
-                    translation="[1336, 780]"
-                    width="448"
+                    translation="[1512, 780]"
+                    width="260"
                     height="56"
                     text=""
                     horizAlign="center"
@@ -393,53 +470,51 @@
                  strip, a card list, and a detail panel that explains whatever
                  row is focused. -->
             <Group id="settingsGroup" visible="false">
-                <!-- Three chips of 320 at a 334 stride span 260..1248, which
-                     matches the width of the list panel below them. The
-                     indicator step in UpdateSettingsTabs uses the same stride. -->
-                <Rectangle id="settingsTab0Bg" translation="[260, 150]" width="320" height="56" color="0x2A2A2AFF" />
+                <!-- Three 300px tabs at X=504, stride 324, height 60 (10-ft). -->
+                <Rectangle id="settingsTab0Bg" translation="[504, 148]" width="300" height="60" color="0x1A1A1DFF" />
                 <Label
                     id="settingsTab0Label"
-                    translation="[260, 150]"
-                    width="320"
-                    height="56"
+                    translation="[504, 148]"
+                    width="300"
+                    height="60"
                     text="General"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
-                <Rectangle id="settingsTab1Bg" translation="[594, 150]" width="320" height="56" color="0x2A2A2AFF" />
+                <Rectangle id="settingsTab1Bg" translation="[828, 148]" width="300" height="60" color="0x1A1A1DFF" />
                 <Label
                     id="settingsTab1Label"
-                    translation="[594, 150]"
-                    width="320"
-                    height="56"
-                    text="Interface"
+                    translation="[828, 148]"
+                    width="300"
+                    height="60"
+                    text="Interfaz"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
-                <Rectangle id="settingsTab2Bg" translation="[928, 150]" width="320" height="56" color="0x2A2A2AFF" />
+                <Rectangle id="settingsTab2Bg" translation="[1152, 148]" width="300" height="60" color="0x1A1A1DFF" />
                 <Label
                     id="settingsTab2Label"
-                    translation="[928, 150]"
-                    width="320"
-                    height="56"
-                    text="Player"
+                    translation="[1152, 148]"
+                    width="300"
+                    height="60"
+                    text="Reproductor"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
                 <Rectangle
                     id="settingsTabIndicator"
-                    translation="[260, 210]"
-                    width="320"
+                    translation="[504, 212]"
+                    width="300"
                     height="5"
                     color="0xE50914FF" />
 
-                <Rectangle id="settingsListPanel" translation="[260, 228]" width="1000" height="612" color="0x181818FF" />
+                <Rectangle id="settingsListPanel" translation="[504, 232]" width="972" height="608" color="0x141416FF" />
                 <MarkupList
                     id="settingsList"
-                    translation="[276, 244]"
+                    translation="[512, 244]"
                     width="968"
                     height="580"
                     itemSize="[968, 74]"
@@ -449,20 +524,20 @@
                     drawFocusFeedback="false"
                     vertFocusAnimationStyle="fixedFocus" />
 
-                <Rectangle id="settingsDetailPanel" translation="[1300, 228]" width="520" height="612" color="0x1F1F1FFF" />
-                <Rectangle translation="[1300, 228]" width="6" height="612" color="0xE50914FF" />
+                <Rectangle id="settingsDetailPanel" translation="[1492, 232]" width="300" height="608" color="0x141416FF" />
+                <Rectangle translation="[1492, 232]" width="6" height="608" color="0xE50914FF" />
                 <Label
                     id="settingsDetailEyebrow"
-                    translation="[1336, 258]"
-                    width="448"
+                    translation="[1512, 260]"
+                    width="260"
                     height="32"
                     text=""
                     font="font:SmallSystemFont"
                     color="0xE50914FF" />
                 <Label
                     id="settingsDetailTitle"
-                    translation="[1336, 300]"
-                    width="448"
+                    translation="[1512, 300]"
+                    width="260"
                     height="92"
                     text=""
                     wrap="true"
@@ -471,16 +546,16 @@
                     color="0xFFFFFFFF" />
                 <Label
                     id="settingsDetailValue"
-                    translation="[1336, 402]"
-                    width="448"
+                    translation="[1512, 402]"
+                    width="260"
                     height="42"
                     text=""
                     font="font:MediumSystemFont"
                     color="0xB3B3B3FF" />
                 <Label
                     id="settingsDetailHint"
-                    translation="[1336, 462]"
-                    width="448"
+                    translation="[1512, 462]"
+                    width="260"
                     height="290"
                     text=""
                     wrap="true"
@@ -490,98 +565,96 @@
 
             </Group>
 
-            <!-- Addons is its own screen, built on the same panel idiom as
-                 Settings: a chip row of filters and actions, a card list, and a
-                 detail panel that describes whatever card is focused. Stremio's
-                 web app puts the same controls in a single toolbar row, which is
-                 what the chips reproduce. -->
+            <!-- Addons: two chip rows (filters + actions), wider list/detail,
+                 content X=504 after 25% rail. Short ES chip labels via Locale. -->
             <Group id="addonsGroup" visible="false">
-                <Rectangle id="addonChip0Bg" translation="[260, 150]" width="220" height="56" color="0x3A1518FF" />
+                <!-- Row 1: filters -->
+                <Rectangle id="addonChip0Bg" translation="[504, 142]" width="200" height="56" color="0x3A1518FF" />
                 <Label
                     id="addonChip0Label"
-                    translation="[260, 150]"
-                    width="220"
+                    translation="[504, 142]"
+                    width="200"
                     height="56"
-                    text="Installed"
+                    text="Instalados"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xE5E5E5FF" />
-                <Rectangle id="addonChip1Bg" translation="[492, 150]" width="220" height="56" color="0x2A2A2AFF" />
+                <Rectangle id="addonChip1Bg" translation="[728, 142]" width="160" height="56" color="0x1A1A1DFF" />
                 <Label
                     id="addonChip1Label"
-                    translation="[492, 150]"
-                    width="220"
+                    translation="[728, 142]"
+                    width="160"
                     height="56"
-                    text="All"
+                    text="Todos"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
 
-                <!-- The primary action keeps Stremio's green, which is the one
-                     colour the web app reserves for it. -->
-                <Rectangle id="addonChip2Bg" translation="[1046, 150]" width="280" height="56" color="0x2E9E76FF" />
+                <!-- Row 2: actions (short labels fit without ellipsis at FHD) -->
+                <Rectangle id="addonChip2Bg" translation="[504, 214]" width="176" height="56" color="0xE50914FF" />
                 <Label
                     id="addonChip2Label"
-                    translation="[1046, 150]"
-                    width="280"
+                    translation="[504, 214]"
+                    width="176"
                     height="56"
-                    text="+ Add addon"
+                    text="Anadir"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xFFFFFFFF" />
-                <Rectangle id="addonChip3Bg" translation="[1338, 150]" width="250" height="56" color="0x2A2A2AFF" />
+                <Rectangle id="addonChip3Bg" translation="[704, 214]" width="160" height="56" color="0x1A1A1DFF" />
                 <Label
                     id="addonChip3Label"
-                    translation="[1338, 150]"
-                    width="250"
+                    translation="[704, 214]"
+                    width="160"
                     height="56"
-                    text="Search addons"
+                    text="Buscar"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
-                <Rectangle id="addonChip4Bg" translation="[1600, 150]" width="220" height="56" color="0x2A2A2AFF" />
+                <Rectangle id="addonChip4Bg" translation="[888, 214]" width="180" height="56" color="0x1A1A1DFF" />
                 <Label
                     id="addonChip4Label"
-                    translation="[1600, 150]"
-                    width="220"
+                    translation="[888, 214]"
+                    width="180"
                     height="56"
-                    text="Reload addons"
+                    text="Recargar"
                     horizAlign="center"
                     vertAlign="center"
                     font="font:SmallBoldSystemFont"
                     color="0xB3B3B3FF" />
 
-                <Rectangle id="addonsListPanel" translation="[260, 228]" width="1000" height="612" color="0x181818FF" />
+                <!-- List ~860 + gap 16 + detail 444 = content to safe-right 1824 -->
+                <Rectangle id="addonsListPanel" translation="[504, 290]" width="860" height="566" color="0x141416FF" />
                 <MarkupList
                     id="addonList"
-                    translation="[276, 244]"
-                    width="968"
-                    height="580"
-                    itemSize="[968, 134]"
-                    itemSpacing="[0, 8]"
-                    numRows="4"
+                    translation="[512, 302]"
+                    width="844"
+                    height="542"
+                    itemSize="[844, 156]"
+                    itemSpacing="[0, 10]"
+                    numRows="3"
                     itemComponentName="AddonCard"
                     drawFocusFeedback="false"
                     vertFocusAnimationStyle="fixedFocus" />
 
-                <Rectangle id="addonsDetailPanel" translation="[1300, 228]" width="520" height="612" color="0x1F1F1FFF" />
-                <Rectangle translation="[1300, 228]" width="6" height="612" color="0xE50914FF" />
+                <Rectangle id="addonsDetailPanel" translation="[1380, 290]" width="444" height="566" color="0x141416FF" />
+                <Rectangle translation="[1380, 290]" width="6" height="566" color="0xE50914FF" />
                 <Label
                     id="addonDetailEyebrow"
-                    translation="[1336, 258]"
-                    width="448"
+                    translation="[1412, 318]"
+                    width="380"
                     height="32"
                     text=""
                     font="font:SmallSystemFont"
                     color="0xE50914FF" />
                 <Label
                     id="addonDetailTitle"
-                    translation="[1336, 300]"
-                    width="448"
+                    translation="[1412, 358]"
+                    width="380"
                     height="92"
                     text=""
                     wrap="true"
@@ -590,43 +663,43 @@
                     color="0xFFFFFFFF" />
                 <Label
                     id="addonDetailValue"
-                    translation="[1336, 402]"
-                    width="448"
+                    translation="[1412, 460]"
+                    width="380"
                     height="42"
                     text=""
                     font="font:MediumSystemFont"
                     color="0xB3B3B3FF" />
                 <Label
                     id="addonDetailHint"
-                    translation="[1336, 462]"
-                    width="448"
-                    height="230"
+                    translation="[1412, 516]"
+                    width="380"
+                    height="180"
                     text=""
                     wrap="true"
-                    maxLines="6"
+                    maxLines="5"
                     font="font:SmallSystemFont"
                     color="0xB3B3B3FF" />
                 <!-- Host only. A configured manifest URL can carry a private
                      debrid token, so the full URL is never drawn. -->
                 <Label
                     id="addonDetailSource"
-                    translation="[1336, 704]"
-                    width="448"
+                    translation="[1412, 708]"
+                    width="380"
                     height="30"
                     text=""
                     font="font:SmallSystemFont"
                     color="0x808080FF" />
                 <Rectangle
                     id="addonDetailActionPill"
-                    translation="[1336, 752]"
-                    width="448"
+                    translation="[1412, 752]"
+                    width="380"
                     height="56"
                     color="0x3A1518FF"
                     visible="false" />
                 <Label
                     id="addonDetailAction"
-                    translation="[1336, 752]"
-                    width="448"
+                    translation="[1412, 752]"
+                    width="380"
                     height="56"
                     text=""
                     horizAlign="center"
@@ -645,7 +718,7 @@
                 height="410"
                 loadDisplayMode="scaleToZoom" />
             <Rectangle translation="[0, 0]" width="1920" height="410" color="0x000000A6" />
-            <Rectangle translation="[0, 350]" width="1920" height="730" color="0x141414FF" />
+            <Rectangle translation="[0, 350]" width="1920" height="730" color="0x0B0B0DFF" />
             <Label
                 id="episodeSeriesTitle"
                 translation="[80, 54]"
@@ -693,8 +766,8 @@
         </Group>
 
         <Group id="choiceGroup" visible="false">
-            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x141414FF" />
-            <Rectangle translation="[80, 100]" width="1760" height="900" color="0x1F1F1FFF" />
+            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x0B0B0DFF" />
+            <Rectangle translation="[80, 100]" width="1760" height="900" color="0x141416FF" />
             <Rectangle translation="[80, 100]" width="10" height="900" color="0xE50914FF" />
             <Label
                 id="choiceTitle"
@@ -727,12 +800,12 @@
         </Group>
 
         <Group id="noStreamsGroup" visible="false">
-            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x141414FF" />
+            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x0B0B0DFF" />
             <Label
                 translation="[40, 42]"
                 width="600"
                 height="52"
-                text="STROKU"
+                text="Stroku890"
                 font="font:MediumBoldSystemFont"
                 color="0xE50914FF" />
             <Label
@@ -740,7 +813,7 @@
                 translation="[1200, 50]"
                 width="680"
                 height="40"
-                text="Press * to configure add-ons"
+                text="Pulsa * para configurar complementos"
                 horizAlign="right"
                 vertAlign="center"
                 font="font:SmallSystemFont"
@@ -757,7 +830,7 @@
                 translation="[500, 176]"
                 width="1200"
                 height="70"
-                text="No streams found"
+                text="No se encontraron streams"
                 font="font:LargeBoldSystemFont"
                 color="0xFFFFFFFF" />
             <Label
@@ -778,13 +851,13 @@
                 height="54"
                 horizAlign="center"
                 vertAlign="center"
-                text="BACK: Catalog                              *: CONFIGURE ADD-ONS"
+                text="ATRAS: Catalogo                            *: CONFIGURAR COMPLEMENTOS"
                 font="font:MediumBoldSystemFont"
                 color="0xFFFFFFFF" />
         </Group>
 
         <Group id="uiScaleGroup" visible="false">
-            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x0B0B0BF5" />
+            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x0B0B0DF5" />
 
             <!-- Edge markers sit exactly on the design bounds: if a TV overscans,
                  these are the first thing it clips, which is what makes the manual
@@ -794,14 +867,14 @@
             <Rectangle translation="[0, 0]" width="6" height="1080" color="0xE50914FF" />
             <Rectangle translation="[1914, 0]" width="6" height="1080" color="0xE50914FF" />
 
-            <Rectangle translation="[360, 296]" width="1200" height="488" color="0x1F1F1FFF" />
+            <Rectangle translation="[360, 296]" width="1200" height="488" color="0x141416FF" />
             <Rectangle translation="[360, 296]" width="10" height="488" color="0xE50914FF" />
             <Label
                 id="uiScaleTitle"
                 translation="[420, 332]"
                 width="1080"
                 height="60"
-                text="UI Scale"
+                text="Escala UI"
                 font="font:LargeBoldSystemFont"
                 color="0xFFFFFFFF" />
             <Label
@@ -819,7 +892,7 @@
                 translation="[420, 522]"
                 width="1080"
                 height="12"
-                color="0x333333FF" />
+                color="0x1A1A1DFF" />
             <Rectangle
                 id="uiScaleFill"
                 translation="[420, 522]"
@@ -844,16 +917,16 @@
         </Group>
 
         <Group id="coffeeGroup" visible="false">
-            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x0B0B0BF5" />
+            <Rectangle translation="[0, 0]" width="1920" height="1080" color="0x0B0B0DF5" />
 
-            <Rectangle translation="[400, 240]" width="1120" height="600" color="0x1F1F1FFF" />
+            <Rectangle translation="[400, 240]" width="1120" height="600" color="0x141416FF" />
             <Rectangle translation="[400, 240]" width="10" height="600" color="0xE50914FF" />
             <Label
                 id="coffeeTitle"
                 translation="[460, 284]"
                 width="1000"
                 height="60"
-                text="Support Stroku"
+                text="Apoyar Stroku"
                 font="font:LargeBoldSystemFont"
                 color="0xFFFFFFFF" />
             <Label
@@ -909,7 +982,7 @@
                 maxLines="2"
                 text=""
                 font="font:SmallSystemFont"
-                color="0x8F8AA8FF" />
+                color="0x808080FF" />
         </Group>
 
         <Rectangle
@@ -917,7 +990,7 @@
             translation="[350, 430]"
             width="1220"
             height="220"
-            color="0x191733F2"
+            color="0x141416F2"
             visible="false" />
         <BusySpinner
             id="spinner"
@@ -937,6 +1010,7 @@
         </Group>
 
         <Timer id="linkPollTimer" duration="3" repeat="true" />
+        <Timer id="heroDebounceTimer" duration="0.2" repeat="false" />
 
         <!-- The player stays outside uiRoot: the video surface always fills the
              whole screen, and its overlays are scaled inside the component. -->
